@@ -55,6 +55,16 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
                   <div class="flex items-center gap-2">
                     <div [class]="getStatusDotClass(consultant.status)"></div>
                     <span class="text-sm font-medium">{{getStatusText(consultant.status)}}</span>
+                    <label class="relative inline-flex items-center cursor-pointer ml-4">
+                      <input 
+                        type="checkbox" 
+                        class="sr-only peer"
+                        [checked]="consultant.isActive"
+                        (change)="toggleAvailability($event, consultant)"
+                      >
+                      <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      <span class="ml-2 text-sm text-gray-600">{{consultant.isActive ? 'Active' : 'Inactive'}}</span>
+                    </label>
                   </div>
                   @if (consultant.isSubcontractor) {
                     <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
@@ -149,6 +159,12 @@ export class MyAvailabilitiesComponent {
   constructor() {
     // Initialize with all availabilities
     this.filteredAvailabilities = this.availabilities;
+  }
+
+  toggleAvailability(event: Event, consultant: Consultant): void {
+    const target = event.target as HTMLInputElement;
+    consultant.isActive = target.checked;
+    this.applyFilters();
   }
 
   applyFilters() {

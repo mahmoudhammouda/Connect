@@ -17,4 +17,5 @@ export interface Consultant {
   contractType: 'cdi' | 'freelance' | 'cdd';
   isLocked: boolean;
   isSubcontractor: boolean;
+  isActive: boolean;
 }

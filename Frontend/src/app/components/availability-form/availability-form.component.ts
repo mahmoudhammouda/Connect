@@ -120,52 +120,57 @@ interface City {
             </div>
 
             <!-- Work Location -->
-            <div>
+            <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Work Location Preference
               </label>
-              <select
-                [(ngModel)]="formData.workLocation"
-                name="workLocation"
+              <div class="flex flex-wrap gap-2 mb-2">
+                @for (location of formData.workLocations; track location) {
+                  <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                    {{getWorkLocationLabel(location)}}
+                    <button 
+                      (click)="removeWorkLocation(location)"
+                      class="text-blue-600 hover:text-blue-800"
+                    >×</button>
+                  </span>
+                }
+              </div>
+              <select 
+                (change)="addWorkLocation($event)"
                 class="w-full p-2 border rounded-md"
-                multiple
               >
-                @for (location of workLocations; track location.value) {
+                <option value="">Add a work location...</option>
+                @for (location of availableWorkLocations; track location.value) {
                   <option [value]="location.value">{{location.label}}</option>
                 }
               </select>
             </div>
 
             <!-- Contract Types -->
-            <div>
+            <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Contract Types
               </label>
-              <select
-                [(ngModel)]="formData.contractTypes"
-                name="contractTypes"
+              <div class="flex flex-wrap gap-2 mb-2">
+                @for (type of formData.contractTypes; track type) {
+                  <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                    {{getContractTypeLabel(type)}}
+                    <button 
+                      (click)="removeContractType(type)"
+                      class="text-blue-600 hover:text-blue-800"
+                    >×</button>
+                  </span>
+                }
+              </div>
+              <select 
+                (change)="addContractType($event)"
                 class="w-full p-2 border rounded-md"
-                multiple
               >
-                @for (type of contractTypes; track type.value) {
+                <option value="">Add a contract type...</option>
+                @for (type of availableContractTypes; track type.value) {
                   <option [value]="type.value">{{type.label}}</option>
                 }
               </select>
-            </div>
-
-            <!-- Additional Mobility Info -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Additional Mobility Information
-              </label>
-              <textarea
-                [(ngModel)]="formData.additionalMobilityInfo"
-                name="additionalMobilityInfo"
-                rows="2"
-                class="w-full p-2 border rounded-md"
-                placeholder="E.g., Willing to travel 2 days per week, Available for occasional on-site meetings..."
-              >
-              </textarea>
             </div>
 
             <!-- LinkedIn Message -->
@@ -230,10 +235,8 @@ export class AvailabilityFormComponent {
   formData = {
     status: 'immediate',
     startDate: this.today,
-    workLocation: 'remote',
     workLocations: [] as string[],
     contractTypes: [] as string[],
-    additionalMobilityInfo: '',
     description: '',
     contractType: 'freelance',
     isLocked: false,
@@ -265,19 +268,26 @@ export class AvailabilityFormComponent {
   ];
 
   editorConfig = {
-    base_url: '/tinymce',
-    suffix: '.min',
+    skin_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/skins/ui/oxide',
+    content_css: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/skins/content/default/content.min.css',
+    readonly: false,
     height: 300,
-    menubar: false,
+    menubar: 'edit format',
     plugins: [
-      'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-      'searchreplace', 'visualblocks', 'code', 'fullscreen',
+      'lists', 'link', 'image', 'charmap',
+      'searchreplace', 'code', 'fullscreen',
       'insertdatetime', 'media', 'table', 'help', 'wordcount'
     ],
-    toolbar: 'undo redo | formatselect | ' +
-      'bold italic backcolor | alignleft aligncenter ' +
-      'alignright alignjustify | bullist numlist outdent indent | ' +
+    toolbar: [
+      'undo redo | formatselect | bold italic underline strikethrough | forecolor backcolor',
+      'alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
       'removeformat | help'
+    ],
+    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; }',
+    statusbar: true,
+    resize: true,
+    branding: false,
+    promotion: false
   };
 
   addCity(event: Event) {
@@ -351,9 +361,7 @@ export class AvailabilityFormComponent {
       this.formData = {
         status: this.consultant.status,
         startDate: this.consultant.availability.startDate.toISOString().split('T')[0],
-        workLocation: this.consultant.workLocation,
         workLocations: [this.consultant.workLocation],
-        additionalMobilityInfo: this.consultant.additionalMobilityInfo || '',
         contractTypes: [this.consultant.contractType],
         description: this.consultant.description,
         contractType: this.consultant.contractType,

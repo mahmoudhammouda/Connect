@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Consultant } from '../../models/consultant.model';
 import { ModalComponent } from '../modal/modal.component';
 import { AvailabilityFormComponent } from '../availability-form/availability-form.component';
+import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 
 @Component({
   selector: 'app-consultant-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, AvailabilityFormComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, AvailabilityFormComponent, ClickOutsideDirective],
   template: `
     <div class="p-4">
       <div class="flex justify-between items-center mb-4">
@@ -169,21 +170,50 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2 justify-end">
                     @if (activeTab === 'mine') {
-                      <div class="flex items-center gap-4">
-                        <button 
-                          (click)="openAvailabilityForm(consultant); $event.stopPropagation()"
-                          class="p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200"
-                          title="Edit"
+                      <label class="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          class="sr-only peer"
+                          [checked]="consultant.isActive"
+                          (change)="toggleAvailability($event, consultant)"
+                          (click)="$event.stopPropagation()"
                         >
-                          <span class="material-icons text-gray-600">edit</span>
-                        </button>
-                        <button 
-                          (click)="deleteAvailability(consultant); $event.stopPropagation()"
-                          class="p-1.5 rounded-full hover:bg-red-100 transition-colors duration-200"
-                          title="Delete"
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                      <div class="relative" clickOutside (clickOutside)="activeDropdownId = null">
+                        <button
+                          (click)="toggleDropdown($event, consultant.id)"
+                          class="p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200 relative"
+                          title="More actions"
                         >
-                          <span class="material-icons text-red-600">delete</span>
+                          <span class="material-icons text-gray-600">more_vert</span>
                         </button>
+                        
+                        <!-- Dropdown Menu -->
+                        @if (activeDropdownId === consultant.id) {
+                          <div 
+                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
+                          >
+                            <div class="py-1" role="menu">
+                              <button
+                                (click)="openAvailabilityForm(consultant); $event.stopPropagation()"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                role="menuitem"
+                              >
+                                <span class="material-icons text-gray-600 text-base">edit</span>
+                                Edit
+                              </button>
+                              <button
+                                (click)="deleteAvailability(consultant); $event.stopPropagation()"
+                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                role="menuitem"
+                              >
+                                <span class="material-icons text-red-600 text-base">delete</span>
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        }
                       </div>
                     }
                     
@@ -310,398 +340,40 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
   `
 })
 export class ConsultantListComponent {
-  consultants: Consultant[] = [
-    {
-      id: '1',
-      reference: 'CONS-001',
-      role: 'Full Stack Developer',
-      seniority: 'between_3_and_10',
-      mobility: 'Remote',
-      expertise: ['React', 'Node.js', 'TypeScript', 'MongoDB', 'AWS'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-15'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: [
-        'Startup environment',
-        'Flexible hours',
-        'International teams',
-        'Product-driven companies',
-        'Agile methodologies'
-      ],
-      description: 'Full stack developer with 5 years of experience specializing in React and Node.js. Led development of multiple successful SaaS products. Strong focus on clean code and scalable architecture. Experienced in microservices and cloud-native development. Looking for a challenging role in an innovative startup.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false,
-      additionalMobilityInfo: 'Available for occasional on-site meetings in Paris'
-    },
-    {
-      id: '2',
-      reference: 'CONS-002',
-      role: 'DevOps Engineer',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['Kubernetes', 'Docker', 'AWS', 'Terraform', 'Jenkins', 'GitOps'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-04-01'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: [
-        'Large-scale infrastructure',
-        'Cloud-native projects',
-        'CI/CD implementation',
-        'Infrastructure automation',
-        'Security-first approach'
-      ],
-      description: 'Senior DevOps engineer with 12+ years of experience in cloud infrastructure and automation. Implemented CI/CD pipelines for Fortune 500 companies. Reduced deployment time by 80% through automation. Expert in Kubernetes orchestration and cloud-native architectures. Seeking opportunities to build robust, scalable infrastructure.',
-      contractType: 'cdi',
-      isLocked: true,
-      isSubcontractor: true
-    },
-    {
-      id: '3',
-      reference: 'CONS-003',
-      role: 'Frontend Developer',
-      seniority: 'less_than_3',
-      mobility: 'On-site',
-      expertise: ['Angular', 'TypeScript', 'Tailwind CSS', 'RxJS'],
-      workLocation: 'onsite',
-      availability: {
-        startDate: new Date('2024-03-20'),
-        isFullRemote: false
-      },
-      status: 'immediate',
-      preferences: [
-        'Modern frontend frameworks',
-        'UI/UX focused',
-        'Mentorship opportunities',
-        'Design system implementation',
-        'Performance optimization'
-      ],
-      description: 'Frontend developer with 2 years of experience in Angular and modern web technologies. Passionate about creating beautiful, responsive interfaces. Contributed to open-source projects and design systems. Strong foundation in web accessibility and performance optimization. Looking for a role to grow and learn from experienced developers.',
-      contractType: 'cdd',
-      isLocked: false,
-      isSubcontractor: false
-    },
-    {
-      id: '4',
-      reference: 'CONS-004',
-      role: 'Backend Developer',
-      seniority: 'between_3_and_10',
-      mobility: 'Remote',
-      expertise: ['Java', 'Spring Boot', 'PostgreSQL', 'Microservices'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-05-01'),
-        isFullRemote: true
-      },
-      status: 'soon',
-      preferences: [
-        'Backend architecture',
-        'High-performance systems',
-        'Domain-driven design',
-        'Event-driven architecture',
-        'Microservices patterns'
-      ],
-      description: 'Backend developer with 6 years of expertise in Java and Spring ecosystem. Designed and implemented scalable microservices handling millions of daily transactions. Experienced in event-driven architecture and domain-driven design. Strong advocate for clean code and test-driven development. Seeking a role focused on building robust, scalable backend systems.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: true
-    },
-    {
-      id: '5',
-      reference: 'CONS-005',
-      role: 'Data Engineer',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['Python', 'Spark', 'Hadoop', 'AWS', 'Data Warehousing'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-03-25'),
-        isFullRemote: false
-      },
-      status: 'immediate',
-      preferences: [
-        'Big data projects',
-        'Data pipeline optimization',
-        'Real-time processing',
-        'Data governance',
-        'Machine learning integration'
-      ],
-      description: 'Senior data engineer with 15 years of experience in building enterprise-scale data solutions. Expert in designing and optimizing data pipelines processing petabytes of data. Implemented real-time processing solutions for financial institutions. Strong background in data governance and security. Looking for challenging big data projects.',
-      contractType: 'cdi',
-      isLocked: true,
-      isSubcontractor: false
-    },
-    {
-      id: '6',
-      reference: 'CONS-006',
-      role: 'Cloud Architect',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['AWS', 'Azure', 'GCP', 'Terraform', 'Kubernetes'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-04-15'),
-        isFullRemote: true
-      },
-      status: 'soon',
-      preferences: [
-        'Cloud migration',
-        'Multi-cloud strategies',
-        'Cost optimization',
-        'Cloud security',
-        'Enterprise architecture'
-      ],
-      description: 'Cloud architect with 12+ years of experience across AWS, Azure, and GCP. Led successful cloud migrations for enterprise clients with $10M+ infrastructure budgets. Expert in designing resilient, cost-effective multi-cloud solutions. Strong focus on security and compliance. Seeking opportunities to architect complex cloud solutions.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: true
-    },
-    {
-      id: '7',
-      reference: 'CONS-007',
-      role: 'Mobile Developer',
-      seniority: 'between_3_and_10',
-      mobility: 'On-site',
-      expertise: ['React Native', 'iOS', 'Android', 'Flutter'],
-      workLocation: 'onsite',
-      availability: {
-        startDate: new Date('2024-03-30'),
-        isFullRemote: false
-      },
-      status: 'immediate',
-      preferences: [
-        'Cross-platform development',
-        'Native performance',
-        'Mobile UX',
-        'App store optimization',
-        'Offline-first design'
-      ],
-      description: 'Mobile developer with 5 years of experience in both native and cross-platform development. Created successful apps with millions of downloads. Expert in optimizing mobile performance and creating smooth user experiences. Strong understanding of app store guidelines and submission processes. Looking for challenging mobile projects.',
-      contractType: 'cdi',
-      isLocked: true,
-      isSubcontractor: false
-    },
-    {
-      id: '8',
-      reference: 'CONS-008',
-      role: 'Security Engineer',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['Penetration Testing', 'Security Auditing', 'OWASP', 'Compliance'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-04-10'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: [
-        'Security architecture',
-        'Compliance frameworks',
-        'DevSecOps implementation',
-        'Security training',
-        'Threat modeling'
-      ],
-      description: 'Security engineer with 15+ years in application and infrastructure security. CISSP certified. Led security programs for Fortune 100 companies. Expert in implementing DevSecOps practices and conducting security training. Strong background in compliance (ISO 27001, SOC 2, GDPR). Looking for roles to enhance organization-wide security posture.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: true
-    },
-    {
-      id: '9',
-      reference: 'CONS-009',
-      role: 'UI/UX Designer',
-      seniority: 'between_3_and_10',
-      mobility: 'Remote',
-      expertise: ['Figma', 'Adobe XD', 'User Research', 'Prototyping'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-18'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: [
-        'User-centered design',
-        'Design systems',
-        'Accessibility',
-        'Design thinking',
-        'User research'
-      ],
-      description: 'UI/UX designer with 7 years of experience creating intuitive digital experiences. Led design system implementation for major e-commerce platforms. Conducted extensive user research and usability testing. Strong focus on accessibility and inclusive design. Looking for opportunities to create impactful user experiences.',
-      contractType: 'cdd',
-      isLocked: true,
-      isSubcontractor: false
-    },
-    {
-      id: '10',
-      reference: 'CONS-010',
-      role: 'Product Manager',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['Agile', 'Product Strategy', 'User Stories', 'Roadmapping'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-05-01'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: [
-        'Agile environment',
-        'Product innovation',
-        'Data-driven decisions',
-        'Customer discovery',
-        'Growth strategy'
-      ],
-      description: 'Product manager with 12+ years of experience launching successful B2B and B2C products. Led products generating $50M+ annual revenue. Strong background in agile methodologies and data-driven decision making. Experience in both startup and enterprise environments. Seeking opportunity to drive product strategy and innovation.',
-      contractType: 'cdi',
-      isLocked: false,
-      isSubcontractor: false
-    }
-  ];
-
-  myAvailabilities: Consultant[] = [
-    {
-      id: '11',
-      reference: 'CONS-011',
-      role: 'Technical Lead',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Architecture', 'Team Leadership', 'Node.js', 'React', 'AWS'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-15'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['Remote-first teams', 'Technical mentorship'],
-      description: 'Technical lead with experience in building and leading remote development teams.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false
-    },
-    {
-      id: '12',
-      reference: 'CONS-012',
-      role: 'Solution Architect',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['System Design', 'Cloud Architecture', 'Enterprise Integration'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-04-01'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: ['Enterprise projects', 'Architecture modernization'],
-      description: 'Solution architect specializing in enterprise architecture and system integration.',
-      contractType: 'cdi',
-      isLocked: false,
-      isSubcontractor: true
-    },
-    {
-      id: '13',
-      reference: 'CONS-013',
-      role: 'Frontend Lead',
-      seniority: 'between_3_and_10',
-      mobility: 'Remote',
-      expertise: ['Vue.js', 'React', 'Design Systems', 'Performance Optimization'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-20'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['Frontend architecture', 'Performance-focused'],
-      description: 'Frontend lead developer with expertise in modern JavaScript frameworks.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false
-    },
-    {
-      id: '14',
-      reference: 'CONS-014',
-      role: 'DevOps Lead',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['Kubernetes', 'AWS', 'CI/CD', 'Infrastructure as Code'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-04-15'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: ['Cloud-native', 'Infrastructure automation'],
-      description: 'DevOps lead with extensive experience in cloud infrastructure and automation.',
-      contractType: 'cdi',
-      isLocked: false,
-      isSubcontractor: true
-    },
-    {
-      id: '15',
-      reference: 'CONS-015',
-      role: 'Backend Lead',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Python', 'Django', 'FastAPI', 'Microservices'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-25'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['API design', 'Scalable systems'],
-      description: 'Backend lead specializing in Python ecosystem and microservices architecture.',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false
-    },
-    {
-      id: '16',
-      reference: 'CONS-016',
-      role: 'Full Stack Lead',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['Angular', 'Node.js', 'MongoDB', 'Docker'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-04-10'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: ['Full stack architecture', 'Team leadership'],
-      description: 'Full stack lead with strong experience in both frontend and backend development.',
-      contractType: 'cdi',
-      isLocked: false,
-      isSubcontractor: true
-    }
-  ];
-  showAvailabilityForm = false;
-  selectedConsultant: Consultant | null = null;
-  isLinkedInLoggedIn = false;
+  // Tab state
+  activeTab: 'available' | 'mine' = 'available';
 
   // Search and filter state
   searchQuery = '';
   selectedMobility = '';
   selectedSeniority = '';
   filteredConsultants: Consultant[] = [];
-  activeTab: 'available' | 'mine' = 'available';
   uniqueMobilities: string[] = [];
+
+  // Modal state
+  showLoginModal = false;
+  showAvailabilityForm = false;
+  selectedConsultant: Consultant | null = null;
+  isLinkedInLoggedIn = false;
+  expandedId: string | null = null;
   activeDropdownId: string | null = null;
 
-  // Other state
-  expandedId: string | null = null;
-  showLoginModal = false;
+  constructor() {
+    this.filteredConsultants = this.consultants;
+    this.uniqueMobilities = Array.from(new Set(this.consultants.map(c => c.mobility))).sort();
+    this.filterConsultants();
+  }
 
   filterConsultants(): void {
     this.filteredConsultants = this.consultants.filter(consultant => {
+      // First check if the consultant is active
+      if (!consultant.isActive) {
+        return false;
+      }
+
       const matchesSearch = !this.searchQuery || 
         consultant.role.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        consultant.expertise.some((skill: string) => 
+        consultant.expertise.some(skill => 
           skill.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
 
@@ -715,105 +387,23 @@ export class ConsultantListComponent {
     });
   }
 
-  openAvailabilityForm(consultant: Consultant | null = null) {
-    this.selectedConsultant = consultant;
-    this.showAvailabilityForm = true;
-  }
-
-  constructor() {
-    this.filteredConsultants = this.consultants;
-    this.myAvailabilities = this.consultants.filter(c => !c.isLocked).slice(0, 5);
-    this.uniqueMobilities = Array.from(new Set(this.consultants.map(c => c.mobility))).sort();
-  }
-
-  toggleAvailability(event: Event, consultant: Consultant): void {
-    const target = event.target as HTMLInputElement;
-    const newStatus = target.checked ? 'immediate' : 'inactive';
-    const index = this.myAvailabilities.findIndex((c: Consultant) => c.id === consultant.id);
-    if (index !== -1) {
-      this.myAvailabilities[index] = {
-        ...this.myAvailabilities[index],
-        status: newStatus
-      };
-    }
-  }
-
-  toggleLock(event: Event, consultant: Consultant): void {
-    const target = event.target as HTMLInputElement;
-    const index = this.myAvailabilities.findIndex((c: Consultant) => c.id === consultant.id);
-    if (index !== -1) {
-      this.myAvailabilities[index] = {
-        ...this.myAvailabilities[index],
-        isLocked: !target.checked
-      };
-    }
-  }
-
-  toggleDropdown(event: Event, consultantId: string): void {
-    event.stopPropagation();
-    this.activeDropdownId = this.activeDropdownId === consultantId ? null : consultantId;
-  }
-
-  deleteAvailability(consultant: Consultant): void {
-    if (confirm('Are you sure you want to delete this availability?')) {
-      const index = this.myAvailabilities.findIndex((c: Consultant) => c.id === consultant.id);
-      if (index !== -1) {
-        this.myAvailabilities.splice(index, 1);
-      }
-    }
-    this.activeDropdownId = null;
-  }
-
   toggleDetails(id: string): void {
     this.expandedId = this.expandedId === id ? null : id;
   }
 
-  handleLinkedInConnect(event: Event, consultant: Consultant): void {
-    event.stopPropagation();
-    
-    if (this.activeTab === 'available') {
-      if (!this.isLinkedInLoggedIn) {
-        this.showLoginModal = true;
-        return;
-      }
-  
-      if (consultant.isLocked) {
-        console.log('Sending connection request to:', consultant.reference);
-      } else {
-        window.open('https://www.linkedin.com/in/profile', '_blank');
-      }
-    }
+  openAvailabilityForm(consultant: Consultant | null = null): void {
+    this.selectedConsultant = consultant;
+    this.showAvailabilityForm = true;
   }
 
-  closeLoginModal(): void {
-    this.showLoginModal = false;
-  }
-
-  handleLinkedInLogin(): void {
-    console.log('Initiating LinkedIn login...');
-    this.isLinkedInLoggedIn = true;
-    this.showLoginModal = false;
-  }
-
-  editDescription(event: Event, consultant: Consultant): void {
-    event.stopPropagation();
-    console.log('Edit description for:', consultant.reference);
-  }
-
-  shareOnLinkedIn(event: Event, consultant: Consultant): void {
-    event.stopPropagation();
-    console.log('Share on LinkedIn:', consultant.reference);
-    this.activeDropdownId = null;
-  }
-
-  closeAvailabilityForm() {
+  closeAvailabilityForm(): void {
     this.showAvailabilityForm = false;
     this.selectedConsultant = null;
   }
 
-  handleAvailabilitySubmit(formData: any) {
+  handleAvailabilitySubmit(formData: any): void {
     if (this.selectedConsultant) {
-      const index = this.myAvailabilities.findIndex((c: Consultant) => c.id === this.selectedConsultant!.id);
+      const index = this.myAvailabilities.findIndex(c => c.id === this.selectedConsultant!.id);
       if (index !== -1) {
         this.myAvailabilities[index] = {
           ...this.myAvailabilities[index],
@@ -827,36 +417,37 @@ export class ConsultantListComponent {
           },
           description: formData.description,
           contractType: formData.contractType,
-          additionalMobilityInfo: formData.additionalMobilityInfo
+          isLocked: formData.isLocked,
+          isActive: true
         };
       }
-    } else {
-      const newConsultant: Consultant = {
-        id: (this.myAvailabilities.length + 1).toString(),
-        reference: `CONS-${(this.myAvailabilities.length + 1).toString().padStart(3, '0')}`,
-        role: 'New Role',
-        seniority: 'between_3_and_10',
-        mobility: formData.workLocation === 'remote' ? 'Remote' : 
-                 formData.workLocation === 'hybrid' ? 'Hybrid' : 'On-site',
-        expertise: [],
-        workLocation: formData.workLocation,
-        availability: {
-          startDate: new Date(formData.startDate),
-          isFullRemote: formData.workLocation === 'remote'
-        },
-        status: formData.status,
-        preferences: [],
-        description: formData.description,
-        contractType: formData.contractType,
-        isLocked: false,
-        isSubcontractor: false,
-        additionalMobilityInfo: formData.additionalMobilityInfo
-      };
-      this.myAvailabilities.unshift(newConsultant);
-      this.activeTab = 'mine';
     }
-
     this.filterConsultants();
+  }
+
+  toggleAvailability(event: Event, consultant: Consultant): void {
+    event.stopPropagation();
+    const target = event.target as HTMLInputElement;
+    consultant.isActive = target.checked;
+    this.filterConsultants();
+  }
+
+  handleLinkedInConnect(event: Event, consultant: Consultant): void {
+    event.stopPropagation();
+    if (!this.isLinkedInLoggedIn) {
+      this.showLoginModal = true;
+      return;
+    }
+    window.open('https://www.linkedin.com/in/profile', '_blank');
+  }
+
+  closeLoginModal(): void {
+    this.showLoginModal = false;
+  }
+
+  handleLinkedInLogin(): void {
+    this.isLinkedInLoggedIn = true;
+    this.showLoginModal = false;
   }
 
   getStatusDotClass(status: string): string {
@@ -885,7 +476,7 @@ export class ConsultantListComponent {
         return status;
     }
   }
-  
+
   getContractClass(contractType: string): string {
     const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
     switch (contractType) {
@@ -912,4 +503,381 @@ export class ConsultantListComponent {
         return contractType;
     }
   }
+
+  shareOnLinkedIn(event: Event, consultant: Consultant): void {
+    event.stopPropagation();
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
+  }
+
+  toggleDropdown(event: Event, consultantId: string): void {
+    event.stopPropagation();
+    this.activeDropdownId = this.activeDropdownId === consultantId ? null : consultantId;
+  }
+
+  deleteAvailability(consultant: Consultant): void {
+    const index = this.myAvailabilities.findIndex(c => c.id === consultant.id);
+    if (index !== -1) {
+      this.myAvailabilities.splice(index, 1);
+    }
+    this.activeDropdownId = null;
+  }
+  consultants: Consultant[] = [
+    {
+      id: '1',
+      reference: 'CONS-001',
+      role: 'Full Stack Developer',
+      seniority: 'between_3_and_10',
+      mobility: 'Remote',
+      expertise: ['React', 'Node.js', 'TypeScript', 'MongoDB', 'AWS'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-15'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: [
+        'Startup environment',
+        'Flexible hours',
+        'International teams'
+      ],
+      description: 'Full stack developer with 5 years of experience',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true,
+      additionalMobilityInfo: 'Available for occasional on-site meetings in Paris'
+    },
+    {
+      id: '2',
+      reference: 'CONS-002',
+      role: 'DevOps Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['Kubernetes', 'Docker', 'AWS', 'Terraform', 'Jenkins'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-01'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: [
+        'Cloud infrastructure',
+        'CI/CD implementation',
+        'Security focus'
+      ],
+      description: 'Senior DevOps engineer with extensive cloud experience',
+      contractType: 'freelance',
+      isLocked: true,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '4',
+      reference: 'CONS-004',
+      role: 'Data Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Python', 'Spark', 'Hadoop', 'AWS', 'Data Warehousing'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-25'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Big data projects', 'Data pipeline optimization'],
+      description: 'Senior data engineer with expertise in big data technologies',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '5',
+      reference: 'CONS-005',
+      role: 'Cloud Architect',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['AWS', 'Azure', 'GCP', 'Terraform', 'Kubernetes'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-15'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: ['Cloud migration', 'Multi-cloud strategies'],
+      description: 'Cloud architect with multi-cloud expertise',
+      contractType: 'cdi',
+      isLocked: true,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '6',
+      reference: 'CONS-006',
+      role: 'Mobile Developer',
+      seniority: 'between_3_and_10',
+      mobility: 'On-site',
+      expertise: ['React Native', 'iOS', 'Android', 'Flutter'],
+      workLocation: 'onsite',
+      availability: {
+        startDate: new Date('2024-03-30'),
+        isFullRemote: false
+      },
+      status: 'immediate',
+      preferences: ['Mobile development', 'Cross-platform apps'],
+      description: 'Mobile developer specializing in cross-platform development',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '7',
+      reference: 'CONS-007',
+      role: 'Security Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Penetration Testing', 'Security Auditing', 'OWASP'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-10'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['Security architecture', 'Compliance frameworks'],
+      description: 'Security engineer with focus on application security',
+      contractType: 'cdi',
+      isLocked: true,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '3',
+      reference: 'CONS-003',
+      role: 'Frontend Developer',
+      seniority: 'less_than_3',
+      mobility: 'On-site',
+      expertise: ['React', 'Vue.js', 'TailwindCSS', 'TypeScript'],
+      workLocation: 'onsite',
+      availability: {
+        startDate: new Date('2024-03-20'),
+        isFullRemote: false
+      },
+      status: 'immediate',
+      preferences: [
+        'Modern frontend',
+        'UI/UX focus',
+        'Agile teams'
+      ],
+      description: 'Frontend developer specializing in modern JavaScript frameworks',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '8',
+      reference: 'CONS-008',
+      role: 'AI/ML Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['TensorFlow', 'PyTorch', 'NLP', 'Computer Vision', 'MLOps'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-05'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['AI research', 'Machine learning projects'],
+      description: 'Senior AI/ML engineer specializing in deep learning',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '9',
+      reference: 'CONS-009',
+      role: 'Blockchain Developer',
+      seniority: 'between_3_and_10',
+      mobility: 'Remote',
+      expertise: ['Solidity', 'Web3.js', 'Smart Contracts', 'DeFi'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-28'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['DeFi projects', 'Blockchain platforms'],
+      description: 'Blockchain developer with DeFi expertise',
+      contractType: 'freelance',
+      isLocked: true,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '10',
+      reference: 'CONS-010',
+      role: 'SRE Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['Kubernetes', 'Prometheus', 'Grafana', 'SLO/SLI'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-12'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: ['SRE practices', 'Observability'],
+      description: 'Site Reliability Engineer with focus on observability',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+    }
+  ];
+
+  myAvailabilities: Consultant[] = [
+    {
+      id: '4',
+      reference: 'CONS-004',
+      role: 'Technical Lead',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Architecture', 'Team Leadership', 'Node.js', 'React', 'AWS'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-15'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Remote-first teams', 'Technical mentorship'],
+      description: 'Technical lead with experience in building and leading remote development teams',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '5',
+      reference: 'CONS-005',
+      role: 'Solution Architect',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['System Design', 'Cloud Architecture', 'Enterprise Integration'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-01'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: ['Enterprise projects', 'Architecture modernization'],
+      description: 'Solution architect specializing in enterprise architecture and system integration',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '6',
+      reference: 'CONS-006',
+      role: 'Backend Lead',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Java', 'Spring Boot', 'Microservices', 'Kafka'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-25'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Microservices architecture', 'High-performance systems'],
+      description: 'Backend lead specializing in Java ecosystem',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '7',
+      reference: 'CONS-007',
+      role: 'UI/UX Designer',
+      seniority: 'between_3_and_10',
+      mobility: 'Hybrid',
+      expertise: ['Figma', 'Adobe XD', 'User Research', 'Prototyping'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-01'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: ['User-centered design', 'Design systems'],
+      description: 'UI/UX designer with focus on user experience',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '8',
+      reference: 'CONS-008',
+      role: 'DevOps Lead',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Kubernetes', 'AWS', 'CI/CD', 'GitOps'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-20'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Infrastructure automation', 'Cloud-native'],
+      description: 'DevOps lead with extensive cloud experience',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '9',
+      reference: 'CONS-009',
+      role: 'Data Scientist',
+      seniority: 'between_3_and_10',
+      mobility: 'Remote',
+      expertise: ['Python', 'R', 'Machine Learning', 'Statistics'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-05'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['Data analysis', 'Statistical modeling'],
+      description: 'Data scientist specializing in predictive analytics',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '10',
+      reference: 'CONS-010',
+      role: 'Performance Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['JMeter', 'LoadRunner', 'Performance Testing'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-03-28'),
+        isFullRemote: false
+      },
+      status: 'immediate',
+      preferences: ['Performance optimization', 'Load testing'],
+      description: 'Performance engineer focused on scalability',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+      
+    }
+  ]
 }
