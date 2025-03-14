@@ -21,7 +21,7 @@ const routes: Routes = [
           <div class="flex justify-between h-16">
             <div class="flex">
               <div class="flex-shrink-0 flex items-center">
-                <h1 class="text-xl font-bold">Expertise Connect</h1>
+                <h1 class="text-xl font-bold">FastConnect.in</h1>
               </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-6">
                 <a routerLink="/consultants" 
@@ -51,7 +51,7 @@ const routes: Routes = [
   `
 })
 export class App {
-  name = 'Expertise Connect';
+  name = 'FastConnect.in';
 }
 
 bootstrapApplication(App, {
