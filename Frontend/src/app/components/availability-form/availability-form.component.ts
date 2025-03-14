@@ -1,12 +1,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EditorModule } from '@tinymce/tinymce-angular';
 import { Consultant } from '../../models/consultant.model';
+
+interface City {
+  name: string;
+  country: string;
+  countryCode: string;
+}
 
 @Component({
   selector: 'app-availability-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, EditorModule],
   template: `
     <div *ngIf="isOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
@@ -53,6 +60,19 @@ import { Consultant } from '../../models/consultant.model';
               </div>
             </div>
 
+            <!-- Profile Lock -->
+            <div>
+              <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="formData.isLocked"
+                  name="isLocked"
+                  class="rounded border-gray-300"
+                >
+                Lock profile (only show basic information to recruiters)
+              </label>
+            </div>
+
             <!-- Start Date -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -67,6 +87,38 @@ import { Consultant } from '../../models/consultant.model';
               >
             </div>
 
+            <!-- Cities -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Preferred Cities
+              </label>
+              <div class="flex flex-wrap gap-2 mb-2">
+                @for (city of formData.cities; track city.name) {
+                  <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                    <img 
+                      [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
+                      [alt]="city.country"
+                      class="w-4 h-4 rounded-sm"
+                    >
+                    {{city.name}}
+                    <button 
+                      (click)="removeCity(city)"
+                      class="text-blue-600 hover:text-blue-800"
+                    >×</button>
+                  </span>
+                }
+              </div>
+              <select 
+                (change)="addCity($event)"
+                class="w-full p-2 border rounded-md"
+              >
+                <option value="">Add a city...</option>
+                @for (city of availableCities; track city.name) {
+                  <option [value]="city.name">{{city.name}} ({{city.country}})</option>
+                }
+              </select>
+            </div>
+
             <!-- Work Location -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -76,10 +128,28 @@ import { Consultant } from '../../models/consultant.model';
                 [(ngModel)]="formData.workLocation"
                 name="workLocation"
                 class="w-full p-2 border rounded-md"
+                multiple
               >
-                <option value="remote">Remote</option>
-                <option value="hybrid">Hybrid</option>
-                <option value="onsite">On-site</option>
+                @for (location of workLocations; track location.value) {
+                  <option [value]="location.value">{{location.label}}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Contract Types -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Contract Types
+              </label>
+              <select
+                [(ngModel)]="formData.contractTypes"
+                name="contractTypes"
+                class="w-full p-2 border rounded-md"
+                multiple
+              >
+                @for (type of contractTypes; track type.value) {
+                  <option [value]="type.value">{{type.label}}</option>
+                }
               </select>
             </div>
 
@@ -94,7 +164,8 @@ import { Consultant } from '../../models/consultant.model';
                 rows="2"
                 class="w-full p-2 border rounded-md"
                 placeholder="E.g., Willing to travel 2 days per week, Available for occasional on-site meetings..."
-              ></textarea>
+              >
+              </textarea>
             </div>
 
             <!-- LinkedIn Message -->
@@ -102,13 +173,12 @@ import { Consultant } from '../../models/consultant.model';
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Message for Recruiters (will be posted on LinkedIn)
               </label>
-              <textarea
+              <editor
                 [(ngModel)]="formData.description"
                 name="description"
-                rows="4"
-                class="w-full p-2 border rounded-md"
-                placeholder="Describe your experience, what you're looking for, and any other relevant information..."
-              ></textarea>
+                [init]="editorConfig"
+                class="min-h-[200px]"
+              ></editor>
             </div>
 
             <!-- Contract Type -->
@@ -161,10 +231,120 @@ export class AvailabilityFormComponent {
     status: 'immediate',
     startDate: this.today,
     workLocation: 'remote',
+    workLocations: [] as string[],
+    contractTypes: [] as string[],
     additionalMobilityInfo: '',
     description: '',
-    contractType: 'freelance'
+    contractType: 'freelance',
+    isLocked: false,
+    cities: [] as City[]
   };
+
+  workLocations = [
+    { value: 'remote', label: 'Full Remote' },
+    { value: 'hybrid', label: 'Hybrid' },
+    { value: 'onsite', label: 'On-site' }
+  ];
+
+  contractTypes = [
+    { value: 'freelance', label: 'Freelance' },
+    { value: 'cdi', label: 'CDI' },
+    { value: 'cdd', label: 'CDD' },
+    { value: 'subcontracting', label: 'Sub-contracting' }
+  ];
+
+  availableCities: City[] = [
+    { name: 'Paris', country: 'France', countryCode: 'FR' },
+    { name: 'London', country: 'United Kingdom', countryCode: 'GB' },
+    { name: 'Berlin', country: 'Germany', countryCode: 'DE' },
+    { name: 'Madrid', country: 'Spain', countryCode: 'ES' },
+    { name: 'Amsterdam', country: 'Netherlands', countryCode: 'NL' },
+    { name: 'Brussels', country: 'Belgium', countryCode: 'BE' },
+    { name: 'Milan', country: 'Italy', countryCode: 'IT' },
+    { name: 'Zurich', country: 'Switzerland', countryCode: 'CH' }
+  ];
+
+  editorConfig = {
+    base_url: '/tinymce',
+    suffix: '.min',
+    height: 300,
+    menubar: false,
+    plugins: [
+      'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+      'searchreplace', 'visualblocks', 'code', 'fullscreen',
+      'insertdatetime', 'media', 'table', 'help', 'wordcount'
+    ],
+    toolbar: 'undo redo | formatselect | ' +
+      'bold italic backcolor | alignleft aligncenter ' +
+      'alignright alignjustify | bullist numlist outdent indent | ' +
+      'removeformat | help'
+  };
+
+  addCity(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const cityName = select.value;
+    if (cityName) {
+      const city = this.availableCities.find(c => c.name === cityName);
+      if (city && !this.formData.cities.some(c => c.name === city.name)) {
+        this.formData.cities.push(city);
+      }
+      select.value = '';
+    }
+  }
+
+  removeCity(city: City) {
+    this.formData.cities = this.formData.cities.filter(c => c.name !== city.name);
+  }
+
+  get availableWorkLocations() {
+    return this.workLocations.filter(
+      location => !this.formData.workLocations.includes(location.value)
+    );
+  }
+
+  get availableContractTypes() {
+    return this.contractTypes.filter(
+      type => !this.formData.contractTypes.includes(type.value)
+    );
+  }
+
+  addWorkLocation(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const locationValue = select.value;
+    if (locationValue && !this.formData.workLocations.includes(locationValue)) {
+      this.formData.workLocations.push(locationValue);
+    }
+    select.value = '';
+  }
+
+  removeWorkLocation(locationValue: string) {
+    this.formData.workLocations = this.formData.workLocations.filter(
+      value => value !== locationValue
+    );
+  }
+
+  addContractType(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const typeValue = select.value;
+    if (typeValue && !this.formData.contractTypes.includes(typeValue)) {
+      this.formData.contractTypes.push(typeValue);
+    }
+    select.value = '';
+  }
+
+  removeContractType(typeValue: string) {
+    this.formData.contractTypes = this.formData.contractTypes.filter(
+      value => value !== typeValue
+    );
+  }
+
+  getWorkLocationLabel(value: string): string {
+    return this.workLocations.find(l => l.value === value)?.label || value;
+  }
+
+  getContractTypeLabel(value: string): string {
+    return this.contractTypes.find(t => t.value === value)?.label || value;
+  }
 
   ngOnInit() {
     if (this.consultant) {
@@ -172,9 +352,13 @@ export class AvailabilityFormComponent {
         status: this.consultant.status,
         startDate: this.consultant.availability.startDate.toISOString().split('T')[0],
         workLocation: this.consultant.workLocation,
+        workLocations: [this.consultant.workLocation],
         additionalMobilityInfo: this.consultant.additionalMobilityInfo || '',
+        contractTypes: [this.consultant.contractType],
         description: this.consultant.description,
-        contractType: this.consultant.contractType
+        contractType: this.consultant.contractType,
+        isLocked: this.consultant.isLocked,
+        cities: []
       };
     }
   }

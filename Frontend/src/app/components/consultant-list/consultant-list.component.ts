@@ -94,6 +94,7 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobility</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top Skills</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Access</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
             </tr>
           </thead>
@@ -159,6 +160,13 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center justify-center">
+                    <span class="material-icons text-gray-600">
+                      {{consultant.isLocked ? 'lock' : 'lock_open'}}
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2 justify-end">
                     @if (activeTab === 'mine') {
                       <div class="flex items-center gap-4">
@@ -198,7 +206,7 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
               </tr>
               @if (expandedId === consultant.id) {
                 <tr>
-                  <td colspan="8" class="px-6 py-4 bg-gray-50 shadow-inner">
+                  <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-inner">
                     <div class="text-sm text-gray-700 space-y-4">
                       <div class="flex items-start gap-2">
                         <span class="material-icons text-blue-600">post</span>
