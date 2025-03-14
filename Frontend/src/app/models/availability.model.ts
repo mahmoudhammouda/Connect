@@ -1,4 +1,4 @@
-export interface ConsultantAvailability {
+export interface Availability {
   id: string;
   reference: string;
   availability: {

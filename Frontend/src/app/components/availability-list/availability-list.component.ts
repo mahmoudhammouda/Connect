@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ConsultantAvailability } from '../../models/consultant.model';
-import { ModalComponent } from '../modal/modal.component';
+import { Availability } from '../../models/availability.model';
 import { AvailabilityFormComponent } from '../availability-form/availability-form.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
+import { LoginModalComponent } from '../login-modal/login-modal.component';
 
 @Component({
   selector: 'app-availability-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, AvailabilityFormComponent, ClickOutsideDirective],
+  imports: [CommonModule, FormsModule, LoginModalComponent, AvailabilityFormComponent, ClickOutsideDirective],
   template: `
     <div class="p-4">
       <div class="flex justify-between items-center mb-4">
@@ -20,7 +20,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
               'text-blue-600 border-b-2 border-blue-600 py-2 px-1 -mb-px font-medium' : 
               'text-gray-500 py-2 px-1 font-medium hover:text-gray-700'"
           >
-            Available Consultants
+            Available Experts
           </button>
           <button 
             (click)="activeTab = 'mine'"
@@ -51,7 +51,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
             <input 
               type="text" 
               [(ngModel)]="searchQuery"
-              (ngModelChange)="filterConsultants()"
+              (ngModelChange)="filterAvailabilities()"
               placeholder="Search by role, expertise..."
               class="w-full p-2 border rounded-lg"
             >
@@ -59,7 +59,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
           <div>
             <select 
               [(ngModel)]="selectedMobility"
-              (ngModelChange)="filterConsultants()"
+              (ngModelChange)="filterAvailabilities()"
               class="w-full p-2 border rounded-lg"
             >
               <option value="">All Locations</option>
@@ -71,7 +71,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
           <div>
             <select 
               [(ngModel)]="selectedSeniority"
-              (ngModelChange)="filterConsultants()"
+              (ngModelChange)="filterAvailabilities()"
               class="w-full p-2 border rounded-lg"
             >
               <option value="">All Experience Levels</option>
@@ -100,20 +100,20 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            @for (consultant of activeTab === 'available' ? filteredConsultants : myAvailabilities; track consultant.id) {
+            @for (availability of activeTab === 'available' ? filteredAvailabilities : myAvailabilities; track availability.id) {
               <tr 
-                (click)="handleRowClick($event, consultant.id)"
+                (click)="handleRowClick($event, availability.id)"
                 class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-sm mb-2 bg-white"
               >
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{consultant.reference}}
+                  {{availability.reference}}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-2">
                     <div class="relative group">
-                      <div [class]="getStatusDotClass(consultant.status)" title="{{getStatusText(consultant.status)}}"></div>
+                      <div [class]="getStatusDotClass(availability.status)" title="{{getStatusText(availability.status)}}"></div>
                     </div>
-                    @if (consultant.isSubcontractor) {
+                    @if (availability.isSubcontractor) {
                       <div class="relative group">
                         <span class="material-icons text-orange-500 text-lg">business</span>
                       </div>
@@ -121,15 +121,15 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="font-medium text-gray-900">{{consultant.role}}</div>
+                  <div class="font-medium text-gray-900">{{availability.role}}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex gap-0.5">
-                    @if (consultant.seniority === 'less_than_3') {
+                    @if (availability.seniority === 'less_than_3') {
                       <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
                       <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
                       <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
-                    } @else if (consultant.seniority === 'between_3_and_10') {
+                    } @else if (availability.seniority === 'between_3_and_10') {
                       <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
                       <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
                       <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
@@ -141,29 +141,29 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span [class]="getContractClass(consultant.contractType)">
-                    {{getContractText(consultant.contractType)}}
+                  <span [class]="getContractClass(availability.contractType)">
+                    {{getContractText(availability.contractType)}}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {{consultant.mobility}}
+                  {{availability.mobility}}
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex flex-wrap gap-1">
-                    @for (skill of consultant.expertise.slice(0, 3); track skill) {
+                    @for (skill of availability.expertise.slice(0, 3); track skill) {
                       <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
                         {{skill}}
                       </span>
                     }
-                    @if (consultant.expertise.length > 3) {
-                      <span class="text-gray-500 text-xs">+{{consultant.expertise.length - 3}}</span>
+                    @if (availability.expertise.length > 3) {
+                      <span class="text-gray-500 text-xs">+{{availability.expertise.length - 3}}</span>
                     }
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center justify-center">
                     <span class="material-icons text-gray-600">
-                      {{consultant.isLocked ? 'lock' : 'lock_open'}}
+                      {{availability.isLocked ? 'lock' : 'lock_open'}}
                     </span>
                   </div>
                 </td>
@@ -174,15 +174,15 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                         <input 
                           type="checkbox" 
                           class="sr-only peer"
-                          [checked]="consultant.isActive"
-                          (change)="toggleAvailability($event, consultant)"
+                          [checked]="availability.isActive"
+                          (change)="toggleAvailability($event, availability)"
                           (click)="$event.stopPropagation()"
                         >
                         <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                       </label>
                       <div class="relative" clickOutside (clickOutside)="activeDropdownId = null">
                         <button
-                          (click)="toggleDropdown($event, consultant.id)"
+                          (click)="toggleDropdown($event, availability.id)"
                           class="p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200 relative"
                           title="More actions"
                         >
@@ -190,13 +190,13 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                         </button>
                         
                         <!-- Dropdown Menu -->
-                        @if (activeDropdownId === consultant.id) {
+                        @if (activeDropdownId === availability.id) {
                           <div 
                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
                           >
                             <div class="py-1" role="menu">
                               <button
-                                (click)="openAvailabilityForm(consultant); $event.stopPropagation()"
+                                (click)="openAvailabilityForm(availability); $event.stopPropagation()"
                                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                 role="menuitem"
                               >
@@ -204,7 +204,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                                 Edit
                               </button>
                               <button
-                                (click)="deleteAvailability(consultant); $event.stopPropagation()"
+                                (click)="deleteAvailability(availability); $event.stopPropagation()"
                                 class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                 role="menuitem"
                               >
@@ -221,20 +221,20 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                       <button 
                         class="p-1.5 rounded-full hover:bg-blue-50 transition-colors duration-200 relative group"
                         title="Connect on LinkedIn"
-                        (click)="handleLinkedInConnect($event, consultant)"
+                        (click)="handleLinkedInConnect($event, availability)"
                       >
                         <span class="material-icons text-blue-600">
-                          {{consultant.isLocked ? 'person_add' : 'launch'}}
+                          {{availability.isLocked ? 'person_add' : 'launch'}}
                         </span>
                         <div class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                          {{consultant.isLocked ? 'Request Connection' : 'View LinkedIn Profile'}}
+                          {{availability.isLocked ? 'Request Connection' : 'View LinkedIn Profile'}}
                         </div>
                       </button>
                     }
                   </div>
                 </td>
               </tr>
-              @if (expandedId === consultant.id) {
+              @if (expandedId === availability.id) {
                 <tr>
                   <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-inner">
                     <div class="text-sm text-gray-700 space-y-4">
@@ -242,7 +242,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                         <span class="material-icons text-blue-600">post</span>
                         <div>
                           <div class="font-medium text-blue-600 mb-1">LinkedIn Post</div>
-                          <p>{{consultant.description}}</p>
+                          <p>{{availability.description}}</p>
                           <div class="mt-2 text-xs text-gray-500 flex items-center gap-1">
                             <span class="material-icons text-sm">schedule</span>
                             Posted 2 days ago on LinkedIn
@@ -253,22 +253,22 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                       <div class="mt-2">
                         <span class="font-semibold">Preferences:</span>
                         <ul class="list-disc list-inside mt-1">
-                          @for (pref of consultant.preferences; track pref) {
+                          @for (pref of availability.preferences; track pref) {
                             <li class="text-gray-600">{{pref}}</li>
                           }
                         </ul>
                       </div>
-                      @if (consultant.additionalMobilityInfo) {
+                      @if (availability.additionalMobilityInfo) {
                         <div class="mt-2">
                           <span class="font-semibold">Additional Mobility Information:</span>
-                          <p class="text-gray-600 mt-1">{{consultant.additionalMobilityInfo}}</p>
+                          <p class="text-gray-600 mt-1">{{availability.additionalMobilityInfo}}</p>
                         </div>
                       }
-                      @if (consultant.expertise.length > 3) {
+                      @if (availability.expertise.length > 3) {
                         <div class="mt-2">
                           <span class="font-semibold">All Skills:</span>
                           <div class="flex flex-wrap gap-1 mt-1">
-                            @for (skill of consultant.expertise; track skill) {
+                            @for (skill of availability.expertise; track skill) {
                               <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
                                 {{skill}}
                               </span>
@@ -277,18 +277,18 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
                         </div>
                       }
                       
-                      @if (!consultant.isLocked) {
+                      @if (!availability.isLocked) {
                         <div class="mt-4 flex gap-2">
                           <button 
                             class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-1"
-                            (click)="openAvailabilityForm(consultant); $event.stopPropagation()"
+                            (click)="openAvailabilityForm(availability); $event.stopPropagation()"
                           >
                             <span class="material-icons text-sm">edit</span>
                             Update Availability
                           </button>
                           <button 
                             class="px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors duration-200 flex items-center gap-1"
-                            (click)="shareOnLinkedIn($event, consultant)"
+                            (click)="shareOnLinkedIn($event, availability)"
                           >
                             <span class="material-icons text-sm">share</span>
                             Share on LinkedIn
@@ -333,7 +333,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
     <!-- Availability Form Modal -->
     <app-availability-form
       [isOpen]="showAvailabilityForm"
-      [consultant]="selectedConsultant"
+      [availability]="selectedAvailability"
       (closeModal)="closeAvailabilityForm()"
       (save)="handleAvailabilitySubmit($event)"
     ></app-availability-form>
@@ -347,13 +347,13 @@ export class AvailabilityListComponent {
   searchQuery = '';
   selectedMobility = '';
   selectedSeniority = '';
-  filteredConsultants: ConsultantAvailability[] = [];
+  filteredAvailabilities: Availability[] = [];
   uniqueMobilities: string[] = [];
 
   // Modal state
   showLoginModal = false;
   showAvailabilityForm = false;
-  selectedConsultant: ConsultantAvailability | null = null;
+  selectedAvailability: Availability | null = null;
   isLinkedInLoggedIn = false;
   expandedId: string | null = null;
   activeDropdownId: string | null = null;
@@ -368,48 +368,48 @@ export class AvailabilityListComponent {
     this.showLoginModal = false;
   }
 
-  handleRowClick(event: Event, consultantId: string): void {
+  handleRowClick(event: Event, availabilityId: string): void {
     // Get the clicked element
     const target = event.target as HTMLElement;
-    const consultant = this.myAvailabilities.find(c => c.id === consultantId);
+    const availability = this.myAvailabilities.find(c => c.id === availabilityId);
     
     // Check if the click was on or inside an interactive element
     const isInteractiveElement = target.closest('button, input, select, label, .material-icons, .clickable-element');
     
     // Only toggle if:
     // 1. We clicked directly on the row or a non-interactive cell
-    // 2. In My Availabilities tab, the consultant must not be locked
+    // 2. In My Availabilities tab, the availability must not be locked
     if (!isInteractiveElement && 
         (this.activeTab === 'available' || 
-         (this.activeTab === 'mine' && consultant && !consultant.isLocked))) {
-      this.toggleDetails(consultantId);
+         (this.activeTab === 'mine' && availability && !availability.isLocked))) {
+      this.toggleDetails(availabilityId);
     }
   }
 
   constructor() {
-    this.filteredConsultants = this.consultants;
-    this.uniqueMobilities = Array.from(new Set(this.consultants.map(c => c.mobility))).sort();
-    this.filterConsultants();
+    this.filteredAvailabilities = this.availabilities;
+    this.uniqueMobilities = Array.from(new Set(this.availabilities.map(c => c.mobility))).sort();
+    this.filterAvailabilities();
   }
 
-  filterConsultants(): void {
-    this.filteredConsultants = this.consultants.filter(consultant => {
-      // First check if the consultant is active
-      if (!consultant.isActive) {
+  filterAvailabilities(): void {
+    this.filteredAvailabilities = this.availabilities.filter(availability => {
+      // First check if the availability is active
+      if (!availability.isActive) {
         return false;
       }
 
       const matchesSearch = !this.searchQuery || 
-        consultant.role.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        consultant.expertise.some(skill => 
+        availability.role.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        availability.expertise.some(skill => 
           skill.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
 
       const matchesMobility = !this.selectedMobility || 
-        consultant.mobility === this.selectedMobility;
+        availability.mobility === this.selectedMobility;
 
       const matchesSeniority = !this.selectedSeniority || 
-        consultant.seniority === this.selectedSeniority;
+        availability.seniority === this.selectedSeniority;
 
       return matchesSearch && matchesMobility && matchesSeniority;
     });
@@ -419,22 +419,22 @@ export class AvailabilityListComponent {
     this.expandedId = this.expandedId === id ? null : id;
   }
 
-  openAvailabilityForm(consultant: ConsultantAvailability | null = null): void {
-    this.selectedConsultant = consultant;
+  openAvailabilityForm(availability: Availability | null = null): void {
+    this.selectedAvailability = availability;
     this.showAvailabilityForm = true;
   }
 
   closeAvailabilityForm(): void {
     this.showAvailabilityForm = false;
-    this.selectedConsultant = null;
+    this.selectedAvailability = null;
   }
 
   handleAvailabilitySubmit(formData: any): void {
-    // Create new availability if no consultant selected
-    if (!this.selectedConsultant) {
+    // Create new availability if no availability selected
+    if (!this.selectedAvailability) {
       this.createNewAvailability(formData);
-    } else if (this.selectedConsultant) {
-      const index = this.myAvailabilities.findIndex(c => c.id === this.selectedConsultant!.id);
+    } else if (this.selectedAvailability) {
+      const index = this.myAvailabilities.findIndex(c => c.id === this.selectedAvailability!.id);
       if (index !== -1) {
         this.myAvailabilities[index] = {
           ...this.myAvailabilities[index],
@@ -454,26 +454,26 @@ export class AvailabilityListComponent {
       }
     }
     this.closeAvailabilityForm();
-    this.filterConsultants();
+    this.filterAvailabilities();
   }
 
-  toggleAvailability(event: Event, consultant: ConsultantAvailability): void {
+  toggleAvailability(event: Event, availability: Availability): void {
     event.stopPropagation();
     const target = event.target as HTMLInputElement;
     // Update active status
-    consultant.isActive = target.checked;
-    // Lock/unlock the consultant based on active status
-    consultant.isLocked = !target.checked;
+    availability.isActive = target.checked;
+    // Lock/unlock the availability based on active status
+    availability.isLocked = !target.checked;
     
     // If we're deactivating, collapse any expanded details
-    if (!target.checked && this.expandedId === consultant.id) {
+    if (!target.checked && this.expandedId === availability.id) {
       this.expandedId = null;
     }
     
-    this.filterConsultants();
+    this.filterAvailabilities();
   }
 
-  handleLinkedInConnect(event: Event, consultant: ConsultantAvailability): void {
+  handleLinkedInConnect(event: Event, availability: Availability): void {
     event.stopPropagation();
     if (!this.isLinkedInLoggedIn) {
       this.showLoginModal = true;
@@ -536,15 +536,15 @@ export class AvailabilityListComponent {
     }
   }
 
-  shareOnLinkedIn(event: Event, consultant: ConsultantAvailability): void {
+  shareOnLinkedIn(event: Event, availability: Availability): void {
     event.stopPropagation();
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
   }
 
   private createNewAvailability(formData: any): void {
-    const newConsultant: ConsultantAvailability = {
+    const newAvailability: Availability = {
       id: (this.myAvailabilities.length + 1).toString(),
-      reference: `CONS-${(this.myAvailabilities.length + 1).toString().padStart(3, '0')}`,
+      reference: `AVAIL-${(this.myAvailabilities.length + 1).toString().padStart(3, '0')}`,
       role: 'New Role',
       seniority: 'between_3_and_10',
       mobility: formData.workLocation === 'remote' ? 'Remote' : 
@@ -563,16 +563,16 @@ export class AvailabilityListComponent {
       isSubcontractor: false,
       isActive: true
     };
-    this.myAvailabilities.unshift(newConsultant);
+    this.myAvailabilities.unshift(newAvailability);
   }
 
-  toggleDropdown(event: Event, consultantId: string): void {
+  toggleDropdown(event: Event, availabilityId: string): void {
     event.stopPropagation();
-    this.activeDropdownId = this.activeDropdownId === consultantId ? null : consultantId;
+    this.activeDropdownId = this.activeDropdownId === availabilityId ? null : availabilityId;
   }
 
-  deleteAvailability(consultant: ConsultantAvailability): void {
-    const index = this.myAvailabilities.findIndex(c => c.id === consultant.id);
+  deleteAvailability(availability: Availability): void {
+    const index = this.myAvailabilities.findIndex(c => c.id === availability.id);
     if (index !== -1) {
       this.myAvailabilities.splice(index, 1);
     }
@@ -580,10 +580,10 @@ export class AvailabilityListComponent {
   }
 
   // Data arrays
-  consultants: ConsultantAvailability[] = [
+  availabilities: Availability[] = [
     {
       id: '1',
-      reference: 'CONS-001',
+      reference: 'AVAIL-001',
       role: 'Full Stack Developer',
       seniority: 'between_3_and_10',
       mobility: 'Remote',
@@ -608,7 +608,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '2',
-      reference: 'CONS-002',
+      reference: 'AVAIL-002',
       role: 'DevOps Engineer',
       seniority: 'more_than_10',
       mobility: 'Hybrid',
@@ -632,7 +632,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '4',
-      reference: 'CONS-004',
+      reference: 'AVAIL-004',
       role: 'Data Engineer',
       seniority: 'more_than_10',
       mobility: 'Remote',
@@ -652,7 +652,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '5',
-      reference: 'CONS-005',
+      reference: 'AVAIL-005',
       role: 'Cloud Architect',
       seniority: 'more_than_10',
       mobility: 'Hybrid',
@@ -672,7 +672,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '6',
-      reference: 'CONS-006',
+      reference: 'AVAIL-006',
       role: 'Mobile Developer',
       seniority: 'between_3_and_10',
       mobility: 'On-site',
@@ -692,7 +692,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '7',
-      reference: 'CONS-007',
+      reference: 'AVAIL-007',
       role: 'Security Engineer',
       seniority: 'more_than_10',
       mobility: 'Remote',
@@ -712,7 +712,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '3',
-      reference: 'CONS-003',
+      reference: 'AVAIL-003',
       role: 'Frontend Developer',
       seniority: 'less_than_3',
       mobility: 'On-site',
@@ -736,7 +736,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '8',
-      reference: 'CONS-008',
+      reference: 'AVAIL-008',
       role: 'AI/ML Engineer',
       seniority: 'more_than_10',
       mobility: 'Remote',
@@ -756,7 +756,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '9',
-      reference: 'CONS-009',
+      reference: 'AVAIL-009',
       role: 'Blockchain Developer',
       seniority: 'between_3_and_10',
       mobility: 'Remote',
@@ -776,7 +776,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '10',
-      reference: 'CONS-010',
+      reference: 'AVAIL-010',
       role: 'SRE Engineer',
       seniority: 'more_than_10',
       mobility: 'Hybrid',
@@ -796,10 +796,10 @@ export class AvailabilityListComponent {
     }
   ];
 
-  myAvailabilities: ConsultantAvailability[] = [
+  myAvailabilities: Availability[] = [
     {
       id: '4',
-      reference: 'CONS-004',
+      reference: 'AVAIL-004',
       role: 'Technical Lead',
       seniority: 'more_than_10',
       mobility: 'Remote',
@@ -819,7 +819,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '5',
-      reference: 'CONS-005',
+      reference: 'AVAIL-005',
       role: 'Solution Architect',
       seniority: 'more_than_10',
       mobility: 'Hybrid',
@@ -839,7 +839,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '6',
-      reference: 'CONS-006',
+      reference: 'AVAIL-006',
       role: 'Backend Lead',
       seniority: 'more_than_10',
       mobility: 'Remote',
@@ -859,7 +859,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '7',
-      reference: 'CONS-007',
+      reference: 'AVAIL-007',
       role: 'UI/UX Designer',
       seniority: 'between_3_and_10',
       mobility: 'Hybrid',
@@ -879,7 +879,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '8',
-      reference: 'CONS-008',
+      reference: 'AVAIL-008',
       role: 'DevOps Lead',
       seniority: 'more_than_10',
       mobility: 'Remote',
@@ -899,7 +899,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '9',
-      reference: 'CONS-009',
+      reference: 'AVAIL-009',
       role: 'Data Scientist',
       seniority: 'between_3_and_10',
       mobility: 'Remote',
@@ -919,7 +919,7 @@ export class AvailabilityListComponent {
     },
     {
       id: '10',
-      reference: 'CONS-010',
+      reference: 'AVAIL-010',
       role: 'Performance Engineer',
       seniority: 'more_than_10',
       mobility: 'Hybrid',

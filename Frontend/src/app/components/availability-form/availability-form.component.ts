@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditorModule } from '@tinymce/tinymce-angular';
-import { ConsultantAvailability } from '../../models/consultant.model';
+import { Availability } from '../../models/availability.model';
 
 interface City {
   name: string;
@@ -226,7 +226,7 @@ interface City {
 })
 export class AvailabilityFormComponent {
   @Input() isOpen = false;
-  @Input() consultant: ConsultantAvailability | null = null;
+  @Input() availability: Availability | null = null;
   @Output() closeModal = new EventEmitter<void>();
   @Output() save = new EventEmitter<any>();
 
@@ -357,15 +357,15 @@ export class AvailabilityFormComponent {
   }
 
   ngOnInit() {
-    if (this.consultant) {
+    if (this.availability) {
       this.formData = {
-        status: this.consultant.status,
-        startDate: this.consultant.availability.startDate.toISOString().split('T')[0],
-        workLocations: [this.consultant.workLocation],
-        contractTypes: [this.consultant.contractType],
-        description: this.consultant.description,
-        contractType: this.consultant.contractType,
-        isLocked: this.consultant.isLocked,
+        status: this.availability.status,
+        startDate: this.availability.availability.startDate.toISOString().split('T')[0],
+        workLocations: [this.availability.workLocation],
+        contractTypes: [this.availability.contractType],
+        description: this.availability.description,
+        contractType: this.availability.contractType,
+        isLocked: this.availability.isLocked,
         cities: []
       };
     }

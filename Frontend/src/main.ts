@@ -2,12 +2,14 @@ import { Component, importProvidersFrom } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
 import { AvailabilityListComponent } from './app/components/availability-list/availability-list.component';
-import { RecruiterRequestsComponent } from './app/components/recruiter-requests/recruiter-requests.component';
+import { AvailabilityRequestsComponent } from './app/components/availability-requests/availability-requests.component';
+
+
 
 const routes: Routes = [
-  { path: 'consultants', component: AvailabilityListComponent },
-  { path: 'requests', component: RecruiterRequestsComponent },
-  { path: '', redirectTo: '/consultants', pathMatch: 'full' }
+  { path: 'availabilities', component: AvailabilityListComponent },
+  { path: 'requests', component: AvailabilityRequestsComponent },
+  { path: '', redirectTo: '/availabilities', pathMatch: 'full' }
 ];
 
 @Component({
@@ -24,10 +26,10 @@ const routes: Routes = [
                 <h1 class="text-xl font-bold">FactConnect</h1>
               </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-6">
-                <a routerLink="/consultants" 
+                <a routerLink="/availabilities" 
                    routerLinkActive="border-b-2 border-blue-500"
                    class="inline-flex items-center px-1 pt-1 text-gray-900">
-                  Available Consultants
+                  Available Experts
                 </a>
                 <a routerLink="/requests"
                    routerLinkActive="border-b-2 border-blue-500"

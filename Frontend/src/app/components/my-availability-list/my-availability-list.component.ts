@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ConsultantAvailability } from '../../models/consultant.model';
+import { Availability } from '../../models/availability.model';
 import { AvailabilityFormComponent } from '../availability-form/availability-form.component';
 
 @Component({
@@ -46,57 +46,57 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
 
       <!-- Availabilities List -->
       <div class="space-y-4">
-        @for (consultant of filteredAvailabilities; track consultant.id) {
+        @for (availability of filteredAvailabilities; track availability.id) {
           <div class="border rounded-lg p-4 bg-white shadow-sm">
             <div class="flex justify-between items-start">
               <div>
                 <div class="flex items-center gap-3 mb-2">
-                  <span class="text-gray-500 text-sm">{{consultant.reference}}</span>
+                  <span class="text-gray-500 text-sm">{{availability.reference}}</span>
                   <div class="flex items-center gap-2">
-                    <div [class]="getStatusDotClass(consultant.status)"></div>
-                    <span class="text-sm font-medium">{{getStatusText(consultant.status)}}</span>
+                    <div [class]="getStatusDotClass(availability.status)"></div>
+                    <span class="text-sm font-medium">{{getStatusText(availability.status)}}</span>
                     <label class="relative inline-flex items-center cursor-pointer ml-4">
                       <input 
                         type="checkbox" 
                         class="sr-only peer"
-                        [checked]="consultant.isActive"
-                        (change)="toggleAvailability($event, consultant)"
+                        [checked]="availability.isActive"
+                        (change)="toggleAvailability($event, availability)"
                       >
                       <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                      <span class="ml-2 text-sm text-gray-600">{{consultant.isActive ? 'Active' : 'Inactive'}}</span>
+                      <span class="ml-2 text-sm text-gray-600">{{availability.isActive ? 'Active' : 'Inactive'}}</span>
                     </label>
                   </div>
-                  @if (consultant.isSubcontractor) {
+                  @if (availability.isSubcontractor) {
                     <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                       <span class="material-icons text-sm">business</span>
                       Subcontractor
                     </span>
                   }
                 </div>
-                <h3 class="text-lg font-semibold mb-1">{{consultant.role}}</h3>
+                <h3 class="text-lg font-semibold mb-1">{{availability.role}}</h3>
                 <div class="text-sm text-gray-600 mb-2">
-                  Available from {{consultant.availability.startDate | date}} • {{consultant.mobility}}
+                  Available from {{availability.availability.startDate | date}} • {{availability.mobility}}
                 </div>
                 <div class="flex flex-wrap gap-2 mb-3">
-                  @for (skill of consultant.expertise; track skill) {
+                  @for (skill of availability.expertise; track skill) {
                     <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                       {{skill}}
                     </span>
                   }
                 </div>
-                <p class="text-gray-700">{{consultant.description}}</p>
+                <p class="text-gray-700">{{availability.description}}</p>
               </div>
               
               <div class="flex items-start gap-2">
                 <button 
-                  (click)="openAvailabilityForm(consultant)"
+                  (click)="openAvailabilityForm(availability)"
                   class="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
                   title="Edit"
                 >
                   <span class="material-icons">edit</span>
                 </button>
                 <button 
-                  (click)="deleteAvailability(consultant)"
+                  (click)="deleteAvailability(availability)"
                   class="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors duration-200"
                   title="Delete"
                 >
@@ -110,7 +110,7 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
                 <div class="flex items-center gap-4 text-sm text-gray-600">
                   <span class="flex items-center gap-1">
                     <span class="material-icons text-sm">calendar_today</span>
-                    Posted on {{consultant.availability.startDate | date}}
+                    Posted on {{availability.availability.startDate | date}}
                   </span>
                   <span class="flex items-center gap-1">
                     <span class="material-icons text-sm">visibility</span>
@@ -119,7 +119,7 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
                 </div>
                 <button 
                   class="text-blue-600 hover:bg-blue-50 px-3 py-1 rounded-md transition-colors duration-200 flex items-center gap-1"
-                  (click)="shareOnLinkedIn(consultant)"
+                  (click)="shareOnLinkedIn(availability)"
                 >
                   <span class="material-icons text-sm">share</span>
                   Share on LinkedIn
@@ -134,63 +134,63 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
     <!-- Availability Form Modal -->
     <app-availability-form
       [isOpen]="showAvailabilityForm"
-      [consultant]="selectedConsultant"
+      [availability]="selectedAvailability"
       (closeModal)="closeAvailabilityForm()"
       (save)="handleAvailabilitySubmit($event)"
     ></app-availability-form>
   `
 })
-export class MyAvailabilitiesComponent {
+export class MyAvailabilityListComponent {
   // Filters
   statusFilter = '';
   typeFilter = '';
   
   // Modal state
   showAvailabilityForm = false;
-  selectedConsultant: ConsultantAvailability | null = null;
+  selectedAvailability: Availability | null = null;
 
   // Mock data - this would come from a service in a real app
-  availabilities: ConsultantAvailability[] = [
-    // Using the same consultant data structure
+  availabilities: Availability[] = [
+    // Using the same availability data structure
   ];
   
-  filteredAvailabilities: ConsultantAvailability[] = [];
+  filteredAvailabilities: Availability[] = [];
 
   constructor() {
     // Initialize with all availabilities
     this.filteredAvailabilities = this.availabilities;
   }
 
-  toggleAvailability(event: Event, consultant: ConsultantAvailability): void {
+  toggleAvailability(event: Event, availability: Availability): void {
     const target = event.target as HTMLInputElement;
-    consultant.isActive = target.checked;
+    availability.isActive = target.checked;
     this.applyFilters();
   }
 
   applyFilters() {
-    this.filteredAvailabilities = this.availabilities.filter(consultant => {
-      const matchesStatus = !this.statusFilter || consultant.status === this.statusFilter;
+    this.filteredAvailabilities = this.availabilities.filter(availability => {
+      const matchesStatus = !this.statusFilter || availability.status === this.statusFilter;
       const matchesType = !this.typeFilter || 
-        (this.typeFilter === 'subcontractor' ? consultant.isSubcontractor : !consultant.isSubcontractor);
+        (this.typeFilter === 'subcontractor' ? availability.isSubcontractor : !availability.isSubcontractor);
       
       return matchesStatus && matchesType;
     });
   }
 
-  openAvailabilityForm(consultant: ConsultantAvailability | null = null) {
-    this.selectedConsultant = consultant;
+  openAvailabilityForm(availability: Availability | null = null) {
+    this.selectedAvailability = availability;
     this.showAvailabilityForm = true;
   }
 
   closeAvailabilityForm() {
     this.showAvailabilityForm = false;
-    this.selectedConsultant = null;
+    this.selectedAvailability = null;
   }
 
   handleAvailabilitySubmit(formData: any) {
-    if (this.selectedConsultant) {
+    if (this.selectedAvailability) {
       // Update existing availability
-      const index = this.availabilities.findIndex(a => a.id === this.selectedConsultant!.id);
+      const index = this.availabilities.findIndex(a => a.id === this.selectedAvailability!.id);
       if (index !== -1) {
         this.availabilities[index] = {
           ...this.availabilities[index],
@@ -209,9 +209,9 @@ export class MyAvailabilitiesComponent {
       }
     } else {
       // Create new availability
-      const newAvailability: ConsultantAvailability = {
+      const newAvailability: Availability = {
         id: (this.availabilities.length + 1).toString(),
-        reference: `CONS-${(this.availabilities.length + 1).toString().padStart(3, '0')}`,
+        reference: `AVAIL-${(this.availabilities.length + 1).toString().padStart(3, '0')}`,
         role: 'New Role', // This would come from user profile
         seniority: 'between_3_and_10', // This would come from user profile
         mobility: formData.workLocation === 'remote' ? 'Remote' : 
@@ -237,9 +237,9 @@ export class MyAvailabilitiesComponent {
     this.closeAvailabilityForm();
   }
 
-  deleteAvailability(consultant: ConsultantAvailability) {
+  deleteAvailability(availability: Availability) {
     if (confirm('Are you sure you want to delete this availability?')) {
-      const index = this.availabilities.findIndex(a => a.id === consultant.id);
+      const index = this.availabilities.findIndex(a => a.id === availability.id);
       if (index !== -1) {
         this.availabilities.splice(index, 1);
         this.applyFilters();
@@ -247,9 +247,9 @@ export class MyAvailabilitiesComponent {
     }
   }
 
-  shareOnLinkedIn(consultant: ConsultantAvailability) {
+  shareOnLinkedIn(availability: Availability) {
     // Implement LinkedIn sharing
-    console.log('Sharing on LinkedIn:', consultant);
+    console.log('Sharing on LinkedIn:', availability);
   }
 
   getStatusDotClass(status: string): string {

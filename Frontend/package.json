@@ -1,11 +1,11 @@
 {
   "name": "factconnect_20240220_153722",
   "private": true,
-  "scripts": {
-    "ng": "npx ng",
-    "start": "npx ng serve",
-    "build": "npx ng build",
-    "dev": "npx ng serve"
+"scripts": {
+    "ng": "ng",
+    "prestart": "powershell -Command \"$processId = (Get-NetTCPConnection -LocalPort 4200 -ErrorAction SilentlyContinue).OwningProcess; if($processId) { Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue }\"",
+    "start": "ng serve",
+    "build": "ng build"
   },
   "dependencies": {
     "@angular/animations": "^17.1.2",

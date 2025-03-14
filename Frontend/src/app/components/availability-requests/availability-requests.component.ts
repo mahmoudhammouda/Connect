@@ -26,6 +26,6 @@ import { RecruiterRequest } from '../../models/recruiter-request.model';
     </div>
   `
 })
-export class RecruiterRequestsComponent {
+export class AvailabilityRequestsComponent {
   requests: RecruiterRequest[] = []; // This will be populated from a service
 }

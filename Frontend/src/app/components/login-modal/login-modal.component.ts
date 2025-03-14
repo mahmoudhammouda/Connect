@@ -37,7 +37,7 @@ import { CommonModule } from '@angular/common';
     </div>
   `
 })
-export class ModalComponent {
+export class LoginModalComponent {
   @Input() isOpen = false;
   @Output() closeModal = new EventEmitter<void>();
   @Output() login = new EventEmitter<void>();
