@@ -102,7 +102,7 @@ import { ClickOutsideDirective } from '../../directives/click-outside.directive'
           <tbody class="bg-white divide-y divide-gray-200">
             @for (consultant of activeTab === 'available' ? filteredConsultants : myAvailabilities; track consultant.id) {
               <tr 
-                (click)="toggleDetails(consultant.id)"
+                (click)="handleRowClick($event, consultant.id)"
                 class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-sm mb-2 bg-white"
               >
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -358,6 +358,37 @@ export class ConsultantListComponent {
   expandedId: string | null = null;
   activeDropdownId: string | null = null;
 
+  // LinkedIn related methods
+  closeLoginModal(): void {
+    this.showLoginModal = false;
+  }
+
+  handleLinkedInLogin(): void {
+    this.isLinkedInLoggedIn = true;
+    this.showLoginModal = false;
+  }
+
+  
+
+
+  handleRowClick(event: Event, consultantId: string): void {
+    // Get the clicked element
+    const target = event.target as HTMLElement;
+    const consultant = this.myAvailabilities.find(c => c.id === consultantId);
+    
+    // Check if the click was on or inside an interactive element
+    const isInteractiveElement = target.closest('button, input, select, label, .material-icons, .clickable-element');
+    
+    // Only toggle if:
+    // 1. We clicked directly on the row or a non-interactive cell
+    // 2. In My Availabilities tab, the consultant must not be locked
+    if (!isInteractiveElement && 
+        (this.activeTab === 'available' || 
+         (this.activeTab === 'mine' && consultant && !consultant.isLocked))) {
+      this.toggleDetails(consultantId);
+    }
+  }
+
   constructor() {
     this.filteredConsultants = this.consultants;
     this.uniqueMobilities = Array.from(new Set(this.consultants.map(c => c.mobility))).sort();
@@ -402,7 +433,10 @@ export class ConsultantListComponent {
   }
 
   handleAvailabilitySubmit(formData: any): void {
-    if (this.selectedConsultant) {
+    // Create new availability if no consultant selected
+    if (!this.selectedConsultant) {
+      this.createNewAvailability(formData);
+    } else if (this.selectedConsultant) {
       const index = this.myAvailabilities.findIndex(c => c.id === this.selectedConsultant!.id);
       if (index !== -1) {
         this.myAvailabilities[index] = {
@@ -422,13 +456,23 @@ export class ConsultantListComponent {
         };
       }
     }
+    this.closeAvailabilityForm();
     this.filterConsultants();
   }
 
   toggleAvailability(event: Event, consultant: Consultant): void {
     event.stopPropagation();
     const target = event.target as HTMLInputElement;
+    // Update active status
     consultant.isActive = target.checked;
+    // Lock/unlock the consultant based on active status
+    consultant.isLocked = !target.checked;
+    
+    // If we're deactivating, collapse any expanded details
+    if (!target.checked && this.expandedId === consultant.id) {
+      this.expandedId = null;
+    }
+    
     this.filterConsultants();
   }
 
@@ -439,15 +483,6 @@ export class ConsultantListComponent {
       return;
     }
     window.open('https://www.linkedin.com/in/profile', '_blank');
-  }
-
-  closeLoginModal(): void {
-    this.showLoginModal = false;
-  }
-
-  handleLinkedInLogin(): void {
-    this.isLinkedInLoggedIn = true;
-    this.showLoginModal = false;
   }
 
   getStatusDotClass(status: string): string {
@@ -509,6 +544,31 @@ export class ConsultantListComponent {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
   }
 
+  private createNewAvailability(formData: any): void {
+    const newConsultant: Consultant = {
+      id: (this.myAvailabilities.length + 1).toString(),
+      reference: `CONS-${(this.myAvailabilities.length + 1).toString().padStart(3, '0')}`,
+      role: 'New Role',
+      seniority: 'between_3_and_10',
+      mobility: formData.workLocation === 'remote' ? 'Remote' : 
+               formData.workLocation === 'hybrid' ? 'Hybrid' : 'On-site',
+      expertise: [],
+      workLocation: formData.workLocation,
+      availability: {
+        startDate: new Date(formData.startDate),
+        isFullRemote: formData.workLocation === 'remote'
+      },
+      status: formData.status,
+      preferences: [],
+      description: formData.description,
+      contractType: formData.contractType,
+      isLocked: formData.isLocked,
+      isSubcontractor: false,
+      isActive: true
+    };
+    this.myAvailabilities.unshift(newConsultant);
+  }
+
   toggleDropdown(event: Event, consultantId: string): void {
     event.stopPropagation();
     this.activeDropdownId = this.activeDropdownId === consultantId ? null : consultantId;
@@ -521,6 +581,8 @@ export class ConsultantListComponent {
     }
     this.activeDropdownId = null;
   }
+
+  // Data arrays
   consultants: Consultant[] = [
     {
       id: '1',
@@ -880,4 +942,4 @@ export class ConsultantListComponent {
       
     }
   ]
-}
+  }
