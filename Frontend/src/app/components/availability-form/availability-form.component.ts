@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EditorModule } from '@tinymce/tinymce-angular';
-import { Consultant } from '../../models/consultant.model';
+import { ConsultantAvailability } from '../../models/consultant.model';
 
 interface City {
   name: string;
@@ -226,7 +226,7 @@ interface City {
 })
 export class AvailabilityFormComponent {
   @Input() isOpen = false;
-  @Input() consultant: Consultant | null = null;
+  @Input() consultant: ConsultantAvailability | null = null;
   @Output() closeModal = new EventEmitter<void>();
   @Output() save = new EventEmitter<any>();
 

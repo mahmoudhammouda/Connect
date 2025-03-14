@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Consultant } from '../../models/consultant.model';
+import { ConsultantAvailability } from '../../models/consultant.model';
 import { AvailabilityFormComponent } from '../availability-form/availability-form.component';
 
 @Component({
@@ -147,21 +147,21 @@ export class MyAvailabilitiesComponent {
   
   // Modal state
   showAvailabilityForm = false;
-  selectedConsultant: Consultant | null = null;
+  selectedConsultant: ConsultantAvailability | null = null;
 
   // Mock data - this would come from a service in a real app
-  availabilities: Consultant[] = [
+  availabilities: ConsultantAvailability[] = [
     // Using the same consultant data structure
   ];
   
-  filteredAvailabilities: Consultant[] = [];
+  filteredAvailabilities: ConsultantAvailability[] = [];
 
   constructor() {
     // Initialize with all availabilities
     this.filteredAvailabilities = this.availabilities;
   }
 
-  toggleAvailability(event: Event, consultant: Consultant): void {
+  toggleAvailability(event: Event, consultant: ConsultantAvailability): void {
     const target = event.target as HTMLInputElement;
     consultant.isActive = target.checked;
     this.applyFilters();
@@ -177,7 +177,7 @@ export class MyAvailabilitiesComponent {
     });
   }
 
-  openAvailabilityForm(consultant: Consultant | null = null) {
+  openAvailabilityForm(consultant: ConsultantAvailability | null = null) {
     this.selectedConsultant = consultant;
     this.showAvailabilityForm = true;
   }
@@ -209,7 +209,7 @@ export class MyAvailabilitiesComponent {
       }
     } else {
       // Create new availability
-      const newAvailability: Consultant = {
+      const newAvailability: ConsultantAvailability = {
         id: (this.availabilities.length + 1).toString(),
         reference: `CONS-${(this.availabilities.length + 1).toString().padStart(3, '0')}`,
         role: 'New Role', // This would come from user profile
@@ -237,7 +237,7 @@ export class MyAvailabilitiesComponent {
     this.closeAvailabilityForm();
   }
 
-  deleteAvailability(consultant: Consultant) {
+  deleteAvailability(consultant: ConsultantAvailability) {
     if (confirm('Are you sure you want to delete this availability?')) {
       const index = this.availabilities.findIndex(a => a.id === consultant.id);
       if (index !== -1) {
@@ -247,7 +247,7 @@ export class MyAvailabilitiesComponent {
     }
   }
 
-  shareOnLinkedIn(consultant: Consultant) {
+  shareOnLinkedIn(consultant: ConsultantAvailability) {
     // Implement LinkedIn sharing
     console.log('Sharing on LinkedIn:', consultant);
   }

@@ -1,11 +1,11 @@
 import { Component, importProvidersFrom } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
-import { ConsultantListComponent } from './app/components/consultant-list/consultant-list.component';
+import { AvailabilityListComponent } from './app/components/availability-list/availability-list.component';
 import { RecruiterRequestsComponent } from './app/components/recruiter-requests/recruiter-requests.component';
 
 const routes: Routes = [
-  { path: 'consultants', component: ConsultantListComponent },
+  { path: 'consultants', component: AvailabilityListComponent },
   { path: 'requests', component: RecruiterRequestsComponent },
   { path: '', redirectTo: '/consultants', pathMatch: 'full' }
 ];
