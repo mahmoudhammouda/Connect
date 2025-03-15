@@ -3,7 +3,6 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "prestart": "powershell -Command \"$processId = (Get-NetTCPConnection -LocalPort 4200 -ErrorAction SilentlyContinue).OwningProcess; if($processId) { Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue }\"",
     "start": "ng serve",
     "build": "ng build"
   },

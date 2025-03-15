@@ -23,11 +23,36 @@ export class AvailabilityFormComponent {
   @Output() closeModal = new EventEmitter<void>();
   @Output() save = new EventEmitter<any>();
 
+  removeLanguage(langName: string) {
+    this.formData.languages = this.formData.languages.filter(l => l.name !== langName);
+  }
+
+  addLanguage(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const index = select.selectedIndex;
+    if (index > 0) { // Skip the first "Add a language..." option
+      const lang = this.availableLanguages[index - 1];
+      if (!this.formData.languages.some(l => l.name === lang.name)) {
+        this.formData.languages.push({ ...lang });
+      }
+      select.selectedIndex = 0;
+    }
+  }
+
+  isLanguageSelected(langName: string): boolean {
+    return this.formData.languages.some(l => l.name === langName);
+  }
+
   today = new Date().toISOString().split('T')[0];
 
   formData = {
     status: 'immediate',
     startDate: this.today,
+    dailyRate: 0,
+    yearsOfExperience: 0,
+    languages: [] as Array<{ name: string; level: string }>,
+    linkedinUrl: '',
+    hidePhone: true,
     workLocations: [] as string[],
     contractTypes: [] as string[],
     description: '',
@@ -60,11 +85,19 @@ export class AvailabilityFormComponent {
     { name: 'Zurich', country: 'Switzerland', countryCode: 'CH' }
   ];
 
+  availableLanguages = [
+    { name: 'English', level: 'Professional' },
+    { name: 'French', level: 'Professional' },
+    { name: 'Arabic', level: 'Professional' },
+    { name: 'Spanish', level: 'Professional' },
+    { name: 'German', level: 'Professional' }
+  ];
+
   editorConfig = {
     skin_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/skins/ui/oxide',
     content_css: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/skins/content/default/content.min.css',
     readonly: false,
-    height: 300,
+    height: 200,
     menubar: 'edit format',
     plugins: [
       'lists', 'link', 'image', 'charmap',
@@ -153,6 +186,11 @@ export class AvailabilityFormComponent {
     if (this.availability) {
       this.formData = {
         status: this.availability.status,
+        linkedinUrl: this.availability.linkedinUrl || '',
+        dailyRate: this.availability.dailyRate || 0,
+        yearsOfExperience: this.availability.yearsOfExperience || 0,
+        languages: this.availability.languages || [],
+        hidePhone: this.availability.hidePhone || true,
         startDate: this.availability.availability.startDate.toISOString().split('T')[0],
         workLocations: [this.availability.workLocation],
         contractTypes: [this.availability.contractType],
@@ -162,6 +200,11 @@ export class AvailabilityFormComponent {
         cities: []
       };
     }
+  }
+
+  fetchLinkedInProfile() {
+    // This would integrate with LinkedIn OAuth in a real implementation
+    console.log('Fetching LinkedIn profile...');
   }
 
   handleSubmit(event: Event) {

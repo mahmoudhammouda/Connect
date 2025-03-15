@@ -18,4 +18,12 @@ export interface Availability {
   isLocked: boolean;
   isSubcontractor: boolean;
   isActive: boolean;
+  dailyRate?: number;
+  yearsOfExperience?: number;
+  languages?: Array<{
+    name: string;
+    level: string;
+  }>;
+  linkedinUrl?: string;
+  hidePhone?: boolean;
 }
