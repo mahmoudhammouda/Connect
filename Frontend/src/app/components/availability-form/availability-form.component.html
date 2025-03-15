@@ -1,0 +1,207 @@
+<div *ngIf="isOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Update Your Availability</h3>
+      
+      <form (submit)="handleSubmit($event)" class="space-y-4">
+        <!-- Availability Status -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Availability Status
+          </label>
+          <div class="flex gap-4">
+            <label class="flex items-center">
+              <input
+                type="radio"
+                name="status"
+                [(ngModel)]="formData.status"
+                value="immediate"
+                class="mr-2"
+              >
+              <span>Available Now</span>
+            </label>
+            <label class="flex items-center">
+              <input
+                type="radio"
+                name="status"
+                [(ngModel)]="formData.status"
+                value="soon"
+                class="mr-2"
+              >
+              <span>Available Soon</span>
+            </label>
+            <label class="flex items-center">
+              <input
+                type="radio"
+                name="status"
+                [(ngModel)]="formData.status"
+                value="inactive"
+                class="mr-2"
+              >
+              <span>Not Available</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Profile Lock -->
+        <div>
+          <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <input
+              type="checkbox"
+              [(ngModel)]="formData.isLocked"
+              name="isLocked"
+              class="rounded border-gray-300"
+            >
+            Lock profile (only show basic information to recruiters)
+          </label>
+        </div>
+
+        <!-- Start Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Start Date
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="formData.startDate"
+            name="startDate"
+            class="w-full p-2 border rounded-md"
+            [min]="today"
+          >
+        </div>
+
+        <!-- Cities -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Preferred Cities
+          </label>
+          <div class="flex flex-wrap gap-2 mb-2">
+            @for (city of formData.cities; track city.name) {
+              <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                <img 
+                  [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
+                  [alt]="city.country"
+                  class="w-4 h-4 rounded-sm"
+                >
+                {{city.name}}
+                <button 
+                  (click)="removeCity(city)"
+                  class="text-blue-600 hover:text-blue-800"
+                >×</button>
+              </span>
+            }
+          </div>
+          <select 
+            (change)="addCity($event)"
+            class="w-full p-2 border rounded-md"
+          >
+            <option value="">Add a city...</option>
+            @for (city of availableCities; track city.name) {
+              <option [value]="city.name">{{city.name}} ({{city.country}})</option>
+            }
+          </select>
+        </div>
+
+        <!-- Work Location -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Work Location Preference
+          </label>
+          <div class="flex flex-wrap gap-2 mb-2">
+            @for (location of formData.workLocations; track location) {
+              <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                {{getWorkLocationLabel(location)}}
+                <button 
+                  (click)="removeWorkLocation(location)"
+                  class="text-blue-600 hover:text-blue-800"
+                >×</button>
+              </span>
+            }
+          </div>
+          <select 
+            (change)="addWorkLocation($event)"
+            class="w-full p-2 border rounded-md"
+          >
+            <option value="">Add a work location...</option>
+            @for (location of availableWorkLocations; track location.value) {
+              <option [value]="location.value">{{location.label}}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Contract Types -->
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Contract Types
+          </label>
+          <div class="flex flex-wrap gap-2 mb-2">
+            @for (type of formData.contractTypes; track type) {
+              <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                {{getContractTypeLabel(type)}}
+                <button 
+                  (click)="removeContractType(type)"
+                  class="text-blue-600 hover:text-blue-800"
+                >×</button>
+              </span>
+            }
+          </div>
+          <select 
+            (change)="addContractType($event)"
+            class="w-full p-2 border rounded-md"
+          >
+            <option value="">Add a contract type...</option>
+            @for (type of availableContractTypes; track type.value) {
+              <option [value]="type.value">{{type.label}}</option>
+            }
+          </select>
+        </div>
+
+        <!-- LinkedIn Message -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Message for Recruiters (will be posted on LinkedIn)
+          </label>
+          <editor
+            [(ngModel)]="formData.description"
+            name="description"
+            [init]="editorConfig"
+            class="min-h-[200px]"
+          ></editor>
+        </div>
+
+        <!-- Contract Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Preferred Contract Type
+          </label>
+          <select
+            [(ngModel)]="formData.contractType"
+            name="contractType"
+            class="w-full p-2 border rounded-md"
+          >
+            <option value="freelance">Freelance</option>
+            <option value="cdi">CDI</option>
+            <option value="cdd">CDD</option>
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-2 mt-4">
+          <button
+            type="button"
+            (click)="close()"
+            class="px-4 py-2 border text-gray-700 rounded-md hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Save & Share
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
