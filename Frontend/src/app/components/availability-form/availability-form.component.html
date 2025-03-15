@@ -1,12 +1,36 @@
 <div *ngIf="isOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
   <div class="relative top-10 mx-auto p-5 border w-[1200px] shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
     <div class="mt-3">
-      <h3 class="text-lg font-medium text-gray-900 mb-4">Share Your Availability</h3>
+      <div class="flex justify-between items-start mb-6">
+        <h3 class="text-lg font-medium text-gray-900">Share Your Availability</h3>
+        <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-lg w-[400px] justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-icons text-gray-500">
+              {{formData.isLocked ? 'lock' : 'lock_open'}}
+            </span>
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-gray-900">Profile Visibility</span>
+              <span class="text-xs text-gray-500">
+                {{formData.isLocked ? 'Validation required - Only basic info visible' : 'No validation - Full profile visible'}}
+              </span>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox"
+              [(ngModel)]="formData.isLocked"
+              name="isLocked" 
+              class="sr-only peer"
+            >
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+      </div>
       
       <!-- LinkedIn URL Section -->
-      <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+      <div class="mb-6 p-4 bg-blue-50 rounded-lg">
         <h4 class="text-md font-medium text-gray-900 mb-2">What's your LinkedIn?</h4>
-        <p class="text-sm text-gray-600 mb-4">We'll use that to generate your profile and match you on opportunities.</p>
+        <p class="text-sm text-gray-600 mb-4">Recruiters will be directed to your LinkedIn profile for more information.</p>
         <div class="flex gap-2">
           <input
             type="text"
@@ -88,33 +112,28 @@
                   >
                   <span>Don't show my phone number to recruiters</span>
                 </label>
-                <label class="flex items-center gap-2 p-2 hover:bg-white rounded transition-colors">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="formData.isLocked"
-                    name="isLocked"
-                    class="rounded border-gray-300"
-                  >
-                  <span>Lock profile (only show basic information to recruiters)</span>
-                </label>
               </div>
             </div>
 
-            <!-- Daily Rate -->
+            <!-- Role Selection -->
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Daily Rate (€)
+                Your Role
               </label>
               <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">€</span>
                 <input
-                  type="number"
-                  [(ngModel)]="formData.dailyRate"
-                  name="dailyRate"
-                  class="w-full pl-8 p-2 border rounded-md"
-                  min="0"
-                  step="50"
+                  type="text"
+                  [(ngModel)]="formData.role"
+                  name="role"
+                  [placeholder]="'Search for a role...'"
+                  class="w-full p-2 pl-3 border rounded-md"
+                  list="rolesList"
                 >
+                <datalist id="rolesList">
+                  @for (role of availableRoles; track role) {
+                    <option [value]="role">{{role}}</option>
+                  }
+                </datalist>
               </div>
             </div>
 
@@ -147,6 +166,7 @@
             </div>
 
             <!-- Cities -->
+
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Preferred Cities
@@ -182,20 +202,23 @@
           <!-- Right Column -->
           <div class="space-y-4">
             <!-- LinkedIn Message -->
-            <div>
+            <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Message for Recruiters (will be posted on LinkedIn)
               </label>
+              <p class="text-sm text-gray-600 mb-2">
+                Write a compelling message to attract recruiters. Describe your experience, what you're looking for, and your availability.
+              </p>
               <editor
                 [(ngModel)]="formData.description"
                 name="description"
                 [init]="editorConfig"
-                class="min-h-[150px]"
+                class="min-h-[300px]"
               ></editor>
             </div>
 
             <!-- Languages -->
-            <div class="space-y-4">
+            <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Languages
               </label>
@@ -218,6 +241,39 @@
                 @for (lang of availableLanguages; track lang.name) {
                   <option [value]="lang.name" [disabled]="isLanguageSelected(lang.name)">
                     {{lang.name}} - {{lang.level}}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Expertise -->
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Expertise ({{formData.expertise.length}}/4)
+              </label>
+              <div class="flex flex-wrap gap-2 mb-3">
+                @for (skill of formData.expertise; track skill) {
+                  <span class="inline-flex items-center gap-1 bg-blue-100 px-2 py-1 rounded-full text-sm">
+                    {{skill}}
+                    <button 
+                      (click)="toggleExpertise(skill)"
+                      class="text-blue-600 hover:text-blue-800"
+                    >×</button>
+                  </span>
+                }
+              </div>
+              <select 
+                (change)="handleExpertiseChange($event)"
+                class="w-full p-2 border rounded-md"
+                [disabled]="formData.expertise.length >= 4"
+              >
+                <option value="">Add an expertise...</option>
+                @for (skill of allExpertise; track skill) {
+                  <option 
+                    [value]="skill"
+                    [disabled]="formData.expertise.includes(skill)"
+                  >
+                    {{skill}}
                   </option>
                 }
               </select>
@@ -251,7 +307,7 @@
             </div>
 
             <!-- Contract Types -->
-            <div class="space-y-2">
+            <div class="space-y-2 mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Contract Types
               </label>
@@ -277,21 +333,6 @@
               </select>
             </div>
 
-            <!-- Contract Type -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Preferred Contract Type
-              </label>
-              <select
-                [(ngModel)]="formData.contractType"
-                name="contractType"
-                class="w-full p-2 border rounded-md"
-              >
-                <option value="freelance">Freelance</option>
-                <option value="cdi">CDI</option>
-                <option value="cdd">CDD</option>
-              </select>
-            </div>
           </div>
         </div>
 

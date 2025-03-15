@@ -48,6 +48,9 @@ export class AvailabilityFormComponent {
   formData = {
     status: 'immediate',
     startDate: this.today,
+    expertise: [] as string[],
+    role: '',
+    jobPreferences: [] as string[],
     dailyRate: 0,
     yearsOfExperience: 0,
     languages: [] as Array<{ name: string; level: string }>,
@@ -74,6 +77,60 @@ export class AvailabilityFormComponent {
     { value: 'subcontracting', label: 'Sub-contracting' }
   ];
 
+  expertiseCategories = [
+    { 
+      name: 'Tech',
+      subcategories: [
+        {
+          name: 'Languages & Frameworks',
+          skills: ['Angular', '.NET', 'React', 'Vue.js', 'Node.js', 'Python', 'Java', 'Spring']
+        },
+        {
+          name: 'Cloud & Databases',
+          skills: ['AWS', 'Azure', 'GCP', 'MongoDB', 'PostgreSQL', 'MySQL']
+        }
+      ]
+    },
+    {
+      name: 'Product',
+      subcategories: [
+        {
+          name: 'Product Management',
+          skills: ['Agile', 'Scrum', 'Product Strategy', 'User Research']
+        }
+      ]
+    }
+  ];
+
+  allExpertise: string[] = [];
+
+  constructor() {
+    // Flatten all expertise into a single array
+    this.expertiseCategories.forEach(category => {
+      category.subcategories.forEach(subcat => {
+        this.allExpertise = [...this.allExpertise, ...subcat.skills];
+      });
+    });
+    this.allExpertise.sort();
+  }
+
+  toggleExpertise(skill: string): void {
+    const index = this.formData.expertise.indexOf(skill);
+    if (index === -1 && this.formData.expertise.length < 4) {
+      this.formData.expertise.push(skill);
+    } else if (index !== -1) {
+      this.formData.expertise.splice(index, 1);
+    }
+  }
+
+  handleExpertiseChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    if (select.value) {
+      this.toggleExpertise(select.value);
+      select.value = '';
+    }
+  }
+
   availableCities: City[] = [
     { name: 'Paris', country: 'France', countryCode: 'FR' },
     { name: 'London', country: 'United Kingdom', countryCode: 'GB' },
@@ -93,24 +150,36 @@ export class AvailabilityFormComponent {
     { name: 'German', level: 'Professional' }
   ];
 
+  availableRoles = [
+    'Administrateur·rice de base de données (Oracle, Sybase, Sqlserver...)',
+    'Administrateur·rice d\'application (progiciel ERP, CRM, SIRH ...)',
+    'Administrateur·rice système Unix (linux...)',
+    'Administrateur·rice réseaux',
+    'Administrateur·rice sécurité',
+    'Administrateur·rice de site Web (webmaster)',
+    'Administrateur·rice système Windows',
+    'Business analyst',
+    'Analyste programmeur·euse',
+    'Lead developer / Tech lead',
+    'Architecte technique',
+    'Développeur·euse .Net (C# ...)',
+    'Développeur·euse fullstack'
+  ];
+
   editorConfig = {
     skin_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/skins/ui/oxide',
     content_css: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/skins/content/default/content.min.css',
     readonly: false,
-    height: 200,
-    menubar: 'edit format',
+    height: 300,
+    menubar: false,
     plugins: [
-      'lists', 'link', 'image', 'charmap',
-      'searchreplace', 'code', 'fullscreen',
-      'insertdatetime', 'media', 'table', 'help', 'wordcount'
+      'lists'
     ],
     toolbar: [
-      'undo redo | formatselect | bold italic underline strikethrough | forecolor backcolor',
-      'alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent',
-      'removeformat | help'
+      'bold italic underline | bullist numlist | removeformat'
     ],
     content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; }',
-    statusbar: true,
+    statusbar: false,
     resize: true,
     branding: false,
     promotion: false
@@ -182,10 +251,26 @@ export class AvailabilityFormComponent {
     return this.contractTypes.find(t => t.value === value)?.label || value;
   }
 
+  isPreferred(job: string): boolean {
+    return this.formData.jobPreferences.includes(job);
+  }
+
+  toggleJobPreference(job: string): void {
+    const index = this.formData.jobPreferences.indexOf(job);
+    if (index === -1 && this.formData.jobPreferences.length < 3) {
+      this.formData.jobPreferences.push(job);
+    } else if (index !== -1) {
+      this.formData.jobPreferences.splice(index, 1);
+    }
+  }
+
   ngOnInit() {
     if (this.availability) {
       this.formData = {
+        expertise: this.availability.expertise || [],
+        role: this.availability.role,
         status: this.availability.status,
+        jobPreferences: this.availability.jobPreferences || [],
         linkedinUrl: this.availability.linkedinUrl || '',
         dailyRate: this.availability.dailyRate || 0,
         yearsOfExperience: this.availability.yearsOfExperience || 0,

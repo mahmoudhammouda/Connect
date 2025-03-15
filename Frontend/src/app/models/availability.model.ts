@@ -24,6 +24,7 @@ export interface Availability {
     name: string;
     level: string;
   }>;
+  jobPreferences?: string[];
   linkedinUrl?: string;
   hidePhone?: boolean;
 }
