@@ -74,7 +74,7 @@
   </div>
 
   <div class="flex justify-between items-center mb-4">
-    <div class="flex gap-4 border-b">
+    <div class="flex gap-4 border-b" *ngIf="currentUser">
       <button 
         (click)="activeTab = 'available'"
         [class]="activeTab === 'available' ? 
@@ -95,7 +95,7 @@
   </div>
   
   <!-- Search and Filter Bar -->
-  <div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm" *ngIf="activeTab === 'available'">
+  <div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="col-span-1 md:col-span-2">
         <input 
@@ -150,7 +150,7 @@
   <!-- Horizontal Scrolling Container -->
   <div class="overflow-x-auto">
     <table class="min-w-full table-fixed">
-      <thead class="bg-gray-50" *ngIf="activeTab === 'available'">
+      <thead class="bg-gray-50">
         <tr>
           <th class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
           <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
@@ -162,7 +162,7 @@
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
-        @for (availability of activeTab === 'available' ? filteredAvailabilities : availabilities; track availability.id) {
+        @for (availability of filteredAvailabilities; track availability.id) {
           <tr 
             (click)="handleRowClick($event, availability.id)" 
             class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative"
@@ -311,7 +311,18 @@
           @if (expandedId === availability.id) {
             <tr>
               <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-lg">
-                <div class="text-sm text-gray-700 grid grid-cols-3 gap-6">
+                <div class="text-sm text-gray-700 grid grid-cols-3 gap-6 relative">
+                  @if (!currentUser) {
+                    <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10">
+                      <button 
+                        (click)="handleLinkedInConnect($event, availability)"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center gap-2"
+                      >
+                        <span class="material-icons text-sm">login</span>
+                        Login to View Details
+                      </button>
+                    </div>
+                  }
                   <!-- Quick Info -->
                   <div class="col-span-1 bg-white p-4 rounded-lg border">
                     <div class="space-y-4">
@@ -385,7 +396,7 @@
                   <!-- LinkedIn Message -->
                   <div class="col-span-2 bg-white p-4 rounded-lg border">
                     <div class="flex items-center gap-2 mb-3 text-blue-600">
-                      <span class="material-icons">post</span>
+                      <span class="material-icons">{{currentUser ? 'post' : 'lock'}}</span>
                       <span class="font-medium">LinkedIn Post</span>
                     </div>
                     <div class="prose prose-sm max-w-none" [innerHTML]="availability.description"></div>

@@ -94,6 +94,11 @@ export class AvailabilityListComponent {
   }
 
   constructor() {
+    // Always set activeTab to 'available' for non-authenticated users
+    if (!this.currentUser) {
+      this.activeTab = 'available';
+    }
+    
     this.filteredAvailabilities = this.availabilities.slice(0, this.pageSize);
     // Extract unique countries from cities
     const countries = new Set<string>();
