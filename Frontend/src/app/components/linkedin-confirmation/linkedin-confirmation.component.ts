@@ -10,15 +10,20 @@ import { User } from '../../models/user.model';
   template: `
     <div *ngIf="isOpen" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div class="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white">
-        <!-- Confirmation Overlay -->
         @if (showConfirmation) {
           <div class="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center rounded-md z-10">
-            <div class="text-center">
+            <div class="text-center px-6">
               <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <span class="material-icons text-green-600">check</span>
               </div>
               <h3 class="text-lg font-medium text-gray-900 mb-2">Email Confirmation Sent!</h3>
-              <p class="text-gray-600">Please check {{userData.email}} to verify your account.</p>
+              <p class="text-gray-600 mb-6">Please check {{userData.email}} to verify your account.</p>
+              <button
+                (click)="handleConfirmationAcknowledge()"
+                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                OK, I understand
+              </button>
             </div>
           </div>
         }
@@ -181,10 +186,11 @@ export class LinkedInConfirmationComponent {
   handleConfirm(): void {
     if (this.isValid) {
       this.showConfirmation = true;
-      setTimeout(() => {
-        this.showConfirmation = false;
-        this.confirm.emit(this.userData as User);
-      }, 2000);
     }
+  }
+
+  handleConfirmationAcknowledge(): void {
+    this.showConfirmation = false;
+    this.confirm.emit(this.userData as User);
   }
 }

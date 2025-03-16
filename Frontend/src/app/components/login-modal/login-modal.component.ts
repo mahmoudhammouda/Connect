@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { LoadingScreenComponent } from '../loading-screen/loading-screen.component';
 import { LinkedInConfirmationComponent } from '../linkedin-confirmation/linkedin-confirmation.component';
 import { User } from '../../models/user.model';
+import { inject } from '@angular/core';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-modal',
@@ -14,7 +16,8 @@ import { User } from '../../models/user.model';
 export class LoginModalComponent {
   @Input() isOpen = false;
   @Output() closeModal = new EventEmitter<void>();
-  @Output() login = new EventEmitter<User>();
+  
+  private userService = inject(UserService);
 
   showLoading = false;
   showConfirmation = false;
@@ -58,7 +61,7 @@ export class LoginModalComponent {
   }
 
   handleConfirm(userData: User) {
-    this.login.emit(userData);
+    this.userService.setCurrentUser(userData);
     this.close();
   }
 }

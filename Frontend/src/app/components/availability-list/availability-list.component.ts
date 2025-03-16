@@ -59,8 +59,9 @@ export class AvailabilityListComponent {
     this.showLoginModal = false;
   }
 
-  handleLinkedInLogin(userData: User): void {
+  handleLoginEvent(userData: any): void {
     this.currentUser = userData;
+    this.closeLoginModal();
   }
 
   handleRowClick(event: Event, availabilityId: string): void {
