@@ -26,4 +26,15 @@
       </div>
     </div>
   </div>
+  
+  <!-- Loading Screen -->
+  <app-loading-screen [isOpen]="showLoading"></app-loading-screen>
+  
+  <!-- Confirmation Modal -->
+  <app-linkedin-confirmation
+    [isOpen]="showConfirmation"
+    [userData]="userData"
+    (closeModal)="close()"
+    (confirm)="handleConfirm($event)"
+  ></app-linkedin-confirmation>
 </div>

@@ -5,6 +5,7 @@ import { Availability } from '../../models/availability.model';
 import { AvailabilityFormComponent } from '../availability-form/availability-form.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
+import { User } from '../../models/user.model';
 
 @Component({
   selector: 'app-availability-list',
@@ -49,7 +50,7 @@ export class AvailabilityListComponent {
   showLoginModal = false;
   showAvailabilityForm = false;
   selectedAvailability: Availability | null = null;
-  isLinkedInLoggedIn = false;
+  currentUser: User | null = null;
   expandedId: string | null = null;
   activeDropdownId: string | null = null;
 
@@ -58,9 +59,8 @@ export class AvailabilityListComponent {
     this.showLoginModal = false;
   }
 
-  handleLinkedInLogin(): void {
-    this.isLinkedInLoggedIn = true;
-    this.showLoginModal = false;
+  handleLinkedInLogin(userData: User): void {
+    this.currentUser = userData;
   }
 
   handleRowClick(event: Event, availabilityId: string): void {
@@ -216,7 +216,7 @@ export class AvailabilityListComponent {
 
   handleLinkedInConnect(event: Event, availability: Availability): void {
     event.stopPropagation();
-    if (!this.isLinkedInLoggedIn) {
+    if (!this.currentUser) {
       this.showLoginModal = true;
       return;
     }
