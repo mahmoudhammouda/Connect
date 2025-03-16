@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "dev": "ng serve"
   },
   "dependencies": {
     "@angular/animations": "^17.1.2",

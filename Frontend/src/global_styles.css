@@ -12,6 +12,11 @@ tr:not(:last-child) {
   margin-bottom: 0.5rem;
 }
 
+/* Add spacing between availability list items */
+.space-y-4 > * + * {
+  margin-top: 1.5rem !important;
+}
+
 /* Ensure table rows have space between them */
 tbody tr {
   display: table-row;

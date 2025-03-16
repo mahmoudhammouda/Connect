@@ -488,6 +488,206 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       isLocked: false,
       isSubcontractor: true,
       isActive: true
+    },
+    {
+      id: '13',
+      reference: 'AVAIL-013',
+      role: 'Data Platform Architect',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Data Architecture', 'Big Data', 'Apache Spark', 'Databricks', 'Data Lakes'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-15'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Data Platform Design', 'Analytics Infrastructure'],
+      description: 'Senior Data Platform Architect with expertise in designing and implementing large-scale data solutions.',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '14',
+      reference: 'AVAIL-014',
+      role: 'ML Engineering Lead',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['Machine Learning', 'MLOps', 'TensorFlow', 'PyTorch', 'Kubernetes'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-05-01'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: ['AI/ML Infrastructure', 'Team Leadership'],
+      description: 'Machine Learning Engineering Lead specializing in MLOps and scalable AI systems.',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '15',
+      reference: 'AVAIL-015',
+      role: 'Site Reliability Engineer',
+      seniority: 'between_3_and_10',
+      mobility: 'Remote',
+      expertise: ['SRE', 'Observability', 'Prometheus', 'Grafana', 'SLOs'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-10'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Platform Engineering', 'Reliability'],
+      description: 'SRE focused on building reliable and scalable systems with strong observability practices.',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '16',
+      reference: 'AVAIL-016',
+      role: 'API Platform Architect',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['API Design', 'GraphQL', 'REST', 'API Gateway', 'Microservices'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-05-15'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['API Strategy', 'Platform Design'],
+      description: 'API Platform Architect specializing in designing scalable and secure API architectures.',
+      contractType: 'freelance',
+      isLocked: true,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '17',
+      reference: 'AVAIL-017',
+      role: 'Performance Engineer',
+      seniority: 'between_3_and_10',
+      mobility: 'Hybrid',
+      expertise: ['Performance Testing', 'Load Testing', 'JMeter', 'K6', 'Gatling'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-20'),
+        isFullRemote: false
+      },
+      status: 'immediate',
+      preferences: ['Performance Optimization', 'Scalability'],
+      description: 'Performance Engineer focused on optimizing system performance and scalability.',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '18',
+      reference: 'AVAIL-018',
+      role: 'Cloud Native Architect',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Kubernetes', 'Service Mesh', 'GitOps', 'Cloud Native', 'Istio'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-05-01'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['Cloud Native Architecture', 'Container Platforms'],
+      description: 'Cloud Native Architect specializing in Kubernetes and service mesh architectures.',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '19',
+      reference: 'AVAIL-019',
+      role: 'DevSecOps Engineer',
+      seniority: 'between_3_and_10',
+      mobility: 'Remote',
+      expertise: ['Security Automation', 'CI/CD Security', 'Container Security', 'SAST/DAST'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-15'),
+        isFullRemote: true
+      },
+      status: 'immediate',
+      preferences: ['Security Automation', 'Pipeline Security'],
+      description: 'DevSecOps Engineer focusing on embedding security in the development pipeline.',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '20',
+      reference: 'AVAIL-020',
+      role: 'Blockchain Architect',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Blockchain', 'Smart Contracts', 'Web3', 'DeFi', 'Ethereum'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-05-10'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['DeFi Projects', 'Web3 Development'],
+      description: 'Blockchain Architect specializing in DeFi and Web3 applications.',
+      contractType: 'freelance',
+      isLocked: true,
+      isSubcontractor: false,
+      isActive: true
+    },
+    {
+      id: '21',
+      reference: 'AVAIL-021',
+      role: 'Edge Computing Architect',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['Edge Computing', 'IoT', '5G', 'Distributed Systems'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-25'),
+        isFullRemote: false
+      },
+      status: 'immediate',
+      preferences: ['Edge Solutions', 'IoT Platforms'],
+      description: 'Edge Computing Architect focusing on distributed edge computing solutions.',
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: true,
+      isActive: true
+    },
+    {
+      id: '22',
+      reference: 'AVAIL-022',
+      role: 'Low-Code Platform Architect',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Low-Code', 'Mendix', 'OutSystems', 'Power Platform'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-05-05'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['Low-Code Development', 'Enterprise Platforms'],
+      description: 'Low-Code Platform Architect specializing in enterprise low-code solutions.',
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true
     }
   ];
 
@@ -566,7 +766,7 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       },
       status: 'soon',
       preferences: ['User-centered design', 'Design systems'],
-      description: 'UI/UX designer with focus on user experience',
+      description: 'UI/UX designer with focus on user experience and design systems',
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: true,
