@@ -25,6 +25,7 @@ export class AvailabilityListComponent {
 
   // Tab state
   activeTab: 'available' | 'mine' = 'available';
+  activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
 
   // Search and filter state
   searchQuery = '';
@@ -94,9 +95,17 @@ export class AvailabilityListComponent {
   }
 
   constructor() {
+    // Always set consultant tab for freelancers
+    this.activeHeroTab = 'consultant';
+    
     // Always set activeTab to 'available' for non-authenticated users
     if (!this.currentUser) {
       this.activeTab = 'available';
+    }
+
+    // Hide recruiter tab for freelancers
+    if (this.currentUser?.role === 'freelance') {
+      this.activeHeroTab = 'consultant';
     }
     
     this.filteredAvailabilities = this.availabilities.slice(0, this.pageSize);
