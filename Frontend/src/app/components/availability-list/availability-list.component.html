@@ -1,4 +1,39 @@
 <div class="p-4 relative">
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-8 mb-8 text-white">
+    <div class="max-w-3xl">
+      <h1 class="text-3xl font-bold mb-4">Get Matched with Top Projects</h1>
+      <p class="text-xl mb-6 text-blue-100">Share your availability and connect directly with a network of 500+ business developers and tech recruiters actively looking for experts like you.</p>
+      <div class="flex gap-4 items-center">
+        <button 
+          (click)="openAvailabilityForm()"
+          class="px-6 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-200 font-medium flex items-center gap-2"
+        >
+          <span class="material-icons text-sm">add</span>
+          Share Your Availability
+        </button>
+        <div class="flex items-center gap-2 text-blue-100">
+          <span class="material-icons">check_circle</span>
+          <span>Takes less than 2 minutes</span>
+        </div>
+      </div>
+      <div class="mt-6 flex gap-8">
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-blue-300">people</span>
+          <span class="text-blue-100">500+ Active Recruiters</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-blue-300">rocket_launch</span>
+          <span class="text-blue-100">Direct Project Matching</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-blue-300">verified</span>
+          <span class="text-blue-100">Verified Companies Only</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="flex justify-between items-center mb-4">
     <div class="flex gap-4 border-b">
       <button 
@@ -18,17 +53,6 @@
         My Availabilities
       </button>
     </div>
-  </div>
-  
-  <!-- Add Availability Button -->
-  <div class="mb-4">
-    <button 
-      (click)="openAvailabilityForm()"
-      class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
-    >
-      <span class="material-icons text-sm">add</span>
-      Share Your Availability
-    </button>
   </div>
   
   <!-- Search and Filter Bar -->
