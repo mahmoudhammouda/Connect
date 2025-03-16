@@ -24,7 +24,7 @@ export class AvailabilityListComponent {
   hasMoreItems = true;
 
   // Tab state
-  activeTab: 'available' | 'mine' = 'available';
+  activeTab: 'available' | 'mine' | 'public' | 'requests' | 'subcontractors' = 'available';
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
 
   // Search and filter state
@@ -97,6 +97,11 @@ export class AvailabilityListComponent {
   constructor() {
     // Always set consultant tab for freelancers
     this.activeHeroTab = 'consultant';
+
+    // Set default tab based on user role
+    if (this.currentUser?.role === 'recruiter' || this.currentUser?.role === 'business_developer') {
+      this.activeTab = 'public';
+    }
     
     // Always set activeTab to 'available' for non-authenticated users
     if (!this.currentUser) {
@@ -253,9 +258,9 @@ export class AvailabilityListComponent {
     const baseClasses = 'w-3 h-3 rounded-full';
     switch (status) {
       case 'immediate':
-        return `${baseClasses} bg-green-500`;
+        return `${baseClasses} bg-yellow-400`;
       case 'soon':
-        return `${baseClasses} bg-yellow-500`;
+        return `${baseClasses} bg-yellow-300`;
       case 'inactive':
         return `${baseClasses} bg-gray-400`;
       default:
