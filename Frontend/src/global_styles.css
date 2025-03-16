@@ -8,8 +8,8 @@ body {
 }
 
 /* Add spacing between table rows */
-tr:not(:last-child) {
-  margin-bottom: 0.5rem;
+tr {
+  height: 5rem;
 }
 
 /* Add spacing between availability list items */
@@ -18,7 +18,13 @@ tr:not(:last-child) {
 }
 
 /* Ensure table rows have space between them */
-tbody tr {
-  display: table-row;
-  margin-bottom: 0.5rem;
+.table-fixed {
+  table-layout: fixed;
+}
+
+/* Truncate long text with ellipsis */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
