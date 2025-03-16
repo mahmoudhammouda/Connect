@@ -18,6 +18,9 @@ export interface Availability {
   isLocked: boolean;
   isSubcontractor: boolean;
   isActive: boolean;
+  phoneValidated?: boolean;
+  emailValidated?: boolean;
+  linkedinValidated?: boolean;
   dailyRate?: number;
   yearsOfExperience?: number;
   languages?: Array<{

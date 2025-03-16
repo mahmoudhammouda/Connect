@@ -27,8 +27,23 @@ export class AvailabilityListComponent {
   searchQuery = '';
   selectedMobility = '';
   selectedSeniority = '';
+  selectedCountry = '';
   filteredAvailabilities: Availability[] = [];
-  uniqueMobilities: string[] = [];
+  // Update country codes to match flag CDN requirements
+  uniqueCountries: Array<{ code: string; name: string }> = [
+    { code: 'fr', name: 'France' },
+    { code: 'gb', name: 'United Kingdom' },
+    { code: 'de', name: 'Germany' },
+    { code: 'es', name: 'Spain' },
+    { code: 'it', name: 'Italy' },
+    { code: 'nl', name: 'Netherlands' },
+    { code: 'be', name: 'Belgium' },
+    { code: 'ch', name: 'Switzerland' }
+  ];
+
+  getCountryName(code: string): string {
+    return this.uniqueCountries.find(c => c.code === code.toLowerCase())?.name || '';
+  }
 
   // Modal state
   showLoginModal = false;
@@ -68,7 +83,15 @@ export class AvailabilityListComponent {
 
   constructor() {
     this.filteredAvailabilities = this.availabilities.slice(0, this.pageSize);
-    this.uniqueMobilities = Array.from(new Set(this.availabilities.map(c => c.mobility))).sort();
+    // Extract unique countries from cities
+    const countries = new Set<string>();
+    this.availabilities.forEach(availability => {
+      availability.cities?.forEach(city => {
+        countries.add(JSON.stringify({ code: city.countryCode, name: city.country }));
+      });
+    });
+    this.uniqueCountries = Array.from(countries).map(c => JSON.parse(c))
+      .sort((a, b) => a.name.localeCompare(b.name));
     this.filterAvailabilities();
     this.setupInfiniteScroll();
   }
@@ -123,13 +146,13 @@ export class AvailabilityListComponent {
           skill.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
 
-      const matchesMobility = !this.selectedMobility || 
-        availability.mobility === this.selectedMobility;
+      const matchesCountry = !this.selectedCountry || 
+        availability.cities?.some(city => city.countryCode === this.selectedCountry);
 
       const matchesSeniority = !this.selectedSeniority || 
         availability.seniority === this.selectedSeniority;
 
-      return matchesSearch && matchesMobility && matchesSeniority;
+      return matchesSearch && matchesCountry && matchesSeniority;
     }).slice(0, this.pageSize);
   }
 
@@ -311,6 +334,9 @@ export class AvailabilityListComponent {
         startDate: new Date('2024-03-15'),
         isFullRemote: true
       },
+      phoneValidated: true,
+      emailValidated: true,
+      linkedinValidated: false,
       status: 'immediate',
       preferences: [
         'Startup environment',

@@ -69,15 +69,29 @@
       </div>
       <div>
         <select 
-          [(ngModel)]="selectedMobility"
+          [(ngModel)]="selectedCountry"
           (ngModelChange)="filterAvailabilities()"
-          class="w-full p-2 border rounded-lg"
+          class="w-full p-2 pl-8 pr-10 border rounded-lg appearance-none bg-white relative"
         >
-          <option value="">All Locations</option>
-          @for (mobility of uniqueMobilities; track mobility) {
-            <option [value]="mobility">{{mobility}}</option>
+          <option value="">Select a country</option>
+          @for (country of uniqueCountries; track country.code) {
+            <option [value]="country.code" class="flex items-center gap-2">
+              {{country.name}}
+            </option>
           }
         </select>
+        <div class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+          @if (selectedCountry) {
+            <img 
+              [src]="'https://flagcdn.com/w20/' + selectedCountry.toLowerCase() + '.png'"
+              class="w-4 h-4 rounded-sm"
+              [alt]="getCountryName(selectedCountry)"
+            >
+          }
+        </div>
+        <div class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <span class="material-icons">expand_more</span>
+        </div>
       </div>
       <div>
         <select 
@@ -112,7 +126,7 @@
         @for (availability of activeTab === 'available' ? filteredAvailabilities : availabilities; track availability.id) {
           <tr 
             (click)="handleRowClick($event, availability.id)" 
-            class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-sm bg-white h-20"
+            class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative"
           >
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               <div class="flex items-center gap-2">
@@ -129,6 +143,28 @@
               <div class="flex items-center gap-2 h-8">
                 <div class="relative group">
                   <div [class]="getStatusDotClass(availability.status)" title="{{getStatusText(availability.status)}}"></div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <!-- Phone validation -->
+                  <span 
+                    class="material-icons text-sm"
+                    [class]="availability.phoneValidated ? 'text-green-500' : 'text-gray-300 line-through'"
+                    [title]="availability.phoneValidated ? 'Phone verified' : 'Phone not verified'"
+                  >phone</span>
+                  
+                  <!-- Email validation -->
+                  <span 
+                    class="material-icons text-sm"
+                    [class]="availability.emailValidated ? 'text-green-500' : 'text-gray-300 line-through'"
+                    [title]="availability.emailValidated ? 'Email verified' : 'Email not verified'"
+                  >email</span>
+                  
+                  <!-- LinkedIn validation -->
+                  <span 
+                    class="material-icons text-sm"
+                    [class]="availability.linkedinValidated ? 'text-green-500' : 'text-gray-300 line-through'"
+                    [title]="availability.linkedinValidated ? 'LinkedIn verified' : 'LinkedIn not verified'"
+                  >link</span>
                 </div>
                 @if (availability.isSubcontractor) {
                   <div class="relative group">
@@ -235,7 +271,7 @@
           </tr>
           @if (expandedId === availability.id) {
             <tr>
-              <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-inner">
+              <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-lg">
                 <div class="text-sm text-gray-700 grid grid-cols-3 gap-6">
                   <!-- Quick Info -->
                   <div class="col-span-1 bg-white p-4 rounded-lg border">
