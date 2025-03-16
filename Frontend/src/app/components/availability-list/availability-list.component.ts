@@ -273,7 +273,9 @@ export class AvailabilityListComponent {
         'Flexible hours',
         'International teams'
       ],
-      description: 'Full stack developer with 5 years of experience',
+      description: `Hello [Recruiter Name],
+I'm reaching out to let you know that I'll be available in two weeks for a new project as a .NET Solutions Architect. With 17 years in designing and implementing enterprise solutions, I specialize in Cloud & Microservices (Azure), API design, and large-scale system modernization. I'd love to explore potential opportunities with you!
+#SolutionsArchitect #.NET #Azure #Microservices #Cloud #AvailableSoon`,
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
@@ -296,9 +298,12 @@ export class AvailabilityListComponent {
       preferences: [
         'Cloud infrastructure',
         'CI/CD implementation',
-        'Security focus'
+        'Security focus',
+        'Enterprise projects'
       ],
-      description: 'Senior DevOps engineer with extensive cloud experience',
+      description: `Hi [Recruiter Name],
+I'm excited to share that I'll be free in about two weeks for a new assignment. My background includes 17 years of expertise in .NET, Cloud architectures, and Event-Driven solutions. I've led projects modernizing legacy systems and implementing scalable enterprise solutions. Let's connect and see how I can support your clients!
+#Architect #NET #Cloud #EventDriven #Opportunity`,
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: true,
@@ -318,7 +323,9 @@ export class AvailabilityListComponent {
       },
       status: 'immediate',
       preferences: ['Big data projects', 'Data pipeline optimization'],
-      description: 'Senior data engineer with expertise in big data technologies',
+      description: `Dear [Recruiter Name],
+I'm ready to take on fresh challenges in approximately two weeks. I bring extensive experience in architecting .NET Core solutions, designing Microservices on Azure, and guiding teams under Agile methodologies. Looking forward to discussing how we can collaborate on your next big project!
+#Architect #NETCore #Azure #Agile #Microservices`,
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
@@ -338,7 +345,9 @@ export class AvailabilityListComponent {
       },
       status: 'soon',
       preferences: ['Cloud migration', 'Multi-cloud strategies'],
-      description: 'Cloud architect with multi-cloud expertise',
+      description: `Hello [Recruiter Name],
+I wanted to let you know that I have upcoming availability for a Solutions Architect role in the .NET ecosystem. My background spans 17 years of delivering robust enterprise architectures, focusing on Cloud-based microservices, API management, and Agile leadership. I'd love to chat about potential roles you have open.
+#SolutionsArchitect #NET #Cloud #AvailableSoon`,
       contractType: 'cdi',
       isLocked: true,
       isSubcontractor: true,
@@ -358,7 +367,9 @@ export class AvailabilityListComponent {
       },
       status: 'immediate',
       preferences: ['Mobile development', 'Cross-platform apps'],
-      description: 'Mobile developer specializing in cross-platform development',
+      description: `Hi [Recruiter Name],
+I'm currently planning my next assignment, available in two weeks. I excel in .NET architecture, Cloud migrations (Azure), and implementing secure, scalable systems. If you're looking for someone to drive enterprise modernization and lead technical teams, let's discuss!
+#CloudComputing #NETArchitect #Azure #Microservices`,
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
@@ -378,7 +389,9 @@ export class AvailabilityListComponent {
       },
       status: 'soon',
       preferences: ['Security architecture', 'Compliance frameworks'],
-      description: 'Security engineer with focus on application security',
+      description: `Dear [Recruiter Name],
+I'll be free shortly and would love to bring my 17 years of .NET and Cloud experience to your clients. I specialize in event-driven architecture, microservices, and enterprise security. Let's connect and explore how I can contribute to your upcoming projects!
+#EventDriven #Microservices #NETExpert #RemoteWork #AvailableIn2Weeks`,
       contractType: 'cdi',
       isLocked: true,
       isSubcontractor: false,
@@ -402,7 +415,9 @@ export class AvailabilityListComponent {
         'UI/UX focus',
         'Agile teams'
       ],
-      description: 'Frontend developer specializing in modern JavaScript frameworks',
+      description: `Hello [Recruiter Name],
+I'm writing to let you know that I'm wrapping up my current mission and will be available for new opportunities soon. My expertise includes .NET Core, Azure DevOps, and high-performance enterprise systems. Please feel free to reach out if you're looking for a senior architect to strengthen your team.
+#SolutionsArchitect #DotNet #AzureDevOps #HiringNow`,
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: false,
@@ -422,7 +437,9 @@ export class AvailabilityListComponent {
       },
       status: 'soon',
       preferences: ['AI research', 'Machine learning projects'],
-      description: 'Senior AI/ML engineer specializing in deep learning',
+      description: `Hi [Recruiter Name],
+I'm an experienced .NET Solutions Architect, ready for new challenges in about two weeks. My focus areas include Cloud & Microservices (Azure), API-driven solutions, and legacy modernization. I'd be glad to collaborate with your firm to design and deploy cutting-edge tech solutions.
+#AvailableSoon #Architect #Microservices #Azure #Agile`,
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
@@ -442,7 +459,9 @@ export class AvailabilityListComponent {
       },
       status: 'immediate',
       preferences: ['DeFi projects', 'Blockchain platforms'],
-      description: 'Blockchain developer with DeFi expertise',
+      description: `Hello [Recruiter Name],
+I'm reaching out to inform you of my upcoming availability. Over 17 years, I've built expertise in .NET frameworks, Cloud environments, and complex enterprise integrations. Let me know if you have roles that need a seasoned architect adept at creating scalable, secure systems.
+#OpenForNewProjects #CloudArchitecture #.NET #Scalability`,
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: false,
@@ -462,7 +481,9 @@ export class AvailabilityListComponent {
       },
       status: 'soon',
       preferences: ['SRE practices', 'Observability'],
-      description: 'Site Reliability Engineer with focus on observability',
+      description: `Dear [Recruiter Name],
+I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I specialize in microservices, Azure-based environments, and leading Agile teams toward successful product deliveries. If this aligns with your needs, let's discuss further!
+#SolutionsArchitect #NETFramework #Azure #AgileTeams #TechLeadership`,
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: true,

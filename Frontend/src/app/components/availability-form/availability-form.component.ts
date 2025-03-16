@@ -23,6 +23,11 @@ export class AvailabilityFormComponent {
   @Output() closeModal = new EventEmitter<void>();
   @Output() save = new EventEmitter<any>();
 
+  // TinyMCE instance
+  private tinymce: any = (window as any).tinymce;
+
+  suggestedHashtags: string[] = [];
+
   removeLanguage(langName: string) {
     this.formData.languages = this.formData.languages.filter(l => l.name !== langName);
   }
@@ -182,8 +187,38 @@ export class AvailabilityFormComponent {
     statusbar: false,
     resize: true,
     branding: false,
-    promotion: false
+    promotion: false,
+    setup: (editor: any) => {
+      editor.on('KeyUp', (e: { key: string }) => {
+        const content = editor.getContent();
+        if (e.key === ' ' && content.endsWith('#')) {
+          this.suggestHashtags();
+        }
+      });
+    }
   };
+
+  async suggestHashtags() {
+    // This would call an AI service in production
+    // For now, we'll use some static suggestions based on common tech hashtags
+    this.suggestedHashtags = [
+      '#TechJobs',
+      '#RemoteWork',
+      '#SoftwareEngineering',
+      '#TechTalent',
+      '#DevLife',
+      '#Coding',
+      '#TechCareers'
+    ];
+  }
+
+  insertHashtag(hashtag: string) {
+    const editor = this.tinymce.get('description');
+    if (editor) {
+      editor.insertContent(' ' + hashtag + ' ');
+      this.suggestedHashtags = [];
+    }
+  }
 
   addCity(event: Event) {
     const select = event.target as HTMLSelectElement;

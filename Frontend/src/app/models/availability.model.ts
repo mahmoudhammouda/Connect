@@ -27,4 +27,9 @@ export interface Availability {
   jobPreferences?: string[];
   linkedinUrl?: string;
   hidePhone?: boolean;
+  cities?: Array<{
+    name: string;
+    country: string;
+    countryCode: string;
+  }>;
 }
