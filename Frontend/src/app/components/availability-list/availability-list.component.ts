@@ -14,6 +14,12 @@ import { LoginModalComponent } from '../login-modal/login-modal.component';
   styleUrls: ['./availability-list.component.scss']
 })
 export class AvailabilityListComponent {
+  // Pagination
+  pageSize = 10;
+  currentPage = 1;
+  isLoading = false;
+  hasMoreItems = true;
+
   // Tab state
   activeTab: 'available' | 'mine' = 'available';
 
@@ -45,7 +51,7 @@ export class AvailabilityListComponent {
   handleRowClick(event: Event, availabilityId: string): void {
     // Get the clicked element
     const target = event.target as HTMLElement;
-    const availability = this.myAvailabilities.find(c => c.id === availabilityId);
+    const availability = this.availabilities.find((c: Availability) => c.id === availabilityId);
     
     // Check if the click was on or inside an interactive element
     const isInteractiveElement = target.closest('button, input, select, label, .material-icons, .clickable-element');
@@ -61,12 +67,50 @@ export class AvailabilityListComponent {
   }
 
   constructor() {
-    this.filteredAvailabilities = this.availabilities;
+    this.filteredAvailabilities = this.availabilities.slice(0, this.pageSize);
     this.uniqueMobilities = Array.from(new Set(this.availabilities.map(c => c.mobility))).sort();
     this.filterAvailabilities();
+    this.setupInfiniteScroll();
+  }
+
+  private setupInfiniteScroll(): void {
+    window.addEventListener('scroll', () => {
+      if (this.isLoading || !this.hasMoreItems) return;
+
+      const threshold = 50; // pixels from bottom
+      const position = window.scrollY + window.innerHeight;
+      const height = document.documentElement.scrollHeight;
+
+      if (position > height - threshold) {
+        this.loadMoreItems();
+      }
+    });
+  }
+
+  private loadMoreItems(): void {
+    this.isLoading = true;
+    
+    // Simulate API call delay
+    setTimeout(() => {
+      const start = this.currentPage * this.pageSize;
+      const end = start + this.pageSize;
+      const newItems = this.availabilities.slice(start, end);
+      
+      if (newItems.length > 0) {
+        this.filteredAvailabilities = [...this.filteredAvailabilities, ...newItems];
+        this.currentPage++;
+      } else {
+        this.hasMoreItems = false;
+      }
+      
+      this.isLoading = false;
+    }, 500);
   }
 
   filterAvailabilities(): void {
+    this.currentPage = 1;
+    this.hasMoreItems = true;
+    
     this.filteredAvailabilities = this.availabilities.filter(availability => {
       // First check if the availability is active
       if (!availability.isActive) {
@@ -86,7 +130,7 @@ export class AvailabilityListComponent {
         availability.seniority === this.selectedSeniority;
 
       return matchesSearch && matchesMobility && matchesSeniority;
-    });
+    }).slice(0, this.pageSize);
   }
 
   toggleDetails(id: string): void {
@@ -108,10 +152,10 @@ export class AvailabilityListComponent {
     if (!this.selectedAvailability) {
       this.createNewAvailability(formData);
     } else if (this.selectedAvailability) {
-      const index = this.myAvailabilities.findIndex(c => c.id === this.selectedAvailability!.id);
+      const index = this.availabilities.findIndex(c => c.id === this.selectedAvailability!.id);
       if (index !== -1) {
-        this.myAvailabilities[index] = {
-          ...this.myAvailabilities[index],
+        this.availabilities[index] = {
+          ...this.availabilities[index],
           status: formData.status,
           workLocation: formData.workLocation,
           mobility: formData.workLocation === 'remote' ? 'Remote' : 
@@ -217,8 +261,8 @@ export class AvailabilityListComponent {
 
   private createNewAvailability(formData: any): void {
     const newAvailability: Availability = {
-      id: (this.myAvailabilities.length + 1).toString(),
-      reference: `AVAIL-${(this.myAvailabilities.length + 1).toString().padStart(3, '0')}`,
+      id: (this.availabilities.length + 1).toString(),
+      reference: `AVAIL-${(this.availabilities.length + 1).toString().padStart(3, '0')}`,
       role: 'New Role',
       seniority: 'between_3_and_10',
       mobility: formData.workLocation === 'remote' ? 'Remote' : 
@@ -237,7 +281,7 @@ export class AvailabilityListComponent {
       isSubcontractor: false,
       isActive: true
     };
-    this.myAvailabilities.unshift(newAvailability);
+    this.availabilities.unshift(newAvailability);
   }
 
   toggleDropdown(event: Event, availabilityId: string): void {
@@ -246,9 +290,9 @@ export class AvailabilityListComponent {
   }
 
   deleteAvailability(availability: Availability): void {
-    const index = this.myAvailabilities.findIndex(c => c.id === availability.id);
+    const index = this.availabilities.findIndex(c => c.id === availability.id);
     if (index !== -1) {
-      this.myAvailabilities.splice(index, 1);
+      this.availabilities.splice(index, 1);
     }
     this.activeDropdownId = null;
   }
@@ -688,149 +732,66 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       isLocked: false,
       isSubcontractor: false,
       isActive: true
-    }
-  ];
-
-  myAvailabilities: Availability[] = [
-    {
-      id: '4',
-      reference: 'AVAIL-004',
-      role: 'Technical Lead',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Architecture', 'Team Leadership', 'Node.js', 'React', 'AWS'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-15'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['Remote-first teams', 'Technical mentorship'],
-      description: 'Technical lead with experience in building and leading remote development teams',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false,
-      isActive: true
     },
     {
-      id: '5',
-      reference: 'AVAIL-005',
-      role: 'Solution Architect',
+      id: '23',
+      reference: 'AVAIL-023',
+      role: 'Quantum Computing Engineer',
       seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['System Design', 'Cloud Architecture', 'Enterprise Integration'],
-      workLocation: 'hybrid',
+      mobility: 'Remote',
+      expertise: ['Quantum Algorithms', 'Qiskit', 'Q#', 'Quantum ML'],
+      workLocation: 'remote',
       availability: {
-        startDate: new Date('2024-04-01'),
-        isFullRemote: false
+        startDate: new Date('2024-05-20'),
+        isFullRemote: true
       },
       status: 'soon',
-      preferences: ['Enterprise projects', 'Architecture modernization'],
-      description: 'Solution architect specializing in enterprise architecture and system integration',
-      contractType: 'cdi',
-      isLocked: false,
-      isSubcontractor: true,
-      isActive: true
-    },
-    {
-      id: '6',
-      reference: 'AVAIL-006',
-      role: 'Backend Lead',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Java', 'Spring Boot', 'Microservices', 'Kafka'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-25'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['Microservices architecture', 'High-performance systems'],
-      description: 'Backend lead specializing in Java ecosystem',
+      preferences: ['Quantum Research', 'Algorithm Development'],
+      description: 'Quantum Computing Engineer specializing in quantum algorithms and quantum machine learning.',
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
       isActive: true
     },
     {
-      id: '7',
-      reference: 'AVAIL-007',
-      role: 'UI/UX Designer',
+      id: '24',
+      reference: 'AVAIL-024',
+      role: 'AR/VR Developer',
       seniority: 'between_3_and_10',
       mobility: 'Hybrid',
-      expertise: ['Figma', 'Adobe XD', 'User Research', 'Prototyping'],
+      expertise: ['Unity', 'Unreal Engine', 'ARKit', 'VR Development'],
       workLocation: 'hybrid',
       availability: {
-        startDate: new Date('2024-04-01'),
+        startDate: new Date('2024-05-15'),
         isFullRemote: false
       },
-      status: 'soon',
-      preferences: ['User-centered design', 'Design systems'],
-      description: 'UI/UX designer with focus on user experience and design systems',
+      status: 'immediate',
+      preferences: ['AR/VR Development', 'Game Engines'],
+      description: 'AR/VR Developer with expertise in creating immersive experiences.',
       contractType: 'cdi',
       isLocked: false,
-      isSubcontractor: true,
-      isActive: true
-    },
-    {
-      id: '8',
-      reference: 'AVAIL-008',
-      role: 'DevOps Lead',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Kubernetes', 'AWS', 'CI/CD', 'GitOps'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-20'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['Infrastructure automation', 'Cloud-native'],
-      description: 'DevOps lead with extensive cloud experience',
-      contractType: 'freelance',
-      isLocked: false,
       isSubcontractor: false,
       isActive: true
     },
     {
-      id: '9',
-      reference: 'AVAIL-009',
-      role: 'Data Scientist',
-      seniority: 'between_3_and_10',
-      mobility: 'Remote',
-      expertise: ['Python', 'R', 'Machine Learning', 'Statistics'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-04-05'),
-        isFullRemote: true
-      },
-      status: 'soon',
-      preferences: ['Data analysis', 'Statistical modeling'],
-      description: 'Data scientist specializing in predictive analytics',
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false,
-      isActive: true
-    },
-    {
-      id: '10',
-      reference: 'AVAIL-010',
-      role: 'Performance Engineer',
+      id: '25',
+      reference: 'AVAIL-025',
+      role: 'Robotics Engineer',
       seniority: 'more_than_10',
       mobility: 'Hybrid',
-      expertise: ['JMeter', 'LoadRunner', 'Performance Testing'],
+      expertise: ['ROS', 'Computer Vision', 'Motion Planning', 'Robotics Control'],
       workLocation: 'hybrid',
       availability: {
-        startDate: new Date('2024-03-28'),
+        startDate: new Date('2024-05-25'),
         isFullRemote: false
       },
-      status: 'immediate',
-      preferences: ['Performance optimization', 'Load testing'],
-      description: 'Performance engineer focused on scalability',
-      contractType: 'cdi',
+      status: 'soon',
+      preferences: ['Industrial Robotics', 'Automation'],
+      description: 'Robotics Engineer specializing in industrial automation and control systems.',
+      contractType: 'freelance',
       isLocked: false,
       isSubcontractor: true,
       isActive: true
     }
   ];
-}
+    }

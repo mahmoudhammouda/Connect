@@ -1,4 +1,4 @@
-<div class="p-4">
+<div class="p-4 relative">
   <div class="flex justify-between items-center mb-4">
     <div class="flex gap-4 border-b">
       <button 
@@ -32,7 +32,7 @@
   </div>
   
   <!-- Search and Filter Bar -->
-  <div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b" *ngIf="activeTab === 'available'">
+  <div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm" *ngIf="activeTab === 'available'">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="col-span-1 md:col-span-2">
         <input 
@@ -309,21 +309,16 @@
     </table>
   </div>
 
-  <!-- Pagination -->
-  <div class="mt-4 flex items-center justify-between" *ngIf="activeTab === 'available'">
-    <div class="flex items-center gap-2">
-      <select class="border rounded p-1">
-        <option>10 per page</option>
-        <option>25 per page</option>
-        <option>50 per page</option>
-      </select>
-    </div>
-    <div class="flex gap-2">
-      <button class="px-3 py-1 border rounded">Previous</button>
-      <button class="px-3 py-1 border rounded bg-blue-500 text-white">1</button>
-      <button class="px-3 py-1 border rounded">2</button>
-      <button class="px-3 py-1 border rounded">3</button>
-      <button class="px-3 py-1 border rounded">Next</button>
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-4">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+  
+  <!-- No More Items Message -->
+  <div *ngIf="!hasMoreItems && activeTab === 'available'" class="text-center text-gray-500 py-4">
+    <div class="flex items-center justify-center gap-2">
+      <span class="material-icons">info</span>
+      <span>No more items to load</span>
     </div>
   </div>
 </div>
