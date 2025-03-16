@@ -6,6 +6,8 @@ import { AvailabilityFormComponent } from '../availability-form/availability-for
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
 import { User } from '../../models/user.model';
+import { inject } from '@angular/core';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-availability-list',
@@ -50,9 +52,18 @@ export class AvailabilityListComponent {
   showLoginModal = false;
   showAvailabilityForm = false;
   selectedAvailability: Availability | null = null;
-  currentUser: User | null = null;
   expandedId: string | null = null;
   activeDropdownId: string | null = null;
+
+  private userService = inject(UserService);
+
+  get currentUser() {
+    return this.userService.getCurrentUser()();
+  }
+
+  get isRecruiter() {
+    return this.currentUser?.role === 'recruiter' || this.currentUser?.role === 'business_developer';
+  }
 
   // LinkedIn related methods
   closeLoginModal(): void {
@@ -60,7 +71,7 @@ export class AvailabilityListComponent {
   }
 
   handleLoginEvent(userData: any): void {
-    this.currentUser = userData;
+    this.userService.setCurrentUser(userData);
     this.closeLoginModal();
   }
 
