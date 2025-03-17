@@ -1,0 +1,64 @@
+<div class="p-4 relative">
+  <app-hero-section
+    [currentUser]="currentUser"
+    (addAvailability)="openAvailabilityForm()"
+  ></app-hero-section>
+
+  <!-- Content Tabs -->
+  <div class="flex gap-4 border-b mb-6">
+    <div class="flex gap-4">
+      <button 
+        (click)="activeTab = 'available'"
+        [class]="activeTab === 'available' ? 
+          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+      >
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-sm">person</span>
+          Available Experts
+        </div>
+      </button>
+      <button 
+        (click)="activeTab = 'requests'"
+        [class]="activeTab === 'requests' ? 
+          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+      >
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-sm">work</span>
+          Open Positions
+        </div>
+      </button>
+    </div>
+  </div>
+
+
+  <div class="grid grid-cols-1 gap-6">
+    @if (activeTab === 'available') {
+      <app-availability-list
+        [currentUser]="currentUser"
+        [availabilities]="availabilities"
+        [activeTab]="activeTab"
+      ></app-availability-list>
+    } @else {
+      <app-position-list
+        [currentUser]="currentUser"
+      ></app-position-list>
+    }
+  </div>
+</div>
+
+<!-- LinkedIn Login Modal -->
+<app-modal
+  [isOpen]="showLoginModal"
+  (closeModal)="closeLoginModal()"
+  (login)="handleLoginEvent($event)"
+></app-modal>
+
+<!-- Availability Form Modal -->
+<app-availability-form
+  [isOpen]="showAvailabilityForm"
+  [availability]="selectedAvailability"
+  (closeModal)="closeAvailabilityForm()"
+  (save)="handleAvailabilitySubmit($event)"
+></app-availability-form>

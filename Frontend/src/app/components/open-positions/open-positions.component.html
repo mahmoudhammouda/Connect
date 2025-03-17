@@ -1,0 +1,147 @@
+<div class="space-y-6">
+  <!-- Search and Filter Bar -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="col-span-1 md:col-span-2">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="filterPositions()"
+        placeholder="Search by role, required expertise..."
+        class="w-full p-2 border rounded-lg"
+      >
+    </div>
+    <div>
+      <select 
+        [(ngModel)]="selectedCountry"
+        (ngModelChange)="filterPositions()"
+        class="w-full p-2 border rounded-lg"
+      >
+        <option value="">All Locations</option>
+        <option value="FR">France</option>
+        <option value="GB">United Kingdom</option>
+        <option value="DE">Germany</option>
+      </select>
+    </div>
+    <div>
+      <select 
+        [(ngModel)]="selectedSeniority"
+        (ngModelChange)="filterPositions()"
+        class="w-full p-2 border rounded-lg"
+      >
+        <option value="">All Experience Levels</option>
+        <option value="less_than_3">< 3 years</option>
+        <option value="between_3_and_10">3-10 years</option>
+        <option value="more_than_10">10+ years</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Positions List -->
+  <div class="space-y-4">
+    @for (position of filteredPositions; track position.id) {
+      <div class="bg-white rounded-lg border shadow-sm overflow-hidden">
+        <!-- Header -->
+        <div class="p-4 border-b">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-3 text-sm text-gray-500 mb-2">
+                <span>{{position.reference}}</span>
+                <span>•</span>
+                <span>Posted {{position.postedDate | date}}</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900">{{position.title}}</h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
+                <img 
+                  [src]="position.postedBy.photoUrl"
+                  [alt]="position.postedBy.firstName"
+                  class="w-8 h-8 rounded-full"
+                >
+                <div class="text-sm">
+                  <div class="font-medium">{{position.postedBy.firstName}} {{position.postedBy.lastName}}</div>
+                  <div class="text-gray-500">{{position.postedBy.company}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Info -->
+          <div class="flex flex-wrap gap-4 mt-4">
+            <!-- Experience -->
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-gray-400">work</span>
+              <span>{{getSeniorityText(position.seniority)}}</span>
+            </div>
+            
+            <!-- Location -->
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-gray-400">place</span>
+              @if (position.cities?.length) {
+                <div class="flex gap-1">
+                  @for (city of position.cities; track city.name) {
+                    <span class="inline-flex items-center gap-1">
+                      <img 
+                        [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
+                        [alt]="city.country"
+                        class="w-4 h-4 rounded-sm"
+                      >
+                      {{city.name}}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <span>Remote</span>
+              }
+              @if (position.workLocation === 'remote') {
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Remote</span>
+              } @else if (position.workLocation === 'hybrid') {
+                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">Hybrid</span>
+              }
+            </div>
+            
+            <!-- Start Date -->
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-gray-400">calendar_today</span>
+              <span>From {{position.startDate | date}}</span>
+            </div>
+            
+            <!-- Contract Type -->
+            <div>
+              <span [class]="getContractClass(position.contractType)">
+                {{getContractText(position.contractType)}}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Body -->
+        <div class="p-4">
+          <p class="text-gray-600 mb-4">{{position.description}}</p>
+          
+          <!-- Required Expertise -->
+          <div class="space-y-2">
+            <h4 class="font-medium text-gray-900">Required Expertise</h4>
+            <div class="flex flex-wrap gap-2">
+              @for (skill of position.requiredExpertise; track skill) {
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                  {{skill}}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="px-4 py-3 bg-gray-50 flex justify-between items-center">
+          <div class="text-sm text-gray-500">
+            Posted {{position.postedDate | date}}
+          </div>
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+            Apply Now
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

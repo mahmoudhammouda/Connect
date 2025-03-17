@@ -1,594 +1,347 @@
-<div class="p-4 relative">
-  <!-- Hero Section -->
-  <div class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 rounded-xl p-12 mb-8 text-white relative overflow-hidden min-h-[480px] flex flex-col">
-    <!-- Background Network Illustration -->
-    <div class="absolute inset-0 w-full h-full opacity-5">
-      <img 
-        src="https://raw.githubusercontent.com/stackblitz/stackblitz-images/main/network-illustration.png" 
-        alt="Network illustration"
-        class="w-full h-full object-cover"
+<!-- Search and Filter Bar -->
+<div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm" *ngIf="currentUser?.role === 'recruiter' || currentUser?.role === 'business_developer'">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="col-span-1 md:col-span-2">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="filterAvailabilities()"
+        placeholder="Search by role, expertise..."
+        class="w-full p-2 border rounded-lg"
       >
     </div>
-    
-    <!-- Decorative Elements -->
-    <div class="absolute top-0 right-0 w-1/2 h-full">
-      <div class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
-      <div class="absolute top-40 right-40 w-32 h-32 bg-blue-400/10 rounded-full blur-xl"></div>
-      <div class="absolute bottom-20 right-20 w-24 h-24 bg-blue-300/10 rounded-full blur-xl"></div>
-    </div>
-
-    <!-- Hero Tabs - Only show if not logged in -->
-    @if (!currentUser) {
-      <div class="border-b border-white/20 mb-10 relative z-10">
-        <div class="flex -mb-px">
-          <button 
-            (click)="activeHeroTab = 'consultant'"
-            class="px-10 py-4 font-medium transition-all duration-200 flex items-center gap-3 border-b-2"
-            [class]="activeHeroTab === 'consultant' ? 
-              'text-white border-white bg-white/5 shadow-lg' : 
-              'text-blue-100 border-transparent hover:bg-white/5 hover:text-white'"
+    <div>
+      <select 
+        [(ngModel)]="selectedCountry"
+        (ngModelChange)="filterAvailabilities()"
+        class="w-full p-2 pl-8 pr-10 border rounded-lg appearance-none bg-white relative"
+      >
+        <option value="">Select a country</option>
+        @for (country of uniqueCountries; track country.code) {
+          <option [value]="country.code" class="flex items-center gap-2">
+            {{country.name}}
+          </option>
+        }
+      </select>
+      <div class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+        @if (selectedCountry) {
+          <img 
+            [src]="'https://flagcdn.com/w20/' + selectedCountry.toLowerCase() + '.png'"
+            class="w-4 h-4 rounded-sm"
+            [alt]="getCountryName(selectedCountry)"
           >
-            <span class="material-icons text-sm">person</span>
-            I'm a Consultant
-          </button>
-          <button 
-            (click)="activeHeroTab = 'recruiter'"
-            class="px-10 py-4 font-medium transition-all duration-200 flex items-center gap-3 border-b-2"
-            [class]="activeHeroTab === 'recruiter' ? 
-              'text-white border-white bg-white/5 shadow-lg' : 
-              'text-blue-100 border-transparent hover:bg-white/5 hover:text-white'"
-          >
-            <span class="material-icons text-sm">business</span>
-            I'm a Recruiter or Business Partner
-          </button>
-        </div>
+        }
       </div>
-    }
-
-    <!-- Consultant Content -->
-    <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="activeHeroTab === 'consultant' && !currentUser">
-      <h1 class="text-3xl font-bold mb-4">Join 200+ Experts Getting Premium Projects</h1>
-      <p class="text-xl mb-8 text-blue-100 leading-relaxed">Add your availability to get noticed by top recruiters and access exclusive opportunities. Our experts get contacted within 48 hours and receive priority access to high-value projects.</p>
-      <div class="flex gap-4 items-center">
-        <button 
-          (click)="openAvailabilityForm()"
-          class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
-        >
-          <span class="material-icons text-sm">add</span>
-          Add Your Availability
-        </button>
-        <div class="flex items-center gap-2 text-blue-100">
-          <span class="material-icons">check_circle</span>
-          <span>Already used by 200+ experts</span>
-        </div>
-      </div>
-      <div class="mt-6 flex gap-8">
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-blue-300">people</span>
-          <span class="text-blue-100">Get Contacted Within 48h</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-blue-300">rocket_launch</span>
-          <span class="text-blue-100">Exclusive Off-Market Projects</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-blue-300">verified</span>
-          <span class="text-blue-100">Premium Rates & Conditions</span>
-        </div>
+      <div class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+        <span class="material-icons">expand_more</span>
       </div>
     </div>
-
-    <!-- Logged-in Consultant Content -->
-    <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="currentUser?.role === 'freelance'">
-      <h1 class="text-3xl font-bold mb-4">Welcome back, {{currentUser?.firstName}}! 👋</h1>
-      <p class="text-xl mb-6 text-blue-100">Stay visible to our network of 500+ recruiters by keeping your availability up to date. Our experts get contacted within 48 hours and receive priority access to high-value projects.</p>
-      <div class="grid grid-cols-3 gap-6 mb-8">
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="text-3xl font-bold mb-1">24</div>
-          <div class="text-blue-100">Profile Views</div>
-          <div class="text-sm text-blue-200 mt-1">Last 30 days</div>
-        </div>
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="text-3xl font-bold mb-1">12</div>
-          <div class="text-blue-100">Connection Requests</div>
-          <div class="text-sm text-blue-200 mt-1">Last 30 days</div>
-        </div>
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="text-3xl font-bold mb-1">3</div>
-          <div class="text-blue-100">Project Matches</div>
-          <div class="text-sm text-blue-200 mt-1">This week</div>
-        </div>
-      </div>
-      <div class="flex gap-4 items-center">
-        <button 
-          (click)="openAvailabilityForm()"
-          class="px-6 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors duration-200 font-medium flex items-center gap-2"
-        >
-          <span class="material-icons text-sm">add</span>
-          Add Your Availability
-        </button>
-      </div>
-    </div>
-
-    <!-- Recruiter Content -->
-    <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="currentUser?.role === 'recruiter' || currentUser?.role === 'business_developer'">
-      <h1 class="text-3xl font-bold mb-4">Welcome back, {{currentUser?.firstName}}! 👋</h1>
-      <p class="text-xl mb-6 text-blue-100">Connect with our network of verified tech experts and accelerate your project staffing. Get instant access to pre-screened professionals ready for new opportunities.</p>
-      <div class="grid grid-cols-3 gap-6 mb-8">
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="text-3xl font-bold mb-1">156</div>
-          <div class="text-blue-100">Active Experts</div>
-          <div class="text-sm text-blue-200 mt-1">Available now</div>
-        </div>
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="text-3xl font-bold mb-1">45</div>
-          <div class="text-blue-100">New Availabilities</div>
-          <div class="text-sm text-blue-200 mt-1">This week</div>
-        </div>
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="text-3xl font-bold mb-1">92%</div>
-          <div class="text-blue-100">Response Rate</div>
-          <div class="text-sm text-blue-200 mt-1">Last 30 days</div>
-        </div>
-      </div>
-      <div class="flex gap-4 items-center">
-        <button 
-          (click)="openAvailabilityForm()"
-          class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
-        >
-          <span class="material-icons text-sm">group_add</span>
-          Share Your Candidates' Availability
-        </button>
-        <button 
-          routerLink="/requests"
-          class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
-        >
-          <span class="material-icons text-sm">post_add</span>
-          Share Your Expertise Request
-        </button>
-      </div>
-    </div>
-    
-    <!-- Non-logged in Recruiter Content -->
-    <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="!currentUser && activeHeroTab === 'recruiter'">
-      <h1 class="text-3xl font-bold mb-4">Access Elite Tech Talent Network</h1>
-      <p class="text-xl mb-6 text-blue-100">Whether you're a recruiter, business developer, or subcontractor, tap into our network of verified tech experts. Connect directly with pre-screened professionals and accelerate your project staffing.</p>
-      <div class="flex gap-4 items-center">
-        <button 
-          (click)="openAvailabilityForm()"
-          class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
-        >
-          <span class="material-icons text-sm">group_add</span>
-          Share Your Candidates' Availability
-        </button>
-        <button 
-          routerLink="/requests"
-          class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
-        >
-          <span class="material-icons text-sm">post_add</span>
-          Share Your Expertise Request
-        </button>
-      </div>
-      <div class="mt-6 flex gap-8">
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-blue-300">groups</span>
-          <span class="text-blue-100">200+ Active Experts</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-blue-300">bolt</span>
-          <span class="text-blue-100">Fast Response Time</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-blue-300">business</span>
-          <span class="text-blue-100">Sub-contracting Options</span>
-        </div>
-      </div>
+    <div>
+      <select 
+        [(ngModel)]="selectedSeniority"
+        (ngModelChange)="filterAvailabilities()"
+        class="w-full p-2 border rounded-lg"
+      >
+        <option value="">All Experience Levels</option>
+        <option value="less_than_3">< 3 years</option>
+        <option value="between_3_and_10">3-10 years</option>
+        <option value="more_than_10">10+ years</option>
+      </select>
     </div>
   </div>
+</div>
 
-  <div class="flex justify-between items-center mb-4">
-    <div class="flex gap-4 border-b" *ngIf="currentUser?.role === 'freelance'">
-      <button 
-        (click)="activeTab = 'available'"
-        [class]="activeTab === 'available' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-1 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-1 font-medium hover:text-gray-700'"
-      >
-        Available Experts
-      </button>
-      <button 
-        (click)="activeTab = 'mine'"
-        [class]="activeTab === 'mine' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-1 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-1 font-medium hover:text-gray-700'"
-      >
-        My Availabilities
-      </button>
-    </div>
-    <!-- Recruiter Tabs -->
-    <div class="flex gap-4 border-b" *ngIf="currentUser?.role === 'recruiter' || currentUser?.role === 'business_developer'">
-      <button 
-        (click)="activeTab = 'public'"
-        [class]="activeTab === 'public' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
-      >
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-sm">public</span>
-          Public Experts
-        </div>
-      </button>
-      <button 
-        (click)="activeTab = 'requests'"
-        [class]="activeTab === 'requests' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
-      >
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-sm">search</span>
-          Job Requests
-        </div>
-      </button>
-      <button 
-        (click)="activeTab = 'subcontractors'"
-        [class]="activeTab === 'subcontractors' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
-      >
-        <div class="flex items-center gap-2">
-          <span class="material-icons text-sm">business</span>
-          Subcontractor Candidates
-        </div>
-      </button>
-    </div>
-  </div>
-  
-  <!-- Search and Filter Bar -->
-  <div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm" *ngIf="currentUser?.role === 'recruiter' || currentUser?.role === 'business_developer'">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="col-span-1 md:col-span-2">
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="filterAvailabilities()"
-          placeholder="Search by role, expertise..."
-          class="w-full p-2 border rounded-lg"
+<!-- Horizontal Scrolling Container -->
+<div class="overflow-x-auto">
+  <table class="min-w-full table-fixed">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
+        <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+        <th class="w-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract</th>
+        <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top Skills</th>
+        <th class="w-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      @for (availability of filteredAvailabilities; track availability.id) {
+        <tr 
+          (click)="handleRowClick($event, availability.id)" 
+          class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative"
         >
-      </div>
-      <div>
-        <select 
-          [(ngModel)]="selectedCountry"
-          (ngModelChange)="filterAvailabilities()"
-          class="w-full p-2 pl-8 pr-10 border rounded-lg appearance-none bg-white relative"
-        >
-          <option value="">Select a country</option>
-          @for (country of uniqueCountries; track country.code) {
-            <option [value]="country.code" class="flex items-center gap-2">
-              {{country.name}}
-            </option>
-          }
-        </select>
-        <div class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-          @if (selectedCountry) {
-            <img 
-              [src]="'https://flagcdn.com/w20/' + selectedCountry.toLowerCase() + '.png'"
-              class="w-4 h-4 rounded-sm"
-              [alt]="getCountryName(selectedCountry)"
-            >
-          }
-        </div>
-        <div class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <span class="material-icons">expand_more</span>
-        </div>
-      </div>
-      <div>
-        <select 
-          [(ngModel)]="selectedSeniority"
-          (ngModelChange)="filterAvailabilities()"
-          class="w-full p-2 border rounded-lg"
-        >
-          <option value="">All Experience Levels</option>
-          <option value="less_than_3">< 3 years</option>
-          <option value="between_3_and_10">3-10 years</option>
-          <option value="more_than_10">10+ years</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- Horizontal Scrolling Container -->
-  <div class="overflow-x-auto">
-    <table class="min-w-full table-fixed">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
-          <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-          <th class="w-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
-          <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract</th>
-          <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top Skills</th>
-          <th class="w-20 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        @for (availability of filteredAvailabilities; track availability.id) {
-          <tr 
-            (click)="handleRowClick($event, availability.id)" 
-            class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative"
-          >
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-xl" [class]="availability.isLocked ? 'text-gray-400' : 'text-green-500'" [title]="availability.isLocked ? 'Validation required' : 'No validation required'">
-                  {{availability.isLocked ? 'lock' : 'lock_open'}}
-                </span>
-                <span>{{availability.reference}}</span>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="font-medium text-gray-900 truncate max-w-[200px]">{{availability.role}}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center gap-2 h-8">
-                <div class="relative group">
-                  <div [class]="getStatusDotClass(availability.status)" title="{{getStatusText(availability.status)}}"></div>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <!-- Phone validation -->
-                  <span 
-                    class="material-icons text-sm"
-                    [class]="availability.phoneValidated ? 'text-green-500' : 'text-gray-300 line-through'"
-                    [title]="availability.phoneValidated ? 'Phone verified' : 'Phone not verified'"
-                  >phone</span>
-                  
-                  <!-- Email validation -->
-                  <span 
-                    class="material-icons text-sm"
-                    [class]="availability.emailValidated ? 'text-green-500' : 'text-gray-300 line-through'"
-                    [title]="availability.emailValidated ? 'Email verified' : 'Email not verified'"
-                  >email</span>
-                  
-                  <!-- LinkedIn validation -->
-                  <span 
-                    class="material-icons text-sm"
-                    [class]="availability.linkedinValidated ? 'text-green-500' : 'text-gray-300 line-through'"
-                    [title]="availability.linkedinValidated ? 'LinkedIn verified' : 'LinkedIn not verified'"
-                  >link</span>
-                </div>
-                @if (availability.isSubcontractor) {
-                  <div class="relative group">
-                    <span class="material-icons text-orange-500 text-lg">business</span>
-                  </div>
-                }
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex gap-0.5">
-                @if (availability.seniority === 'less_than_3') {
-                  <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
-                  <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
-                  <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
-                } @else if (availability.seniority === 'between_3_and_10') {
-                  <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
-                  <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
-                  <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
-                } @else {
-                  <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
-                  <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
-                  <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
-                }
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span [class]="getContractClass(availability.contractType)">
-                {{getContractText(availability.contractType)}}
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <div class="flex items-center gap-2">
+              <span class="material-icons text-xl" [class]="availability.isLocked ? 'text-gray-400' : 'text-green-500'" [title]="availability.isLocked ? 'Validation required' : 'No validation required'">
+                {{availability.isLocked ? 'lock' : 'lock_open'}}
               </span>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex flex-wrap gap-1 max-h-10 overflow-hidden">
-                @for (skill of availability.expertise.slice(0, 3); track skill) {
-                  <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
-                    {{skill}}
-                  </span>
-                }
-                @if (availability.expertise.length > 3) {
-                  <span class="text-gray-500 text-xs">+{{availability.expertise.length - 3}}</span>
-                }
+              <span>{{availability.reference}}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="font-medium text-gray-900 truncate max-w-[200px]">{{availability.role}}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center gap-2 h-8">
+              <div class="relative group">
+                <div [class]="getStatusDotClass(availability.status)" title="{{getStatusText(availability.status)}}"></div>
               </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center gap-2 justify-end">
-                @if (activeTab === 'mine') {
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      class="sr-only peer"
-                      [checked]="availability.isActive"
-                      (change)="toggleAvailability($event, availability)"
-                      (click)="$event.stopPropagation()"
-                    >
-                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                  <div class="relative" clickOutside (clickOutside)="activeDropdownId = null">
-                    <button
-                      (click)="toggleDropdown($event, availability.id)"
-                      class="p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200 relative"
-                      title="More actions"
-                    >
-                      <span class="material-icons text-gray-600">more_vert</span>
-                    </button>
-                    
-                    <!-- Dropdown Menu -->
-                    @if (activeDropdownId === availability.id) {
-                      <div 
-                        class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
-                      >
-                        <div class="py-1" role="menu">
-                          <button
-                            (click)="openAvailabilityForm(availability); $event.stopPropagation()"
-                            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                            role="menuitem"
-                          >
-                            <span class="material-icons text-gray-600 text-base">edit</span>
-                            Edit
-                          </button>
-                          <button
-                            (click)="deleteAvailability(availability); $event.stopPropagation()"
-                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            role="menuitem"
-                          >
-                            <span class="material-icons text-red-600 text-base">delete</span>
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                }
+              <div class="flex items-center gap-1.5">
+                <!-- Phone validation -->
+                <span 
+                  class="material-icons text-sm"
+                  [class]="availability.phoneValidated ? 'text-green-500' : 'text-gray-300 line-through'"
+                  [title]="availability.phoneValidated ? 'Phone verified' : 'Phone not verified'"
+                >phone</span>
                 
-                @if (activeTab === 'available' && isRecruiter) {
-                  <button 
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white text-sm font-medium transition-colors duration-200"
-                    title="View Profile"
-                    (click)="handleLinkedInConnect($event, availability)"
-                  >
-                    Connect
-                  </button>
-                }
+                <!-- Email validation -->
+                <span 
+                  class="material-icons text-sm"
+                  [class]="availability.emailValidated ? 'text-green-500' : 'text-gray-300 line-through'"
+                  [title]="availability.emailValidated ? 'Email verified' : 'Email not verified'"
+                >email</span>
+                
+                <!-- LinkedIn validation -->
+                <span 
+                  class="material-icons text-sm"
+                  [class]="availability.linkedinValidated ? 'text-green-500' : 'text-gray-300 line-through'"
+                  [title]="availability.linkedinValidated ? 'LinkedIn verified' : 'LinkedIn not verified'"
+                >link</span>
               </div>
-            </td>
-          </tr>
-          @if (expandedId === availability.id) {
-            <tr>
-              <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-lg">
-                <div class="text-sm text-gray-700 grid grid-cols-3 gap-6 relative">
-                  @if (!currentUser) {
-                    <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10">
-                      <button 
-                        (click)="handleLinkedInConnect($event, availability)"
-                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center gap-2"
-                      >
-                        <span class="material-icons text-sm">login</span>
-                        Login to View Details
-                      </button>
+              @if (availability.isSubcontractor) {
+                <div class="relative group">
+                  <span class="material-icons text-orange-500 text-lg">business</span>
+                </div>
+              }
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex gap-0.5">
+              @if (availability.seniority === 'less_than_3') {
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
+                <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
+              } @else if (availability.seniority === 'between_3_and_10') {
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
+              } @else {
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+              }
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span [class]="getContractClass(availability.contractType)">
+              {{getContractText(availability.contractType)}}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex flex-wrap gap-1 max-h-10 overflow-hidden">
+              @for (skill of availability.expertise.slice(0, 3); track skill) {
+                <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
+                  {{skill}}
+                </span>
+              }
+              @if (availability.expertise.length > 3) {
+                <span class="text-gray-500 text-xs">+{{availability.expertise.length - 3}}</span>
+              }
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center gap-2 justify-end">
+              @if (activeTab === 'mine') {
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    class="sr-only peer"
+                    [checked]="availability.isActive"
+                    (change)="toggleAvailability($event, availability)"
+                    (click)="$event.stopPropagation()"
+                  >
+                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+                <div class="relative" clickOutside (clickOutside)="activeDropdownId = null">
+                  <button
+                    (click)="toggleDropdown($event, availability.id)"
+                    class="p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200 relative"
+                    title="More actions"
+                  >
+                    <span class="material-icons text-gray-600">more_vert</span>
+                  </button>
+                  
+                  <!-- Dropdown Menu -->
+                  @if (activeDropdownId === availability.id) {
+                    <div 
+                      class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
+                    >
+                      <div class="py-1" role="menu">
+                        <button
+                          (click)="openAvailabilityForm(availability); $event.stopPropagation()"
+                          class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          role="menuitem"
+                        >
+                          <span class="material-icons text-gray-600 text-base">edit</span>
+                          Edit
+                        </button>
+                        <button
+                          (click)="deleteAvailability(availability); $event.stopPropagation()"
+                          class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          role="menuitem"
+                        >
+                          <span class="material-icons text-red-600 text-base">delete</span>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   }
-                  <!-- Quick Info -->
-                  <div class="col-span-1 bg-white p-4 rounded-lg border">
-                    <div class="space-y-4">
-                      <!-- Status & Contract -->
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                          <div [class]="getStatusDotClass(availability.status)"></div>
-                          <span class="font-medium">{{getStatusText(availability.status)}}</span>
-                        </div>
-                        <span [class]="getContractClass(availability.contractType)">
-                          {{getContractText(availability.contractType)}}
-                        </span>
+                </div>
+              }
+              
+              @if (activeTab === 'available' && isRecruiter) {
+                <button 
+                  class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white text-sm font-medium transition-colors duration-200"
+                  title="View Profile"
+                  (click)="handleLinkedInConnect($event, availability)"
+                >
+                  Connect
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+        @if (expandedId === availability.id) {
+          <tr>
+            <td colspan="9" class="px-6 py-4 bg-gray-50 shadow-lg">
+              <div class="text-sm text-gray-700 grid grid-cols-3 gap-6 relative">
+                @if (!currentUser) {
+                  <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10">
+                    <button 
+                      (click)="handleLinkedInConnect($event, availability)"
+                      class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium flex items-center gap-2"
+                    >
+                      <span class="material-icons text-sm">login</span>
+                      Login to View Details
+                    </button>
+                  </div>
+                }
+                <!-- Quick Info -->
+                <div class="col-span-1 bg-white p-4 rounded-lg border">
+                  <div class="space-y-4">
+                    <!-- Status & Contract -->
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <div [class]="getStatusDotClass(availability.status)"></div>
+                        <span class="font-medium">{{getStatusText(availability.status)}}</span>
                       </div>
-                      
-                      <!-- Availability Info -->
+                      <span [class]="getContractClass(availability.contractType)">
+                        {{getContractText(availability.contractType)}}
+                      </span>
+                    </div>
+                    
+                    <!-- Availability Info -->
+                    <div class="flex items-center gap-2 text-gray-600">
+                      <span class="material-icons text-gray-500">calendar_today</span>
+                      <span>From {{availability.availability.startDate | date}}</span>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="space-y-1">
                       <div class="flex items-center gap-2 text-gray-600">
-                        <span class="material-icons text-gray-500">calendar_today</span>
-                        <span>From {{availability.availability.startDate | date}}</span>
-                      </div>
-                      
-                      <!-- Location -->
-                      <div class="space-y-1">
-                        <div class="flex items-center gap-2 text-gray-600">
-                          <div class="flex items-center gap-2">
-                            <span class="material-icons text-gray-500">place</span>
-                            <span class="font-medium">{{availability.mobility}}</span>
-                          </div>
-                          @if (availability.workLocation === 'remote') {
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Remote</span>
-                          } @else if (availability.workLocation === 'hybrid') {
-                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">Hybrid</span>
-                          } @else {
-                            <span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">On-site</span>
-                          }
+                        <div class="flex items-center gap-2">
+                          <span class="material-icons text-gray-500">place</span>
+                          <span class="font-medium">{{availability.mobility}}</span>
                         </div>
-                        @if (availability.cities?.length) {
-                          <div class="flex flex-wrap gap-1 ml-6">
-                            @for (city of availability.cities; track city.name) {
-                              <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full text-xs">
-                                <img [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
-                                     [alt]="city.country" class="w-3 h-3 rounded-sm">
-                                {{city.name}}
-                              </span>
-                            }
-                          </div>
+                        @if (availability.workLocation === 'remote') {
+                          <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Remote</span>
+                        } @else if (availability.workLocation === 'hybrid') {
+                          <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">Hybrid</span>
+                        } @else {
+                          <span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">On-site</span>
                         }
                       </div>
-                      
-                      <!-- Languages -->
-                      @if (availability.languages?.length) {
-                        <div class="flex flex-wrap gap-1">
-                          @for (lang of availability.languages; track lang.name) {
-                            <span class="bg-blue-50 px-2 py-0.5 rounded-full text-xs">
-                              {{lang.name}} - {{lang.level}}
+                      @if (availability.cities?.length) {
+                        <div class="flex flex-wrap gap-1 ml-6">
+                          @for (city of availability.cities; track city.name) {
+                            <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full text-xs">
+                              <img [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
+                                   [alt]="city.country" class="w-3 h-3 rounded-sm">
+                              {{city.name}}
                             </span>
                           }
                         </div>
                       }
-                      
-                      <!-- Expertise -->
+                    </div>
+                    
+                    <!-- Languages -->
+                    @if (availability.languages?.length) {
                       <div class="flex flex-wrap gap-1">
-                        @for (skill of availability.expertise; track skill) {
-                          <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
-                            {{skill}}
+                        @for (lang of availability.languages; track lang.name) {
+                          <span class="bg-blue-50 px-2 py-0.5 rounded-full text-xs">
+                            {{lang.name}} - {{lang.level}}
                           </span>
                         }
                       </div>
-                    </div>
-                  </div>
-
-                  <!-- LinkedIn Message -->
-                  <div class="col-span-2 bg-white p-4 rounded-lg border">
-                    <div class="flex items-center gap-2 mb-3 text-blue-600">
-                      <span class="material-icons">{{currentUser ? 'post' : 'lock'}}</span>
-                      <span class="font-medium">LinkedIn Post</span>
-                    </div>
-                    <div class="prose prose-sm max-w-none" [innerHTML]="availability.description"></div>
-                    <div class="mt-3 pt-3 border-t text-gray-500 text-xs flex items-center gap-1">
-                      <span class="material-icons text-sm">schedule</span>
-                      Posted {{availability.availability.startDate | date}}
-                    </div>
-                    @if (!availability.isLocked) {
-                      <div class="mt-3 flex gap-2">
-                        <button class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                          Share on LinkedIn
-                        </button>
-                      </div>
                     }
+                    
+                    <!-- Expertise -->
+                    <div class="flex flex-wrap gap-1">
+                      @for (skill of availability.expertise; track skill) {
+                        <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
+                          {{skill}}
+                        </span>
+                      }
+                    </div>
                   </div>
                 </div>
-              </td>
-            </tr>
-          }
-        }
-      </tbody>
-    </table>
-  </div>
 
-  <!-- Loading Indicator -->
-  <div *ngIf="isLoading" class="flex justify-center items-center py-4">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-  </div>
-  
-  <!-- No More Items Message -->
-  <div *ngIf="!hasMoreItems && activeTab === 'available'" class="text-center text-gray-500 py-4">
-    <div class="flex items-center justify-center gap-2">
-      <span class="material-icons">info</span>
-      <span>No more items to load</span>
-    </div>
+                <!-- LinkedIn Message -->
+                <div class="col-span-2 bg-white p-4 rounded-lg border">
+                  <div class="flex items-center gap-2 mb-3 text-blue-600">
+                    <span class="material-icons">{{currentUser ? 'post' : 'lock'}}</span>
+                    <span class="font-medium">LinkedIn Post</span>
+                  </div>
+                  <div class="prose prose-sm max-w-none" [innerHTML]="availability.description"></div>
+                  <div class="mt-3 pt-3 border-t text-gray-500 text-xs flex items-center gap-1">
+                    <span class="material-icons text-sm">schedule</span>
+                    Posted {{availability.availability.startDate | date}}
+                  </div>
+                  @if (!availability.isLocked) {
+                    <div class="mt-3 flex gap-2">
+                      <button class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Share on LinkedIn
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Loading Indicator -->
+<div *ngIf="isLoading" class="flex justify-center items-center py-4">
+  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+</div>
+
+<!-- No More Items Message -->
+<div *ngIf="!hasMoreItems && activeTab === 'available'" class="text-center text-gray-500 py-4">
+  <div class="flex items-center justify-center gap-2">
+    <span class="material-icons">info</span>
+    <span>No more items to load</span>
   </div>
 </div>
 
 <!-- LinkedIn Login Modal -->
 <app-modal
   [isOpen]="showLoginModal"
-  (closeModal)="closeLoginModal()"
-  (login)="handleLoginEvent($event)"
+  (closeModal)="showLoginModal = false"
 ></app-modal>
 
 <!-- Availability Form Modal -->

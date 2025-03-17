@@ -1,26 +1,30 @@
 import { Component, importProvidersFrom, signal } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
-import { AvailabilityListComponent } from './app/components/availability-list/availability-list.component';
-import { AvailabilityRequestsComponent } from './app/components/availability-requests/availability-requests.component';
+import { CommonModule } from '@angular/common';
+import { BoardComponent } from './app/components/board/board.component';
+import { BoardConsultantComponent } from './app/components/board-consultant/board-consultant.component';
 import { UserProfileComponent } from './app/components/user-profile/user-profile.component';
 import { User } from './app/models/user.model';
 import { LoginModalComponent } from './app/components/login-modal/login-modal.component';
 import { inject } from '@angular/core';
 import { UserService } from './app/services/user.service';
+import '@angular/compiler';
+import { NgModule } from '@angular/core';
 
 
 
 const routes: Routes = [
-  { path: 'availabilities', component: AvailabilityListComponent },
-  { path: 'requests', component: AvailabilityRequestsComponent },
-  { path: '', redirectTo: '/availabilities', pathMatch: 'full' }
+  { path: '', component: BoardComponent },
+  { path: 'board', component: BoardComponent },
+  { path: 'consultant', component: BoardConsultantComponent }
 ];
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule, UserProfileComponent, LoginModalComponent],
+  imports: [CommonModule, RouterModule, UserProfileComponent, LoginModalComponent],
   template: `
     <div class="min-h-screen bg-gray-50">
       <nav class="bg-white shadow-lg relative z-50">
@@ -31,15 +35,10 @@ const routes: Routes = [
                 <h1 class="text-xl font-bold">FactConnect</h1>
               </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-6">
-                <a routerLink="/availabilities" 
+                <a routerLink="/board" 
                    routerLinkActive="border-b-2 border-blue-500"
                    class="inline-flex items-center px-1 pt-1 text-gray-900">
                   Available Experts
-                </a>
-                <a routerLink="/requests"
-                   routerLinkActive="border-b-2 border-blue-500"
-                   class="inline-flex items-center px-1 pt-1 text-gray-900">
-                  Expertise Requests
                 </a>
               </div>
             </div>
@@ -76,8 +75,16 @@ export class App {
   userService = inject(UserService);
 }
 
-bootstrapApplication(App, {
-  providers: [
-    importProvidersFrom(RouterModule.forRoot(routes))
-  ]
-}).catch(err => console.error(err));
+@NgModule({
+  declarations: [],
+  imports: [
+    BrowserModule,
+    RouterModule.forRoot(routes),
+    CommonModule
+  ],
+  bootstrap: [App]
+})
+export class AppModule { }
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+  .catch((err: Error) => console.error(err));

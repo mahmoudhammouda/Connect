@@ -1,0 +1,50 @@
+<div class="p-4 relative">
+  <!-- Hero Section -->
+  <app-hero-section
+    [currentUser]="currentUser"
+    (addAvailability)="openAvailabilityForm()"
+  ></app-hero-section>
+
+  <!-- Consultant Tabs -->
+  <div class="flex gap-4 border-b mb-6">
+    <button 
+      (click)="activeTab = 'available'"
+      [class]="activeTab === 'available' ? 
+        'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+        'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+    >
+      Available Experts
+    </button>
+    @if (currentUser?.role === 'freelance') {
+      <button 
+        (click)="activeTab = 'mine'"
+        [class]="activeTab === 'mine' ? 
+          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+      >
+        My Availabilities
+      </button>
+    }
+  </div>
+
+  <!-- Availability List -->
+  <app-availability-list
+    [currentUser]="currentUser"
+    [availabilities]="availabilities"
+    [activeTab]="activeTab"
+  ></app-availability-list>
+
+  <!-- Modals -->
+  <app-modal
+    [isOpen]="showLoginModal"
+    (closeModal)="closeLoginModal()"
+    (login)="handleLoginEvent($event)"
+  ></app-modal>
+
+  <app-availability-form
+    [isOpen]="showAvailabilityForm"
+    [availability]="selectedAvailability"
+    (closeModal)="closeAvailabilityForm()"
+    (save)="handleAvailabilitySubmit($event)"
+  ></app-availability-form>
+</div>

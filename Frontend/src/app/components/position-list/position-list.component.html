@@ -1,0 +1,229 @@
+<div class="overflow-x-auto">
+  <!-- Search and Filter Bar -->
+  <div class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="col-span-1 md:col-span-2">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="filterPositions()"
+        placeholder="Search by role, required expertise..."
+        class="w-full p-2 border rounded-lg"
+      >
+    </div>
+    <div>
+      <select 
+        [(ngModel)]="selectedCountry"
+        (ngModelChange)="filterPositions()"
+        class="w-full p-2 pl-8 pr-10 border rounded-lg appearance-none bg-white relative"
+      >
+        <option value="">All Locations</option>
+        <option value="FR">France</option>
+        <option value="GB">United Kingdom</option>
+        <option value="DE">Germany</option>
+      </select>
+      <div class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+        @if (selectedCountry) {
+          <img 
+            [src]="'https://flagcdn.com/w20/' + selectedCountry.toLowerCase() + '.png'"
+            class="w-4 h-4 rounded-sm"
+            [alt]="selectedCountry"
+          >
+        }
+      </div>
+    </div>
+    <div>
+      <select 
+        [(ngModel)]="selectedSeniority"
+        (ngModelChange)="filterPositions()"
+        class="w-full p-2 border rounded-lg"
+      >
+        <option value="">All Experience Levels</option>
+        <option value="less_than_3">< 3 years</option>
+        <option value="between_3_and_10">3-10 years</option>
+        <option value="more_than_10">10+ years</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table Layout -->
+  <table class="min-w-full table-fixed">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
+        <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract</th>
+        <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Required Skills</th>
+        <th class="w-20 px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      @for (position of filteredPositions; track position.id) {
+        <tr 
+          (click)="toggleDetails(position.id)" 
+          class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative"
+        >
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{position.reference}}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="font-medium text-gray-900 truncate max-w-[200px]">{{position.title}}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              <img 
+                [src]="position.postedBy.photoUrl"
+                [alt]="position.postedBy.company"
+                class="w-6 h-6 rounded-full"
+              >
+              <span class="text-sm text-gray-900">{{position.postedBy.company}}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex gap-0.5">
+              @if (position.seniority === 'less_than_3') {
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
+                <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
+              } @else if (position.seniority === 'between_3_and_10') {
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-gray-200 rounded"></div>
+              } @else {
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+                <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
+              }
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span [class]="getContractClass(position.contractType)">
+              {{getContractText(position.contractType)}}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex flex-wrap gap-1 max-h-10 overflow-hidden">
+              @for (skill of position.requiredExpertise.slice(0, 3); track skill) {
+                <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
+                  {{skill}}
+                </span>
+              }
+              @if (position.requiredExpertise.length > 3) {
+                <span class="text-gray-500 text-xs">+{{position.requiredExpertise.length - 3}}</span>
+              }
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+              Apply
+            </button>
+          </td>
+        </tr>
+        @if (expandedId === position.id) {
+          <tr>
+            <td colspan="7" class="px-6 py-4 bg-gray-50 shadow-lg">
+              <div class="text-sm text-gray-700 grid grid-cols-3 gap-6">
+                <!-- Quick Info -->
+                <div class="col-span-1 bg-white p-4 rounded-lg border">
+                  <div class="space-y-4">
+                    <!-- Company Info -->
+                    <div class="flex items-center gap-3">
+                      <img 
+                        [src]="position.postedBy.photoUrl"
+                        [alt]="position.postedBy.company"
+                        class="w-12 h-12 rounded-full"
+                      >
+                      <div>
+                        <div class="font-medium">{{position.postedBy.firstName}} {{position.postedBy.lastName}}</div>
+                        <div class="text-gray-500">{{position.postedBy.company}}</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Experience -->
+                    <div class="flex items-center gap-2">
+                      <span class="material-icons text-gray-500">work</span>
+                      <span>{{getSeniorityText(position.seniority)}}</span>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2">
+                        <span class="material-icons text-gray-500">place</span>
+                        @if (position.cities?.length) {
+                          <div class="flex flex-wrap gap-1">
+                            @for (city of position.cities; track city.name) {
+                              <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full text-xs">
+                                <img 
+                                  [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
+                                  [alt]="city.country"
+                                  class="w-3 h-3 rounded-sm"
+                                >
+                                {{city.name}}
+                              </span>
+                            }
+                          </div>
+                        }
+                      </div>
+                      @if (position.workLocation === 'remote') {
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Remote</span>
+                      } @else if (position.workLocation === 'hybrid') {
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">Hybrid</span>
+                      }
+                    </div>
+                    
+                    <!-- Start Date -->
+                    <div class="flex items-center gap-2">
+                      <span class="material-icons text-gray-500">calendar_today</span>
+                      <span>From {{position.startDate | date}}</span>
+                    </div>
+                    
+                    <!-- Required Skills -->
+                    <div class="flex flex-wrap gap-1">
+                      @for (skill of position.requiredExpertise; track skill) {
+                        <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
+                          {{skill}}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <div class="col-span-2 bg-white p-4 rounded-lg border">
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="material-icons text-gray-500">description</span>
+                    <span class="font-medium">Position Description</span>
+                  </div>
+                  <p class="text-gray-600 mb-4">{{position.description}}</p>
+                  <div class="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div class="text-sm text-gray-500 flex items-center gap-1">
+                      <span class="material-icons text-sm">schedule</span>
+                      Posted {{position.postedDate | date}}
+                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                      Apply Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="flex justify-center items-center py-4">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+  
+  <!-- No More Items Message -->
+  <div *ngIf="!hasMoreItems" class="text-center text-gray-500 py-4">
+    <div class="flex items-center justify-center gap-2">
+      <span class="material-icons">info</span>
+      <span>No more items to load</span>
+    </div>
+  </div>
+</div>
