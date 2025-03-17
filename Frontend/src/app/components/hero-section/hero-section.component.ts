@@ -18,24 +18,7 @@ import { User } from '../../models/user.model';
         >
       </div>
       
-      <!-- Stats Section for Non-authenticated Users -->
-      @if (!currentUser) {
-        <div class="relative z-10 mb-8">
-          <div class="grid grid-cols-2 gap-6">
-            <div class="bg-white/10 rounded-lg p-6">
-              <div class="text-4xl font-bold mb-2">200+</div>
-              <div class="text-xl text-blue-100">Active Experts</div>
-              <div class="text-sm text-blue-200 mt-1">Ready for new opportunities</div>
-            </div>
-            <div class="bg-white/10 rounded-lg p-6">
-              <div class="text-4xl font-bold mb-2">150+</div>
-              <div class="text-xl text-blue-100">Open Positions</div>
-              <div class="text-sm text-blue-200 mt-1">From verified companies</div>
-            </div>
-          </div>
-        </div>
-      }
-      
+    
       <!-- Decorative Elements -->
       <div class="absolute top-0 right-0 w-1/2 h-full">
         <div class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
