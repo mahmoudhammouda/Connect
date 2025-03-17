@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OpenPosition } from '../../models/open-position.model';
 import { User } from '../../models/user.model';
+import { LoginModalComponent } from '../login-modal/login-modal.component';
 
 @Component({
   selector: 'app-position-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoginModalComponent],
   templateUrl: './position-list.component.html'
 })
 export class PositionListComponent {
@@ -23,6 +24,9 @@ export class PositionListComponent {
   isLoading = false;
   hasMoreItems = true;
   filteredPositions: OpenPosition[] = [];
+  
+  // UI state
+  showLoginModal = false;
 
   positions: OpenPosition[] = [
     {
@@ -460,6 +464,36 @@ export class PositionListComponent {
         return '10+ years';
       default:
         return seniority;
+    }
+  }
+
+  initiateConnect(event: Event, positionId: string): void {
+    // Prevent row click propagation
+    event.stopPropagation();
+    
+    // Save the position ID that the user wants to connect with
+    localStorage.setItem('pendingPositionConnectionId', positionId);
+    
+    // Show the login modal to authenticate
+    this.showLoginModal = true;
+  }
+
+  closeLoginModal(): void {
+    this.showLoginModal = false;
+  }
+
+  handleLoginEvent(user: User): void {
+    this.closeLoginModal();
+    
+    // Get the pending connection ID
+    const pendingPositionId = localStorage.getItem('pendingPositionConnectionId');
+    
+    if (pendingPositionId) {
+      // Here you would implement the actual connection logic
+      console.log(`User ${user.id} is connecting with position ${pendingPositionId}`);
+      
+      // Clear the pending connection
+      localStorage.removeItem('pendingPositionConnectionId');
     }
   }
 }

@@ -199,12 +199,11 @@
                   }
                 </div>
               }
-              
-              @if (activeTab === 'available' && isRecruiter) {
-                <button 
-                  class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white text-sm font-medium transition-colors duration-200"
-                  title="View Profile"
-                  (click)="handleLinkedInConnect($event, availability)"
+              @if (activeTab !== 'mine') {
+                <!-- Connect button for non-owners -->
+                <button
+                  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                  (click)="initiateConnect($event, availability.id)"
                 >
                   Connect
                 </button>

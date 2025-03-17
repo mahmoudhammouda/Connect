@@ -150,8 +150,34 @@ export class AvailabilityListComponent {
     }
   }
 
-  toggleDetails(id: string): void {
-    this.expandedId = this.expandedId === id ? null : id;
+  initiateConnect(event: Event, availabilityId: string): void {
+    // Prevent row click propagation
+    event.stopPropagation();
+    
+    // Save the availability ID that the user wants to connect with
+    localStorage.setItem('pendingConnectionId', availabilityId);
+    
+    // Show the login modal to authenticate
+    this.showLoginModal = true;
+  }
+
+  closeLoginModal(): void {
+    this.showLoginModal = false;
+  }
+
+  handleLoginEvent(user: User): void {
+    this.closeLoginModal();
+    
+    // Get the pending connection ID
+    const pendingConnectionId = localStorage.getItem('pendingConnectionId');
+    
+    if (pendingConnectionId) {
+      // Here you would implement the actual connection logic
+      console.log(`User ${user.id} is connecting with availability ${pendingConnectionId}`);
+      
+      // Clear the pending connection
+      localStorage.removeItem('pendingConnectionId');
+    }
   }
 
   handleLinkedInConnect(event: Event, availability: Availability): void {
@@ -161,6 +187,10 @@ export class AvailabilityListComponent {
       return;
     }
     window.open('https://www.linkedin.com/in/profile', '_blank');
+  }
+
+  toggleDetails(id: string): void {
+    this.expandedId = this.expandedId === id ? null : id;
   }
 
   toggleAvailability(event: Event, availability: Availability): void {

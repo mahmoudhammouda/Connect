@@ -16,6 +16,7 @@ import { UserService } from '../../services/user.service';
 export class LoginModalComponent {
   @Input() isOpen = false;
   @Output() closeModal = new EventEmitter<void>();
+  @Output() login = new EventEmitter<User>();
   
   private userService = inject(UserService);
 
@@ -62,6 +63,7 @@ export class LoginModalComponent {
 
   handleConfirm(userData: User) {
     this.userService.setCurrentUser(userData);
+    this.login.emit(userData);
     this.close();
   }
 }
