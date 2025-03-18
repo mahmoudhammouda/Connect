@@ -36,6 +36,9 @@ export class AvailabilityListComponent {
   // Modal state
   showLoginModal = false;
   showAvailabilityForm = false;
+  showConnectionDialog = false;
+  connectionMessage = '';
+  selectedConsultant: Availability | null = null;
   selectedAvailability: Availability | null = null;
   expandedId: string | null = null;
   activeDropdownId: string | null = null;
@@ -170,27 +173,26 @@ export class AvailabilityListComponent {
     },
     {
       id: '5',
-      reference: 'PM-001',
-      role: 'Project Manager',
-      expertise: ['Agile', 'Scrum', 'JIRA', 'Resource Management'],
-      seniority: 'more_than_10',
+      reference: 'DEV-005',
+      role: 'DevOps Engineer',
+      expertise: ['Kubernetes', 'AWS', 'Jenkins', 'Docker'],
+      seniority: 'between_3_and_10',
       cities: [
-        { name: 'Amsterdam', country: 'Netherlands', countryCode: 'nl' },
-        { name: 'Remote', country: 'Netherlands', countryCode: 'nl' }
+        { name: 'Berlin', country: 'Germany', countryCode: 'de' }
       ],
       mobility: 'hybrid',
       workLocation: 'hybrid',
-      dailyRate: 700,
-      description: 'Certified project manager with 10+ years of experience delivering complex software projects on time and within budget.',
+      dailyRate: 620,
+      description: 'DevOps specialist with experience in CI/CD pipeline optimization and cloud infrastructure management.',
       availability: {
-        startDate: new Date('2023-10-01'),
+        startDate: new Date('2023-08-15'),
         isFullRemote: false
       },
-      preferences: ['Long-term projects', 'Cross-functional teams'],
+      preferences: ['Startups', 'Technology companies'],
       status: 'immediate',
       contractType: 'freelance',
       isActive: true,
-      isLocked: false,
+      isLocked: true,
       isSubcontractor: false,
       phoneValidated: true,
       emailValidated: true,
@@ -281,26 +283,26 @@ export class AvailabilityListComponent {
     },
     {
       id: '9',
-      reference: 'QA-001',
-      role: 'QA Engineer',
-      expertise: ['Automated Testing', 'Selenium', 'Jest', 'Test Planning'],
-      seniority: 'between_3_and_10',
+      reference: 'SEC-009',
+      role: 'Security Architect',
+      expertise: ['Cybersecurity', 'Penetration Testing', 'OWASP', 'Security Compliance'],
+      seniority: 'more_than_10',
       cities: [
-        { name: 'Paris', country: 'France', countryCode: 'fr' }
+        { name: 'Lyon', country: 'France', countryCode: 'fr' }
       ],
-      mobility: 'on-site',
-      workLocation: 'onsite',
-      dailyRate: 500,
-      description: 'Quality assurance professional specialized in test automation and quality processes.',
+      mobility: 'hybrid',
+      workLocation: 'hybrid',
+      dailyRate: 780,
+      description: 'Cybersecurity expert with experience in designing secure architectures and conducting security assessments for enterprise applications.',
       availability: {
-        startDate: new Date('2023-09-01'),
+        startDate: new Date('2023-09-15'),
         isFullRemote: false
       },
-      preferences: ['Quality-focused teams', 'Agile environments'],
+      preferences: ['Banking', 'Insurance', 'Critical infrastructure'],
       status: 'immediate',
       contractType: 'freelance',
       isActive: true,
-      isLocked: false,
+      isLocked: true,
       isSubcontractor: false,
       phoneValidated: true,
       emailValidated: true,
@@ -447,27 +449,26 @@ export class AvailabilityListComponent {
     },
     {
       id: '15',
-      reference: 'BLOCK-001',
-      role: 'Blockchain Developer',
-      expertise: ['Solidity', 'Ethereum', 'Smart Contracts', 'Web3.js'],
+      reference: 'BA-015',
+      role: 'Business Analyst',
+      expertise: ['Requirements Gathering', 'Process Mapping', 'Stakeholder Management', 'Agile'],
       seniority: 'between_3_and_10',
       cities: [
-        { name: 'Brussels', country: 'Belgium', countryCode: 'be' },
-        { name: 'Remote', country: 'Belgium', countryCode: 'be' }
+        { name: 'Zurich', country: 'Switzerland', countryCode: 'ch' }
       ],
-      mobility: 'remote',
-      workLocation: 'remote',
-      dailyRate: 700,
-      description: 'Specialized in blockchain technologies with experience building decentralized applications.',
+      mobility: 'on-site',
+      workLocation: 'onsite',
+      dailyRate: 550,
+      description: 'Business analyst specialized in bridging the gap between business needs and technical solutions. Strong analytical skills with experience in enterprise projects.',
       availability: {
-        startDate: new Date('2023-11-01'),
-        isFullRemote: true
+        startDate: new Date('2023-09-01'),
+        isFullRemote: false
       },
-      preferences: ['Web3 companies', 'DeFi projects'],
+      preferences: ['Financial services', 'Insurance', 'Corporate environment'],
       status: 'immediate',
-      contractType: 'freelance',
+      contractType: 'cdd',
       isActive: true,
-      isLocked: false,
+      isLocked: true,
       isSubcontractor: false,
       phoneValidated: true,
       emailValidated: true,
@@ -862,13 +863,38 @@ export class AvailabilityListComponent {
     // Prevent row click propagation
     event.stopPropagation();
     
-    // Save the availability ID that the user wants to connect with
-    localStorage.setItem('pendingConnectionId', availabilityId);
+    const availability = this.availabilities.find(a => a.id === availabilityId);
     
-    // Show the login modal to authenticate
-    this.showLoginModal = true;
+    // If user is not logged in, show login modal
+    if (!this.currentUser) {
+      // Save the availability ID that the user wants to connect with
+      localStorage.setItem('pendingConnectionId', availabilityId);
+      
+      // Show the login modal to authenticate
+      this.showLoginModal = true;
+      return;
+    }
+    
+    // For recruiters with locked profiles, show connection request dialog
+    if (this.isRecruiter && availability && availability.isLocked) {
+      this.selectedConsultant = availability;
+      this.connectionMessage = '';
+      this.showConnectionDialog = true;
+      return;
+    }
+    
+    // For all other cases (e.g., unlocked profiles), proceed with direct connection
+    this.connectWithConsultant(availabilityId);
   }
-
+  
+  connectWithConsultant(availabilityId: string): void {
+    // Here you would implement the direct connection logic
+    console.log(`User ${this.currentUser?.id} is connecting with availability ${availabilityId}`);
+    
+    // Show success message
+    // this.toastr.success('Connected successfully with consultant!');
+  }
+  
   closeLoginModal(): void {
     this.showLoginModal = false;
   }
@@ -886,6 +912,35 @@ export class AvailabilityListComponent {
       // Clear the pending connection
       localStorage.removeItem('pendingConnectionId');
     }
+  }
+  
+  sendConnectionRequest(): void {
+    if (!this.connectionMessage.trim() || !this.selectedConsultant || !this.currentUser) {
+      return;
+    }
+    
+    // Here you would make an API call to send the connection request
+    // For example:
+    // this.connectionService.sendRequest({
+    //   consultantId: this.selectedConsultant.id,
+    //   message: this.connectionMessage,
+    //   requesterId: this.currentUser.id
+    // }).subscribe(...)
+    
+    // For now, just log it
+    console.log('Connection request sent:', {
+      consultant: this.selectedConsultant,
+      message: this.connectionMessage,
+      requester: this.currentUser
+    });
+    
+    // Show success message
+    // this.toastr.success('Connection request sent successfully. You will be notified when the consultant responds.');
+    
+    // Close dialog
+    this.showConnectionDialog = false;
+    this.selectedConsultant = null;
+    this.connectionMessage = '';
   }
 
   handleLinkedInConnect(event: Event, availability: Availability): void {
@@ -981,7 +1036,7 @@ export class AvailabilityListComponent {
       preferences: [],
       description: formData.description,
       contractType: formData.contractType,
-      status: 'immediate', // Add the missing status property
+      status: 'immediate', 
       isLocked: formData.isLocked,
       isSubcontractor: false,
       isActive: true
