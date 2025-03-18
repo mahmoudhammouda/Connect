@@ -26,7 +26,7 @@ export class BoardComponent {
   hasMoreItems = true;
 
   // Tab state
-  activeTab: 'available' | 'mine' | 'public' | 'requests' | 'subcontractors' = 'requests';
+  activeTab: 'available' | 'mine' | 'public' | 'open-position' | 'subcontractors' = 'open-position';
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
 
   // Search and filter state
@@ -48,7 +48,7 @@ export class BoardComponent {
   ];
 
   // Method to handle tab change event from hero section
-  setActiveTab(tab: 'available' | 'requests'): void {
+  setActiveTab(tab: 'available' | 'open-position'): void {
     this.activeTab = tab;
   }
 
@@ -104,7 +104,7 @@ export class BoardComponent {
 
   constructor() {
     // Redirect consultants to consultant board
-    if (this.currentUser?.role === 'freelance') {
+    if (this.currentUser?.role === 'consultant') {
       this.router.navigate(['/consultant']);
       return;
     }

@@ -1,4 +1,4 @@
-export type UserRole = 'recruiter' | 'business_developer' | 'freelance';
+export type UserRole = 'recruiter' | 'business_developer' | 'consultant';
 
 export interface User {
   id: string;

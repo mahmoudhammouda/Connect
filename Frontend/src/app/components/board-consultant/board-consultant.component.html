@@ -8,31 +8,56 @@
   <!-- Consultant Tabs -->
   <div class="flex gap-4 border-b mb-6">
     <button 
+      (click)="activeTab = 'open-position'"
+      [class]="activeTab === 'open-position' ? 
+        'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+        'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+    >
+      <div class="flex items-center gap-2">
+        <span class="material-icons text-sm">work</span>
+        Open Positions
+      </div>
+    </button>
+    <button 
       (click)="activeTab = 'available'"
       [class]="activeTab === 'available' ? 
         'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
         'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
     >
-      Available Experts
+      <div class="flex items-center gap-2">
+        <span class="material-icons text-sm">person</span>
+        Available Experts
+      </div>
     </button>
-    @if (currentUser?.role === 'freelance') {
+    @if (currentUser?.role === 'consultant') {
       <button 
         (click)="activeTab = 'mine'"
         [class]="activeTab === 'mine' ? 
           'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
           'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
       >
-        My Availabilities
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-sm">person_outline</span>
+          My Availabilities
+        </div>
       </button>
     }
   </div>
 
-  <!-- Availability List -->
-  <app-availability-list
-    [currentUser]="currentUser"
-    [availabilities]="availabilities"
-    [activeTab]="activeTab"
-  ></app-availability-list>
+  <!-- Content based on active tab -->
+  <div class="grid grid-cols-1 gap-6">
+    @if (activeTab === 'available' || activeTab === 'mine') {
+      <app-availability-list
+        [currentUser]="currentUser"
+        [availabilities]="availabilities"
+        [activeTab]="activeTab"
+      ></app-availability-list>
+    } @else {
+      <app-position-list
+        [currentUser]="currentUser"
+      ></app-position-list>
+    }
+  </div>
 
   <!-- Modals -->
   <app-modal

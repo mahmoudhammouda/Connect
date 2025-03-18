@@ -8,6 +8,7 @@ import { inject } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { Availability } from '../../models/availability.model';
 import { Router } from '@angular/router';
+import { PositionListComponent } from '../position-list/position-list.component';
 
 @Component({
   selector: 'app-board-consultant',
@@ -17,7 +18,8 @@ import { Router } from '@angular/router';
     HeroSectionComponent,
     AvailabilityListComponent,
     AvailabilityFormComponent,
-    LoginModalComponent
+    LoginModalComponent,
+    PositionListComponent
   ],
   templateUrl: './board-consultant.component.html',
   styleUrls: ['./board-consultant.component.scss']
@@ -27,7 +29,7 @@ export class BoardConsultantComponent {
   private router = inject(Router);
   
   // Tab state
-  activeTab: 'available' | 'mine' = 'available';
+  activeTab: 'open-position' | 'available' | 'mine' = 'open-position';
   showLoginModal = false;
   showAvailabilityForm = false;
   availabilities: Availability[] = [
@@ -40,13 +42,9 @@ export class BoardConsultantComponent {
   }
 
   constructor() {
-    // Redirect non-consultants to main board
-    if (this.currentUser && this.currentUser.role !== 'freelance') {
-      this.router.navigate(['/board']);
-      return;
-    }
+    // Route guard now handles access control
   }
-
+  
   openAvailabilityForm(availability: Availability | null = null): void {
     this.selectedAvailability = availability;
     this.showAvailabilityForm = true;

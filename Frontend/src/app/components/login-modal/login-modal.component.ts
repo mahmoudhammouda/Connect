@@ -25,7 +25,7 @@ export class LoginModalComponent {
   userData: Partial<User> = {
     firstName: '',
     lastName: '',
-    role: 'freelance'
+    role: 'consultant'
   };
 
   close() {
@@ -45,7 +45,7 @@ export class LoginModalComponent {
         lastName: 'Doe',
         email: 'john.doe@example.com',
         photoUrl: 'https://ui-avatars.com/api/?name=John+Doe',
-        role: 'freelance',
+        role: 'consultant',
         linkedinUrl: 'https://linkedin.com/in/johndoe',
         isLinkedInVerified: true,
         createdAt: new Date(),

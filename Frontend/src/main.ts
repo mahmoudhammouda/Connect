@@ -12,13 +12,14 @@ import { inject } from '@angular/core';
 import { UserService } from './app/services/user.service';
 import '@angular/compiler';
 import { NgModule } from '@angular/core';
+import { consultantGuard } from './app/guards/consultant.guard';
 
 
 
 const routes: Routes = [
   { path: '', component: BoardComponent },
   { path: 'board', component: BoardComponent },
-  { path: 'consultant', component: BoardConsultantComponent }
+  { path: 'consultant', component: BoardConsultantComponent, canActivate: [consultantGuard] }
 ];
 
 @Component({

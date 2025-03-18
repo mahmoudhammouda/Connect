@@ -88,7 +88,7 @@ import { User } from '../../models/user.model';
       </div>
 
       <!-- Logged-in Consultant Content -->
-      <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="currentUser?.role === 'freelance'">
+      <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="currentUser?.role === 'consultant'">
         <h1 class="text-3xl font-bold mb-4">Welcome back, {{currentUser?.firstName}}! 👋</h1>
         <p class="text-xl mb-6 text-blue-100">Stay visible to our network of 500+ recruiters by keeping your availability up to date. Our experts get contacted within 48 hours and receive priority access to high-value projects.</p>
         <div class="grid grid-cols-3 gap-6 mb-8">
@@ -149,7 +149,7 @@ import { User } from '../../models/user.model';
             Share Your Candidates' Availability
           </button>
           <button 
-            routerLink="/requests"
+            routerLink="/open-position"
             class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
           >
             <span class="material-icons text-sm">post_add</span>
@@ -171,7 +171,7 @@ import { User } from '../../models/user.model';
             Share Your Candidates' Availability
           </button>
           <button 
-            routerLink="/requests"
+            routerLink="/open-position"
             class="px-8 py-4 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-all duration-200 font-medium flex items-center gap-3 shadow-lg hover:shadow-xl"
           >
             <span class="material-icons text-sm">post_add</span>
@@ -199,7 +199,7 @@ import { User } from '../../models/user.model';
 export class HeroSectionComponent {
   @Input() currentUser: User | null = null;
   @Output() addAvailability = new EventEmitter<void>();
-  @Output() tabChange = new EventEmitter<'requests' | 'available'>();
+  @Output() tabChange = new EventEmitter<'open-position' | 'available'>();
   
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
 
@@ -209,7 +209,7 @@ export class HeroSectionComponent {
     // When consultant tab is selected, show the open positions tab
     // When recruiter tab is selected, show the available experts tab
     if (tab === 'consultant') {
-      this.tabChange.emit('requests');
+      this.tabChange.emit('open-position');
     } else if (tab === 'recruiter') {
       this.tabChange.emit('available');
     }

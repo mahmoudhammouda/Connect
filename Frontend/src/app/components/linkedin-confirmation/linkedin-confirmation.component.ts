@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../models/user.model';
+import { Router } from '@angular/router';
+import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-linkedin-confirmation',
@@ -110,7 +112,7 @@ import { User } from '../../models/user.model';
                   >
                   <div>
                     <div class="font-medium">Business Developer</div>
-                    <div class="text-sm text-gray-500">I connect freelancers with great opportunities</div>
+                    <div class="text-sm text-gray-500">I connect consultants with great opportunities</div>
                   </div>
                 </label>
                 <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -118,11 +120,11 @@ import { User } from '../../models/user.model';
                     type="radio"
                     [(ngModel)]="userData.role"
                     name="role"
-                    value="freelance"
+                    value="consultant"
                     class="mr-3"
                   >
                   <div>
-                    <div class="font-medium">Freelance Expert</div>
+                    <div class="font-medium">Consultant</div>
                     <div class="text-sm text-gray-500">I'm looking for new projects and opportunities</div>
                   </div>
                 </label>
@@ -157,12 +159,13 @@ export class LinkedInConfirmationComponent {
     firstName: '',
     lastName: '',
     email: '',
-    role: 'freelance'
+    role: 'consultant'
   };
   
   @Output() closeModal = new EventEmitter<void>();
   @Output() confirm = new EventEmitter<User>();
 
+  private router = inject(Router);
   showEmailError = false;
   showConfirmation = false;
   emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -192,5 +195,12 @@ export class LinkedInConfirmationComponent {
   handleConfirmationAcknowledge(): void {
     this.showConfirmation = false;
     this.confirm.emit(this.userData as User);
+    
+    // Redirect to appropriate board based on user role
+    if (this.userData.role === 'consultant') {
+      this.router.navigate(['/consultant']);
+    } else {
+      this.router.navigate(['/board']);
+    }
   }
 }
