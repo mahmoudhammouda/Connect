@@ -38,8 +38,6 @@
     @if (activeTab === 'available') {
       <app-availability-list
         [currentUser]="currentUser"
-        [availabilities]="availabilities"
-        [activeTab]="activeTab"
       ></app-availability-list>
     } @else {
       <app-position-list

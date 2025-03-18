@@ -6,7 +6,7 @@
   ></app-hero-section>
 
   <!-- Consultant Tabs -->
-  <div class="flex gap-4 border-b mb-6">
+  <div class="flex justify-center gap-4 border-b mb-6">
     <button 
       (click)="activeTab = 'open-position'"
       [class]="activeTab === 'open-position' ? 
@@ -49,8 +49,6 @@
     @if (activeTab === 'available' || activeTab === 'mine') {
       <app-availability-list
         [currentUser]="currentUser"
-        [availabilities]="availabilities"
-        [activeTab]="activeTab"
       ></app-availability-list>
     } @else {
       <app-position-list

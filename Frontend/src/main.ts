@@ -5,6 +5,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BoardComponent } from './app/components/board/board.component';
 import { BoardConsultantComponent } from './app/components/board-consultant/board-consultant.component';
+import { BoardRecruiterComponent } from './app/components/board-recruiter/board-recruiter.component';
 import { UserProfileComponent } from './app/components/user-profile/user-profile.component';
 import { User } from './app/models/user.model';
 import { LoginModalComponent } from './app/components/login-modal/login-modal.component';
@@ -13,13 +14,15 @@ import { UserService } from './app/services/user.service';
 import '@angular/compiler';
 import { NgModule } from '@angular/core';
 import { consultantGuard } from './app/guards/consultant.guard';
+import { recruiterGuard } from './app/guards/recruiter.guard';
 
 
 
 const routes: Routes = [
   { path: '', component: BoardComponent },
   { path: 'board', component: BoardComponent },
-  { path: 'consultant', component: BoardConsultantComponent, canActivate: [consultantGuard] }
+  { path: 'consultant', component: BoardConsultantComponent, canActivate: [consultantGuard] },
+  { path: 'recruiter', component: BoardRecruiterComponent, canActivate: [recruiterGuard] }
 ];
 
 @Component({

@@ -103,9 +103,14 @@ export class BoardComponent {
   }
 
   constructor() {
-    // Redirect consultants to consultant board
+    // Redirect users to appropriate boards based on role
     if (this.currentUser?.role === 'consultant') {
       this.router.navigate(['/consultant']);
+      return;
+    }
+    
+    if (this.currentUser?.role === 'recruiter' || this.currentUser?.role === 'business_developer') {
+      this.router.navigate(['/recruiter']);
       return;
     }
     

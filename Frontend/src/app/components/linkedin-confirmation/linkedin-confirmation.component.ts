@@ -199,6 +199,8 @@ export class LinkedInConfirmationComponent {
     // Redirect to appropriate board based on user role
     if (this.userData.role === 'consultant') {
       this.router.navigate(['/consultant']);
+    } else if (this.userData.role === 'recruiter' || this.userData.role === 'business_developer') {
+      this.router.navigate(['/recruiter']);
     } else {
       this.router.navigate(['/board']);
     }

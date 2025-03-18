@@ -1,0 +1,86 @@
+<div class="p-4 relative">
+  <app-hero-section
+    [currentUser]="currentUser"
+    (addAvailability)="openAvailabilityForm()"
+    (tabChange)="setActiveTab($event)"
+  ></app-hero-section>
+
+  <!-- Recruiter-specific Tabs -->
+  <div class="flex justify-center gap-4 border-b mb-6">
+    <div class="flex gap-4">
+      <button 
+        (click)="activeTab = 'available'"
+        [class]="activeTab === 'available' ? 
+          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+      >
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-sm">person</span>
+          Available Experts
+        </div>
+      </button>
+      <button 
+        (click)="activeTab = 'open-position'"
+        [class]="activeTab === 'open-position' ? 
+          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+      >
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-sm">work</span>
+          Open Positions
+        </div>
+      </button>
+      <button 
+        (click)="activeTab = 'subcontractors'"
+        [class]="activeTab === 'subcontractors' ? 
+          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
+          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+      >
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-sm">business</span>
+          Subcontractors
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Content based on active tab -->
+  <div class="grid grid-cols-1 gap-6">
+    @if (activeTab === 'available') {
+      <app-availability-list
+        [currentUser]="currentUser"
+      ></app-availability-list>
+    } @else if (activeTab === 'open-position') {
+      <app-position-list
+        [currentUser]="currentUser"
+      ></app-position-list>
+    } @else {
+      <!-- Subcontractors Tab Content -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+          <h2 class="text-xl font-semibold mb-4">Subcontractor Management</h2>
+          <p class="text-gray-600 mb-4">Manage your partner agencies and individual subcontractors</p>
+          
+          <!-- Placeholder for subcontractor content -->
+          <div class="border border-gray-200 rounded-lg p-4 text-center text-gray-500">
+            <p>Subcontractor management features coming soon</p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modals -->
+<app-modal
+  [isOpen]="showLoginModal"
+  (closeModal)="closeLoginModal()"
+  (login)="handleLoginEvent($event)"
+></app-modal>
+
+<app-availability-form
+  [isOpen]="showAvailabilityForm"
+  [availability]="selectedAvailability"
+  (closeModal)="closeAvailabilityForm()"
+  (save)="handleAvailabilitySubmit($event)"
+></app-availability-form>
