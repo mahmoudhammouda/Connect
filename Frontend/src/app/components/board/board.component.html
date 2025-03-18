@@ -2,6 +2,7 @@
   <app-hero-section
     [currentUser]="currentUser"
     (addAvailability)="openAvailabilityForm()"
+    (tabChange)="setActiveTab($event)"
   ></app-hero-section>
 
   <!-- Content Tabs -->

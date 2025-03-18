@@ -26,7 +26,7 @@ export class BoardComponent {
   hasMoreItems = true;
 
   // Tab state
-  activeTab: 'available' | 'mine' | 'public' | 'requests' | 'subcontractors' = 'available';
+  activeTab: 'available' | 'mine' | 'public' | 'requests' | 'subcontractors' = 'requests';
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
 
   // Search and filter state
@@ -46,6 +46,11 @@ export class BoardComponent {
     { code: 'be', name: 'Belgium' },
     { code: 'ch', name: 'Switzerland' }
   ];
+
+  // Method to handle tab change event from hero section
+  setActiveTab(tab: 'available' | 'requests'): void {
+    this.activeTab = tab;
+  }
 
   getCountryName(code: string): string {
     return this.uniqueCountries.find(c => c.code === code.toLowerCase())?.name || '';
@@ -396,7 +401,7 @@ I'm reaching out to let you know that I'll be available in two weeks for a new p
       ],
       description: `Hi [Recruiter Name],
 I'm excited to share that I'll be free in about two weeks for a new assignment. My background includes 17 years of expertise in .NET, Cloud architectures, and Event-Driven solutions. I've led projects modernizing legacy systems and implementing scalable enterprise solutions. Let's connect and see how I can support your clients!
-#Architect #NET #Cloud #EventDriven #Opportunity`,
+#AvailableSoon #Architect #Microservices #Azure #Agile`,
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: true,
@@ -418,7 +423,7 @@ I'm excited to share that I'll be free in about two weeks for a new assignment. 
       preferences: ['Big data projects', 'Data pipeline optimization'],
       description: `Dear [Recruiter Name],
 I'm ready to take on fresh challenges in approximately two weeks. I bring extensive experience in architecting .NET Core solutions, designing Microservices on Azure, and guiding teams under Agile methodologies. Looking forward to discussing how we can collaborate on your next big project!
-#Architect #NETCore #Azure #Agile #Microservices`,
+#OpenForNewProjects #CloudArchitecture #.NET #Scalability`,
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
@@ -440,7 +445,7 @@ I'm ready to take on fresh challenges in approximately two weeks. I bring extens
       preferences: ['Cloud migration', 'Multi-cloud strategies'],
       description: `Hello [Recruiter Name],
 I wanted to let you know that I have upcoming availability for a Solutions Architect role in the .NET ecosystem. My background spans 17 years of delivering robust enterprise architectures, focusing on Cloud-based microservices, API management, and Agile leadership. I'd love to chat about potential roles you have open.
-#SolutionsArchitect #NET #Cloud #AvailableSoon`,
+#SolutionsArchitect #DotNet #AzureDevOps #HiringNow`,
       contractType: 'cdi',
       isLocked: true,
       isSubcontractor: true,
@@ -483,7 +488,7 @@ I'm currently planning my next assignment, available in two weeks. I excel in .N
       status: 'soon',
       preferences: ['Security architecture', 'Compliance frameworks'],
       description: `Dear [Recruiter Name],
-I'll be free shortly and would love to bring my 17 years of .NET and Cloud experience to your clients. I specialize in event-driven architecture, microservices, and enterprise security. Let's connect and explore how I can contribute to your upcoming projects!
+I'll be free shortly and would love to bring my 17 years of .NET and Cloud experience to your clients. I specialize in event-driven architecture, microservices, and enterprise security. Let me know if you have roles that need a seasoned architect adept at creating scalable, secure systems.
 #EventDriven #Microservices #NETExpert #RemoteWork #AvailableIn2Weeks`,
       contractType: 'cdi',
       isLocked: true,

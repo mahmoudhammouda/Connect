@@ -31,7 +31,7 @@ import { User } from '../../models/user.model';
         <div class="border-b border-white/20 mb-10 relative z-10">
           <div class="flex -mb-px">
             <button 
-              (click)="activeHeroTab = 'consultant'"
+              (click)="onHeroTabChange('consultant')"
               class="px-10 py-4 font-medium transition-all duration-200 flex items-center gap-3 border-b-2"
               [class]="activeHeroTab === 'consultant' ? 
                 'text-white border-white bg-white/5 shadow-lg' : 
@@ -41,7 +41,7 @@ import { User } from '../../models/user.model';
               I'm a Consultant
             </button>
             <button 
-              (click)="activeHeroTab = 'recruiter'"
+              (click)="onHeroTabChange('recruiter')"
               class="px-10 py-4 font-medium transition-all duration-200 flex items-center gap-3 border-b-2"
               [class]="activeHeroTab === 'recruiter' ? 
                 'text-white border-white bg-white/5 shadow-lg' : 
@@ -199,6 +199,19 @@ import { User } from '../../models/user.model';
 export class HeroSectionComponent {
   @Input() currentUser: User | null = null;
   @Output() addAvailability = new EventEmitter<void>();
+  @Output() tabChange = new EventEmitter<'requests' | 'available'>();
   
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
+
+  onHeroTabChange(tab: 'consultant' | 'recruiter'): void {
+    this.activeHeroTab = tab;
+    
+    // When consultant tab is selected, show the open positions tab
+    // When recruiter tab is selected, show the available experts tab
+    if (tab === 'consultant') {
+      this.tabChange.emit('requests');
+    } else if (tab === 'recruiter') {
+      this.tabChange.emit('available');
+    }
+  }
 }

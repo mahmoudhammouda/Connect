@@ -27,6 +27,7 @@ export class PositionListComponent {
   
   // UI state
   showLoginModal = false;
+  initialLoadComplete = false;
 
   positions: OpenPosition[] = [
     {
@@ -362,7 +363,9 @@ export class PositionListComponent {
   ];
 
   constructor() {
+    // Initialize filtered positions with all positions to ensure search works for everyone
     this.filteredPositions = this.positions.slice(0, this.pageSize);
+    this.initialLoadComplete = true;
     this.setupInfiniteScroll();
   }
 

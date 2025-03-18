@@ -35,20 +35,19 @@ const routes: Routes = [
                 <h1 class="text-xl font-bold">FactConnect</h1>
               </div>
               <div class="hidden sm:ml-6 sm:flex sm:space-x-6">
-                <a routerLink="/board" 
-                   routerLinkActive="border-b-2 border-blue-500"
-                   class="inline-flex items-center px-1 pt-1 text-gray-900">
-                  Available Experts
-                </a>
+                <!-- Navigation links removed as the site opens directly to /board -->
               </div>
             </div>
             <div class="flex items-center">
               @if (!userService.getCurrentUser()()) {
               <button 
                 (click)="showLoginModal = true"
-                class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 text-sm font-medium"
               >
-                Login with LinkedIn
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+                Sign In with LinkedIn
               </button>
               } @else {
                 <app-user-profile [user]="userService.getCurrentUser()()!" />

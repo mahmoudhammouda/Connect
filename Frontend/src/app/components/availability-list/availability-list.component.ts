@@ -38,6 +38,7 @@ export class AvailabilityListComponent {
   selectedAvailability: Availability | null = null;
   expandedId: string | null = null;
   activeDropdownId: string | null = null;
+  initialLoadComplete = false;
 
   // Update country codes to match flag CDN requirements
   uniqueCountries: Array<{ code: string; name: string }> = [
@@ -71,6 +72,7 @@ export class AvailabilityListComponent {
     this.uniqueCountries = Array.from(countries).map(c => JSON.parse(c))
       .sort((a, b) => a.name.localeCompare(b.name));
     this.filterAvailabilities();
+    this.initialLoadComplete = true;
   }
 
   private setupInfiniteScroll(): void {
