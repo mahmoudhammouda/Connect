@@ -1,0 +1,115 @@
+<div class="relative">
+  <button 
+    (click)="toggleNotifications($event)"
+    class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 focus:outline-none transition-colors notifications-bell"
+  >
+    <span class="material-icons text-gray-700">notifications</span>
+    <!-- Notification badge -->
+    <span 
+      *ngIf="notifications.length > 0" 
+      class="absolute top-0 right-0 flex items-center justify-center w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full"
+    >
+      {{notifications.length}}
+    </span>
+  </button>
+  
+  <!-- Notifications Panel -->
+  <div 
+    *ngIf="showNotifications" 
+    class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200 notifications-dropdown"
+  >
+    <div class="p-3 border-b bg-gray-50 flex justify-between items-center">
+      <h3 class="text-sm font-medium text-gray-700">Notifications</h3>
+      <span class="text-xs text-blue-600 hover:text-blue-800 cursor-pointer">Mark all as read</span>
+    </div>
+    
+    <div class="max-h-96 overflow-y-auto">
+      <div *ngIf="notifications.length === 0" class="p-4 text-center text-gray-500">
+        <span class="material-icons text-gray-400 text-4xl mb-2">notifications_off</span>
+        <p>No notifications at this time</p>
+      </div>
+      
+      <!-- Consultant Notifications (Unlock Requests) -->
+      <div *ngFor="let request of notifications" class="p-4 border-b hover:bg-gray-50">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <!-- Icon based on notification type -->
+              <span *ngIf="request.type === 'consultant_request'" class="material-icons text-blue-600">person</span>
+              <span *ngIf="request.type === 'recruiter_response'" class="material-icons text-green-600">
+                {{request.status === 'accepted' ? 'check_circle' : 'cancel'}}
+              </span>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start">
+              <!-- Show recruiter name for consultant notifications -->
+              <p *ngIf="request.type === 'consultant_request'" class="text-sm font-medium text-gray-900">
+                {{request.recruiterName}}
+              </p>
+              <!-- Show consultant name for recruiter notifications -->
+              <p *ngIf="request.type === 'recruiter_response'" class="text-sm font-medium text-gray-900">
+                {{request.consultantName}}
+              </p>
+              <p class="text-xs text-gray-400">
+                {{request.date | date:'MMM d, h:mm a'}}
+              </p>
+            </div>
+            <p class="text-xs text-gray-500">
+              {{request.type === 'consultant_request' ? request.company : 'Profile Request Response'}}
+            </p>
+            <p class="mt-2 text-sm text-gray-600">
+              {{request.message}}
+            </p>
+            
+            <!-- Different Actions based on user role and notification type -->
+            
+            <!-- For Consultants (Accept/Refuse buttons) -->
+            <div *ngIf="request.type === 'consultant_request' && getUserRole() === 'consultant'" class="mt-3 flex gap-2">
+              <button 
+                (click)="acceptRequest(request.id, $event)" 
+                class="px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+              >
+                Accept
+              </button>
+              <button 
+                (click)="refuseRequest(request.id, $event)" 
+                class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+              >
+                Refuse
+              </button>
+            </div>
+            
+            <!-- For Recruiters (View Profile button if accepted) -->
+            <div *ngIf="request.type === 'recruiter_response' && (getUserRole() === 'recruiter' || getUserRole() === 'business_developer')" class="mt-3 flex gap-2">
+              <button 
+                *ngIf="request.status === 'accepted' && request.profileId"
+                (click)="viewProfile(request.profileId, $event)" 
+                class="px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+              >
+                View Profile
+              </button>
+              <button 
+                (click)="dismissNotification(request.id, $event)" 
+                class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- See All Link -->
+    <div class="p-3 border-t bg-gray-50 text-center">
+      <a 
+        routerLink="/notifications" 
+        (click)="showNotifications = false"
+        class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+      >
+        See all notifications
+      </a>
+    </div>
+  </div>
+</div>
