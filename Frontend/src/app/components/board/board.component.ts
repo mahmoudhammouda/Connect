@@ -79,6 +79,10 @@ export class BoardComponent {
     this.showLoginModal = false;
   }
 
+  openLoginModal(): void {
+    this.showLoginModal = true;
+  }
+
   handleLoginEvent(userData: any): void {
     this.userService.setCurrentUser(userData);
     this.closeLoginModal();
@@ -195,6 +199,15 @@ export class BoardComponent {
   openAvailabilityForm(availability: Availability | null = null): void {
     this.selectedAvailability = availability;
     this.showAvailabilityForm = true;
+  }
+
+  openPositionForm(): void {
+    // Set active tab to open positions
+    this.activeTab = 'open-position';
+    
+    // TODO: Implement position form modal when available
+    // For now, just redirect to the right tab
+    alert('Position form coming soon! For now, you can browse open positions.');
   }
 
   closeAvailabilityForm(): void {

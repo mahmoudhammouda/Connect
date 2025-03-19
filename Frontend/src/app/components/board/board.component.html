@@ -1,4 +1,82 @@
 <div class="p-4 relative">
+  <!-- Concise Hero Section -->
+  <div class="mb-6 text-center">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">FastConnect: End Endless Scrolling</h1>
+    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+      Stop scrolling through social media posts. Everything is centralized here - connecting the right consultants with the right opportunities.
+    </p>
+  </div>
+
+  <!-- Streamlined Value Proposition Row -->
+  <div class="grid md:grid-cols-2 gap-6 mb-6">
+    <!-- For Consultants -->
+    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+      <div class="bg-blue-600 py-2">
+        <h2 class="text-white text-lg font-bold text-center">For Consultants</h2>
+      </div>
+      <div class="p-4 flex items-center justify-between">
+        <div>
+          <div class="flex items-center mb-2">
+            <span class="material-icons text-blue-600 mr-2">visibility</span>
+            <span class="text-gray-800">No More Social Media Noise</span>
+          </div>
+          <div class="flex items-center">
+            <span class="material-icons text-blue-600 mr-2">schedule</span>
+            <span class="text-gray-800">Centralized Opportunities</span>
+          </div>
+        </div>
+        <button 
+          *ngIf="!currentUser"
+          (click)="openLoginModal()"
+          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Register as Consultant
+        </button>
+        <button 
+          *ngIf="currentUser && currentUser.role === 'consultant'"
+          (click)="openAvailabilityForm()"
+          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Share Your Availability
+        </button>
+      </div>
+    </div>
+
+    <!-- For Recruiters -->
+    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+      <div class="bg-green-600 py-2">
+        <h2 class="text-white text-lg font-bold text-center">For Recruiters</h2>
+      </div>
+      <div class="p-4 flex items-center justify-between">
+        <div>
+          <div class="flex items-center mb-2">
+            <span class="material-icons text-green-600 mr-2">search</span>
+            <span class="text-gray-800">Stop CV Hunting Online</span>
+          </div>
+          <div class="flex items-center">
+            <span class="material-icons text-green-600 mr-2">speed</span>
+            <span class="text-gray-800">Direct Access to Experts</span>
+          </div>
+        </div>
+        <button 
+          *ngIf="!currentUser"
+          (click)="openLoginModal()"
+          class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Register as Recruiter
+        </button>
+        <button 
+          *ngIf="currentUser && (currentUser.role === 'recruiter' || currentUser.role === 'business_developer')"
+          (click)="openPositionForm()"
+          class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Share Your Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Original Hero Section Component -->
   <app-hero-section
     [currentUser]="currentUser"
     (addAvailability)="openAvailabilityForm()"
@@ -6,7 +84,7 @@
   ></app-hero-section>
 
   <!-- Content Tabs -->
-  <div class="flex justify-center gap-4 border-b mb-6">
+  <div class="flex justify-center gap-4 border-b mb-4">
     <div class="flex gap-4">
       <button 
       (click)="activeTab = 'open-position'"
@@ -33,8 +111,7 @@
     </div>
   </div>
 
-
-  <div class="grid grid-cols-1 gap-6">
+  <div class="grid grid-cols-1 gap-4">
     @if (activeTab === 'available') {
       <app-availability-list
         [currentUser]="currentUser"
