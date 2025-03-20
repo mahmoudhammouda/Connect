@@ -1,0 +1,53 @@
+<div class="post-carousel-container">
+  <div class="carousel-wrapper">
+    <!-- Navigation arrows -->
+    <button class="nav-button prev" (click)="prevSlide()" [class.hidden]="currentSlide === 0">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <div class="slides-container">
+      <div class="slides" [style.transform]="'translateX(' + (-currentSlide * slideWidth) + 'px)'">
+        <div *ngFor="let post of posts; let i = index" class="slide" [class.active]="currentSlide === i">
+          <app-consultant-post 
+            *ngIf="post.type === 'consultant'"
+            [name]="post.name" 
+            [role]="post.role"
+            [message]="post.message"
+            [hashtags]="post.hashtags"
+            [likes]="post.likes"
+            [comments]="post.comments"
+            [shares]="post.shares"
+            [avatarUrl]="post.avatarUrl"
+            [onUnlockProfileClick]="handlePostAction.bind(this)">
+          </app-consultant-post>
+          
+          <app-recruiter-post
+            *ngIf="post.type === 'recruiter'"
+            [name]="post.name"
+            [role]="post.role"
+            [message]="post.message"
+            [hashtags]="post.hashtags"
+            [likes]="post.likes"
+            [comments]="post.comments"
+            [shares]="post.shares"
+            [avatarUrl]="post.avatarUrl"
+            [onApplyButtonClick]="handlePostAction.bind(this)">
+          </app-recruiter-post>
+        </div>
+      </div>
+    </div>
+    
+    <button class="nav-button next" (click)="nextSlide()" [class.hidden]="currentSlide >= posts.length - slidesToShow">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+  
+  <!-- Pagination dots -->
+  <div class="pagination">
+    <span *ngFor="let post of posts; let i = index" 
+          class="dot" 
+          [class.active]="i >= currentSlide && i < currentSlide + slidesToShow" 
+          (click)="goToSlide(i)">
+    </span>
+  </div>
+</div>

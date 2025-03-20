@@ -10,11 +10,14 @@ import { UserService } from '../../services/user.service';
 import { AvailabilityListComponent } from '../availability-list/availability-list.component';
 import { PositionListComponent } from '../position-list/position-list.component';
 import { Router } from '@angular/router';
+import { ConsultantPostComponent } from '../consultant-post/consultant-post.component';
+import { RecruiterPostComponent } from '../recruiter-post/recruiter-post.component';
+import { PostCarouselComponent } from '../post-carousel/post-carousel.component';
 
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [CommonModule, LoginModalComponent, AvailabilityFormComponent, HeroSectionComponent, AvailabilityListComponent, PositionListComponent],
+  imports: [CommonModule, LoginModalComponent, AvailabilityFormComponent, HeroSectionComponent, AvailabilityListComponent, PositionListComponent, ConsultantPostComponent, RecruiterPostComponent, PostCarouselComponent],
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss']
 })

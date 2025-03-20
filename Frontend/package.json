@@ -19,6 +19,7 @@
     "@tinymce/tinymce-angular": "^7.0.0",
     "country-flag-icons": "^1.5.9",
     "rxjs": "~7.8.1",
+    "swiper": "^11.2.5",
     "tslib": "^2.6.2",
     "zone.js": "~0.14.3"
   },

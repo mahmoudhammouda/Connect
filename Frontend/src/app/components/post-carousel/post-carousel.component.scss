@@ -1,0 +1,134 @@
+.post-carousel-container {
+  margin: 10px 0;
+  position: relative;
+  
+  .carousel-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .slides-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    height: 210px; 
+  }
+
+  .slides {
+    display: flex;
+    transition: transform 0.5s ease;
+    height: 100%; 
+  }
+
+  .slide {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    padding: 5px;
+    transition: all 0.3s ease;
+    height: 100%; 
+  }
+
+  .nav-button {
+    position: absolute;
+    z-index: 10;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    color: #4F46E5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f8f8f8;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    &.prev {
+      left: -15px;
+    }
+
+    &.next {
+      right: -15px;
+    }
+
+    &.hidden {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #CBD5E1;
+      margin: 0 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.active {
+        background-color: #4F46E5;
+        transform: scale(1.2);
+      }
+    }
+  }
+}
+
+// Make sure the post components take the full height of the slide
+app-consultant-post, 
+app-recruiter-post {
+  display: block;
+  height: 100%;
+  
+  > div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    // Make the content area grow to fill available space
+    > div.p-3 {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      // Make the middle content section expand to fill available space
+      > div {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .post-carousel-container {
+    .slides-container {
+      height: 230px; 
+    }
+    
+    .nav-button {
+      width: 25px;
+      height: 25px;
+      
+      &.prev {
+        left: -12px;
+      }
+      
+      &.next {
+        right: -12px;
+      }
+    }
+  }
+}

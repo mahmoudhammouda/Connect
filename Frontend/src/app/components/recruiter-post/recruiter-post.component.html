@@ -1,0 +1,25 @@
+<div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200 cursor-pointer" (click)="onApplyClick()">
+  <div class="p-3">
+    <!-- Author Info -->
+    <div class="flex items-center mb-3">
+      <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-3 overflow-hidden">
+        <ng-container *ngIf="!avatarUrl; else avatarImage">
+          <span class="material-icons text-green-600">business</span>
+        </ng-container>
+        <ng-template #avatarImage>
+          <img [src]="avatarUrl" alt="Recruiter Avatar" class="w-full h-full object-cover">
+        </ng-template>
+      </div>
+      <div>
+        <h3 class="font-bold text-gray-800">{{ name }}</h3>
+        <p class="text-gray-600 text-sm">{{ role }}</p>
+      </div>
+    </div>
+    
+    <!-- Post Content -->
+    <div>
+      <p class="text-gray-800 mb-2 whitespace-pre-line" style="display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ message }}</p>
+      <p class="text-green-600 text-sm">{{ hashtags }}</p>
+    </div>
+  </div>
+</div>

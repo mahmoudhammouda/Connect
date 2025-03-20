@@ -76,6 +76,26 @@
     </div>
   </div>
 
+  <!-- Example Posts Section - only visible when not logged in -->
+  <div *ngIf="!currentUser" class="mb-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Featured Professionals</h2>
+    
+    <!-- Message accrocheur -->
+    <div class="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-200">
+      <div class="flex items-start">
+        <span class="material-icons text-blue-600 mr-2 mt-1">lightbulb</span>
+        <p class="text-gray-800">
+          <span class="font-semibold">Simplifiez votre recherche d'opportunités !</span> 
+          Partagez votre disponibilité en quelques clics pour accéder à des missions et élargir votre réseau professionnel. 
+          <span class="text-blue-700 font-medium">Connectez-vous dès maintenant pour démarrer.</span>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Carousel of example posts -->
+    <app-post-carousel [openLoginFunction]="openLoginModal.bind(this)"></app-post-carousel>
+  </div>
+
   <!-- Original Hero Section Component -->
   <app-hero-section
     [currentUser]="currentUser"
