@@ -200,8 +200,12 @@ export class BoardComponent {
   }
 
   openAvailabilityForm(availability: Availability | null = null): void {
-    this.selectedAvailability = availability;
-    this.showAvailabilityForm = true;
+    if (this.currentUser) {
+      this.selectedAvailability = availability;
+      this.showAvailabilityForm = true;
+    } else {
+      this.openLoginModal();
+    }
   }
 
   openPositionForm(): void {
@@ -810,4 +814,15 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       cities: []
     }
   ]
+
+  // Handle hero tab change
+  onHeroTabChange(tab: 'consultant' | 'recruiter'): void {
+    this.activeHeroTab = tab;
+    // Set the corresponding content tab
+    if (tab === 'consultant') {
+      this.setActiveTab('available');
+    } else {
+      this.setActiveTab('open-position');
+    }
+  }
 }

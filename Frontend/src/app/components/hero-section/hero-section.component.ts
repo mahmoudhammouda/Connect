@@ -58,6 +58,18 @@ import { User } from '../../models/user.model';
       <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="activeHeroTab === 'consultant' && !currentUser">
         <h1 class="text-3xl font-bold mb-4">Join 200+ Experts Getting Premium Projects</h1>
         <p class="text-xl mb-8 text-blue-100 leading-relaxed">Add your availability to get noticed by top recruiters and access exclusive opportunities. Our experts get contacted within 48 hours and receive priority access to high-value projects.</p>
+        
+        <!-- Message accrocheur sur LinkedIn -->
+        <div class="bg-white/10 p-4 rounded-lg mb-6 border-l-4 border-yellow-400">
+          <div class="flex items-start">
+            <span class="material-icons text-yellow-400 mr-3 mt-1">tips_and_updates</span>
+            <p class="text-white leading-relaxed">
+              <span class="font-semibold">Your LinkedIn feed is a goldmine of opportunities</span> that never appear in the jobs section. 
+              But these posts quickly disappear, buried under new content. Connect directly helps you capture these opportunities before they vanish.
+            </p>
+          </div>
+        </div>
+        
         <div class="flex gap-4 items-center">
           <button 
             (click)="addAvailability.emit()"
@@ -91,6 +103,18 @@ import { User } from '../../models/user.model';
       <div class="max-w-3xl relative z-10 flex-1 flex flex-col justify-center" *ngIf="currentUser?.role === 'consultant'">
         <h1 class="text-3xl font-bold mb-4">Welcome back, {{currentUser?.firstName}}! 👋</h1>
         <p class="text-xl mb-6 text-blue-100">Stay visible to our network of 500+ recruiters by keeping your availability up to date. Our experts get contacted within 48 hours and receive priority access to high-value projects.</p>
+        
+        <!-- Message accrocheur sur LinkedIn pour les consultants connectés -->
+        <div class="bg-white/10 p-4 rounded-lg mb-6 border-l-4 border-yellow-400">
+          <div class="flex items-start">
+            <span class="material-icons text-yellow-400 mr-3 mt-1">tips_and_updates</span>
+            <p class="text-white leading-relaxed">
+              <span class="font-semibold">Your LinkedIn feed is a goldmine of opportunities</span> that never appear in the jobs section. 
+              But these posts quickly disappear, buried under new content. We help you capture these opportunities before they vanish.
+            </p>
+          </div>
+        </div>
+        
         <div class="grid grid-cols-3 gap-6 mb-8">
           <div class="bg-white/10 rounded-lg p-4">
             <div class="text-3xl font-bold mb-1">24</div>
@@ -185,11 +209,11 @@ import { User } from '../../models/user.model';
           </div>
           <div class="flex items-center gap-2">
             <span class="material-icons text-blue-300">bolt</span>
-            <span class="text-blue-100">Fast Response Time</span>
+            <span class="text-blue-100">48h Response Time</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="material-icons text-blue-300">business</span>
-            <span class="text-blue-100">Sub-contracting Options</span>
+            <span class="material-icons text-blue-300">school</span>
+            <span class="text-blue-100">Pre-screened Candidates</span>
           </div>
         </div>
       </div>
@@ -202,16 +226,14 @@ export class HeroSectionComponent {
   @Output() tabChange = new EventEmitter<'open-position' | 'available'>();
   
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
-
+  
   onHeroTabChange(tab: 'consultant' | 'recruiter'): void {
     this.activeHeroTab = tab;
-    
-    // When consultant tab is selected, show the open positions tab
-    // When recruiter tab is selected, show the available experts tab
+    // Emit tab change event for parent component
     if (tab === 'consultant') {
-      this.tabChange.emit('open-position');
-    } else if (tab === 'recruiter') {
       this.tabChange.emit('available');
+    } else {
+      this.tabChange.emit('open-position');
     }
   }
 }

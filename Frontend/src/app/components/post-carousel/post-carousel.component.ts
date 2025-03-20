@@ -40,7 +40,7 @@ export class PostCarouselComponent implements AfterViewInit {
       likes: 68,
       comments: 12,
       shares: 5,
-      avatarUrl: null
+      avatarUrl: 'https://randomuser.me/api/portraits/women/12.jpg'
     },
     {
       type: 'recruiter',
@@ -51,7 +51,7 @@ export class PostCarouselComponent implements AfterViewInit {
       likes: 42,
       comments: 8,
       shares: 15,
-      avatarUrl: null
+      avatarUrl: 'https://randomuser.me/api/portraits/men/45.jpg'
     },
     {
       type: 'consultant',
@@ -62,7 +62,7 @@ export class PostCarouselComponent implements AfterViewInit {
       likes: 43,
       comments: 7,
       shares: 3,
-      avatarUrl: null
+      avatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg'
     },
     {
       type: 'recruiter',
@@ -73,7 +73,7 @@ export class PostCarouselComponent implements AfterViewInit {
       likes: 35,
       comments: 11,
       shares: 8,
-      avatarUrl: null
+      avatarUrl: 'https://randomuser.me/api/portraits/women/28.jpg'
     },
     {
       type: 'consultant',
@@ -84,7 +84,7 @@ export class PostCarouselComponent implements AfterViewInit {
       likes: 56,
       comments: 14,
       shares: 9,
-      avatarUrl: null
+      avatarUrl: 'https://randomuser.me/api/portraits/women/65.jpg'
     },
     {
       type: 'recruiter',
@@ -95,7 +95,7 @@ export class PostCarouselComponent implements AfterViewInit {
       likes: 29,
       comments: 6,
       shares: 10,
-      avatarUrl: null
+      avatarUrl: 'https://randomuser.me/api/portraits/men/77.jpg'
     }
   ];
 

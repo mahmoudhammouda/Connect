@@ -1,107 +1,66 @@
 <div class="p-4 relative">
-  <!-- Concise Hero Section -->
-  <div class="mb-6 text-center">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">FastConnect: End Endless Scrolling</h1>
-    <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+  <!-- Enhanced Hero Section with integrated value proposition -->
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-bold text-gray-900 mb-3">FastConnect: End Endless Scrolling</h1>
+    <p class="text-lg text-gray-700 max-w-3xl mx-auto mb-2">
       Stop scrolling through social media posts. Everything is centralized here - connecting the right consultants with the right opportunities.
     </p>
-  </div>
-
-  <!-- Streamlined Value Proposition Row -->
-  <div class="grid md:grid-cols-2 gap-6 mb-6">
-    <!-- For Consultants -->
-    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-      <div class="bg-blue-600 py-2">
-        <h2 class="text-white text-lg font-bold text-center">For Consultants</h2>
-      </div>
-      <div class="p-4 flex items-center justify-between">
-        <div>
-          <div class="flex items-center mb-2">
-            <span class="material-icons text-blue-600 mr-2">visibility</span>
-            <span class="text-gray-800">No More Social Media Noise</span>
-          </div>
-          <div class="flex items-center">
-            <span class="material-icons text-blue-600 mr-2">schedule</span>
-            <span class="text-gray-800">Centralized Opportunities</span>
-          </div>
-        </div>
-        <button 
-          *ngIf="!currentUser"
-          (click)="openLoginModal()"
-          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Register as Consultant
-        </button>
-        <button 
-          *ngIf="currentUser && currentUser.role === 'consultant'"
-          (click)="openAvailabilityForm()"
-          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Share Your Availability
-        </button>
-      </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg inline-block px-4 py-2 mb-5 mx-auto">
+      <p class="text-md text-blue-700 font-semibold">
+        <span class="material-icons text-yellow-500 align-middle mr-1" style="font-size: 18px;">star</span>
+        No CV needed, just push your availability or mission offer and connect
+      </p>
     </div>
-
-    <!-- For Recruiters -->
-    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-      <div class="bg-green-600 py-2">
-        <h2 class="text-white text-lg font-bold text-center">For Recruiters</h2>
-      </div>
-      <div class="p-4 flex items-center justify-between">
-        <div>
-          <div class="flex items-center mb-2">
-            <span class="material-icons text-green-600 mr-2">search</span>
-            <span class="text-gray-800">Stop CV Hunting Online</span>
-          </div>
-          <div class="flex items-center">
-            <span class="material-icons text-green-600 mr-2">speed</span>
-            <span class="text-gray-800">Direct Access to Experts</span>
-          </div>
-        </div>
-        <button 
-          *ngIf="!currentUser"
-          (click)="openLoginModal()"
-          class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
-        >
-          Register as Recruiter
-        </button>
-        <button 
-          *ngIf="currentUser && (currentUser.role === 'recruiter' || currentUser.role === 'business_developer')"
-          (click)="openPositionForm()"
-          class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
-        >
-          Share Your Request
-        </button>
-      </div>
+    
+    <!-- Login/Register Call-to-Action Buttons -->
+    <div class="flex justify-center gap-4 mt-5" *ngIf="!currentUser">
+      <button 
+        (click)="openLoginModal(); onHeroTabChange('consultant')"
+        class="px-5 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md"
+      >
+        <span class="material-icons text-sm">person</span>
+        Register as Consultant
+      </button>
+      <button 
+        (click)="openLoginModal(); onHeroTabChange('recruiter')"
+        class="px-5 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-md"
+      >
+        <span class="material-icons text-sm">business</span>
+        Register as Recruiter
+      </button>
+    </div>
+    
+    <!-- Market Info -->
+    <p class="text-md text-gray-600 italic max-w-3xl mx-auto mt-4" *ngIf="!currentUser">
+      Most premium opportunities are off-market, shared through word-of-mouth or between business partners
+    </p>
+    
+    <!-- User Actions for Logged In Users -->
+    <div class="flex justify-center gap-4 mt-5" *ngIf="currentUser">
+      <button 
+        *ngIf="currentUser.role === 'consultant'"
+        (click)="openAvailabilityForm()"
+        class="px-5 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md"
+      >
+        <span class="material-icons text-sm">add</span>
+        Share Your Availability
+      </button>
+      <button 
+        *ngIf="currentUser.role === 'recruiter' || currentUser.role === 'business_developer'"
+        (click)="openPositionForm()"
+        class="px-5 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-md"
+      >
+        <span class="material-icons text-sm">post_add</span>
+        Share Your Request
+      </button>
     </div>
   </div>
 
   <!-- Example Posts Section - only visible when not logged in -->
   <div *ngIf="!currentUser" class="mb-8">
-    <h2 class="text-xl font-bold text-gray-800 mb-4">Featured Professionals</h2>
-    
-    <!-- Message accrocheur -->
-    <div class="bg-blue-50 p-4 rounded-lg mb-4 border border-blue-200">
-      <div class="flex items-start">
-        <span class="material-icons text-blue-600 mr-2 mt-1">lightbulb</span>
-        <p class="text-gray-800">
-          <span class="font-semibold">Simplifiez votre recherche d'opportunités !</span> 
-          Partagez votre disponibilité en quelques clics pour accéder à des missions et élargir votre réseau professionnel. 
-          <span class="text-blue-700 font-medium">Connectez-vous dès maintenant pour démarrer.</span>
-        </p>
-      </div>
-    </div>
-    
     <!-- Carousel of example posts -->
     <app-post-carousel [openLoginFunction]="openLoginModal.bind(this)"></app-post-carousel>
   </div>
-
-  <!-- Original Hero Section Component -->
-  <app-hero-section
-    [currentUser]="currentUser"
-    (addAvailability)="openAvailabilityForm()"
-    (tabChange)="setActiveTab($event)"
-  ></app-hero-section>
 
   <!-- Content Tabs -->
   <div class="flex justify-center gap-4 border-b mb-4">
