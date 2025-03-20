@@ -1,53 +1,75 @@
 <div class="overflow-x-auto">
   <!-- Search and Filter Bar - Only for authenticated users -->
-  <div *ngIf="currentUser" class="sticky top-0 bg-white z-10 mb-4 p-4 border-b shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4">
-    <div class="col-span-1 md:col-span-2">
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="filterPositions()"
-        placeholder="Search by role, required expertise..."
-        class="w-full p-2 border rounded-lg"
-      >
-    </div>
-    <div>
-      <select 
-        [(ngModel)]="selectedCountry"
-        (ngModelChange)="filterPositions()"
-        class="w-full p-2 pl-8 pr-10 border rounded-lg appearance-none bg-white relative"
-      >
-        <option value="">All Locations</option>
-        <option value="FR">France</option>
-        <option value="GB">United Kingdom</option>
-        <option value="DE">Germany</option>
-      </select>
-      <div class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
-        @if (selectedCountry) {
-          <img 
-            [src]="'https://flagcdn.com/w20/' + selectedCountry.toLowerCase() + '.png'"
-            class="w-4 h-4 rounded-sm"
-            [alt]="selectedCountry"
+  <div *ngIf="currentUser" class="sticky top-0 bg-white z-10 mb-6 p-6 rounded-lg shadow-md">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="col-span-1 md:col-span-2">
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+            <span class="material-icons text-base">search</span>
+          </span>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="filterPositions()"
+            placeholder="Search by role, required expertise..."
+            class="w-full py-2.5 pl-10 pr-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
           >
-        }
+        </div>
       </div>
-    </div>
-    <div>
-      <select 
-        [(ngModel)]="selectedSeniority"
-        (ngModelChange)="filterPositions()"
-        class="w-full p-2 border rounded-lg"
-      >
-        <option value="">All Experience Levels</option>
-        <option value="less_than_3">< 3 years</option>
-        <option value="between_3_and_10">3-10 years</option>
-        <option value="more_than_10">10+ years</option>
-      </select>
+      <div>
+        <div class="relative">
+          <select 
+            [(ngModel)]="selectedCountry"
+            (ngModelChange)="filterPositions()"
+            class="w-full py-2.5 pl-10 pr-3 border border-gray-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+          >
+            <option value="">All Locations</option>
+            <option value="FR">France</option>
+            <option value="GB">United Kingdom</option>
+            <option value="DE">Germany</option>
+          </select>
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            @if (selectedCountry) {
+              <img 
+                [src]="'https://flagcdn.com/w20/' + selectedCountry.toLowerCase() + '.png'"
+                class="w-4 h-4 rounded-sm"
+                [alt]="selectedCountry"
+              >
+            } @else {
+              <span class="material-icons text-gray-400 text-base">location_on</span>
+            }
+          </div>
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+            <span class="material-icons text-base">expand_more</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="relative">
+          <select 
+            [(ngModel)]="selectedSeniority"
+            (ngModelChange)="filterPositions()"
+            class="w-full py-2.5 pl-10 pr-3 border border-gray-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+          >
+            <option value="">All Experience Levels</option>
+            <option value="less_than_3">< 3 years</option>
+            <option value="between_3_and_10">3-10 years</option>
+            <option value="more_than_10">10+ years</option>
+          </select>
+          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <span class="material-icons text-gray-400 text-base">work_history</span>
+          </div>
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+            <span class="material-icons text-base">expand_more</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Table Layout -->
-  <table class="min-w-full table-fixed">
-    <thead class="bg-gray-50">
+  <table class="min-w-full table-fixed border-separate border-spacing-y-2">
+    <thead>
       <tr>
         <th class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
         <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
@@ -62,7 +84,7 @@
       @for (position of filteredPositions; track position.id) {
         <tr 
           (click)="toggleDetails(position.id)" 
-          class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative"
+          class="hover:bg-gray-50 cursor-pointer transition-all duration-150 shadow-md bg-white h-20 relative rounded-lg overflow-hidden"
         >
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {{position.reference}}

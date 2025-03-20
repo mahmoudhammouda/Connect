@@ -6,13 +6,13 @@
   ></app-hero-section>
 
   <!-- Recruiter-specific Tabs -->
-  <div class="flex justify-center gap-4 border-b mb-6">
-    <div class="flex gap-4">
+  <div class="flex justify-center mb-8">
+    <div class="bg-white shadow-md rounded-lg flex overflow-hidden">
       <button 
         (click)="activeTab = 'available'"
         [class]="activeTab === 'available' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+          'bg-blue-600 text-white py-3 px-6 font-medium transition-all duration-200' : 
+          'text-gray-700 py-3 px-6 font-medium hover:bg-gray-50 transition-all duration-200'"
       >
         <div class="flex items-center gap-2">
           <span class="material-icons text-sm">person</span>
@@ -22,8 +22,8 @@
       <button 
         (click)="activeTab = 'open-position'"
         [class]="activeTab === 'open-position' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+          'bg-blue-600 text-white py-3 px-6 font-medium transition-all duration-200' : 
+          'text-gray-700 py-3 px-6 font-medium hover:bg-gray-50 transition-all duration-200'"
       >
         <div class="flex items-center gap-2">
           <span class="material-icons text-sm">work</span>
@@ -33,8 +33,8 @@
       <button 
         (click)="activeTab = 'subcontractors'"
         [class]="activeTab === 'subcontractors' ? 
-          'text-blue-600 border-b-2 border-blue-600 py-2 px-4 -mb-px font-medium' : 
-          'text-gray-500 py-2 px-4 font-medium hover:text-gray-700'"
+          'bg-blue-600 text-white py-3 px-6 font-medium transition-all duration-200' : 
+          'text-gray-700 py-3 px-6 font-medium hover:bg-gray-50 transition-all duration-200'"
       >
         <div class="flex items-center gap-2">
           <span class="material-icons text-sm">business</span>
