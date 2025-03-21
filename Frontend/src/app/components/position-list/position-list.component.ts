@@ -18,7 +18,7 @@ export class PositionListComponent {
   pageSize = 10;
   currentPage = 1;
   searchQuery = '';
-  selectedCountry = '';
+  @Input() selectedCountry = '';
   selectedSeniority = '';
   expandedId: string | null = null;
   isLoading = false;

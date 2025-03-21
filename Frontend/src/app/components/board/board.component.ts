@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Availability } from '../../models/availability.model';
 import { AvailabilityFormComponent } from '../availability-form/availability-form.component';
@@ -32,12 +32,23 @@ export class BoardComponent {
   activeTab: 'available' | 'mine' | 'public' | 'open-position' | 'subcontractors' = 'open-position';
   activeHeroTab: 'consultant' | 'recruiter' = 'consultant';
 
+  // Country dropdown state
+  showCountryDropdown = false;
+
   // Search and filter state
   searchQuery = '';
   selectedMobility = '';
   selectedSeniority = '';
-  selectedCountry = '';
+  selectedCountry = 'fr';  // France selected by default
   filteredAvailabilities: Availability[] = [];
+  
+  // Modal state
+  showLoginModal = false;
+  showAvailabilityForm = false;
+  selectedAvailability: Availability | null = null;
+  expandedId: string | null = null;
+  activeDropdownId: string | null = null;
+  
   // Update country codes to match flag CDN requirements
   uniqueCountries: Array<{ code: string; name: string }> = [
     { code: 'fr', name: 'France' },
@@ -50,66 +61,12 @@ export class BoardComponent {
     { code: 'ch', name: 'Switzerland' }
   ];
 
-  // Method to handle tab change event from hero section
-  setActiveTab(tab: 'available' | 'open-position'): void {
-    this.activeTab = tab;
-  }
-
-  getCountryName(code: string): string {
-    return this.uniqueCountries.find(c => c.code === code.toLowerCase())?.name || '';
-  }
-
-  // Modal state
-  showLoginModal = false;
-  showAvailabilityForm = false;
-  selectedAvailability: Availability | null = null;
-  expandedId: string | null = null;
-  activeDropdownId: string | null = null;
-
   private userService = inject(UserService);
   private router = inject(Router);
+  private elementRef: ElementRef;
 
-  get currentUser() {
-    return this.userService.getCurrentUser()();
-  }
-
-  get isRecruiter() {
-    return this.currentUser?.role === 'recruiter' || this.currentUser?.role === 'business_developer';
-  }
-
-  // LinkedIn related methods
-  closeLoginModal(): void {
-    this.showLoginModal = false;
-  }
-
-  openLoginModal(): void {
-    this.showLoginModal = true;
-  }
-
-  handleLoginEvent(userData: any): void {
-    this.userService.setCurrentUser(userData);
-    this.closeLoginModal();
-  }
-
-  handleRowClick(event: Event, availabilityId: string): void {
-    // Get the clicked element
-    const target = event.target as HTMLElement;
-    const availability = this.availabilities.find((c: Availability) => c.id === availabilityId);
-    
-    // Check if the click was on or inside an interactive element
-    const isInteractiveElement = target.closest('button, input, select, label, .material-icons, .clickable-element');
-    
-    // Only toggle if:
-    // 1. We clicked directly on the row or a non-interactive cell
-    // 2. In My Availabilities tab, the availability must not be locked
-    if (!isInteractiveElement && 
-        (this.activeTab === 'available' || 
-         (this.activeTab === 'mine' && availability && !availability.isLocked))) {
-      this.toggleDetails(availabilityId);
-    }
-  }
-
-  constructor() {
+  constructor(elementRef: ElementRef) {
+    this.elementRef = elementRef;
     // Redirect users to appropriate boards based on role
     if (this.currentUser?.role === 'consultant') {
       this.router.navigate(['/consultant']);
@@ -122,17 +79,103 @@ export class BoardComponent {
     }
     
     this.filteredAvailabilities = this.availabilities.slice(0, this.pageSize);
+    
     // Extract unique countries from cities
     const countries = new Set<string>();
     this.availabilities.forEach(availability => {
-      availability.cities?.forEach(city => {
-        countries.add(JSON.stringify({ code: city.countryCode, name: city.country }));
-      });
+      if (availability.cities && availability.cities.length > 0) {
+        availability.cities.forEach(city => {
+          if (city.countryCode && city.country) {
+            countries.add(JSON.stringify({ code: city.countryCode, name: city.country }));
+          }
+        });
+      }
     });
-    this.uniqueCountries = Array.from(countries).map(c => JSON.parse(c))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Only override default countries if we found countries in the data
+    if (countries.size > 0) {
+      const countriesFromData = Array.from(countries).map(c => JSON.parse(c))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      
+      // Merge with default countries to ensure we have both
+      const mergedCountries = new Map();
+      
+      // Add default countries first
+      this.uniqueCountries.forEach(country => {
+        mergedCountries.set(country.code.toLowerCase(), country);
+      });
+      
+      // Add countries from data, potentially overriding defaults if same code
+      countriesFromData.forEach(country => {
+        mergedCountries.set(country.code.toLowerCase(), country);
+      });
+      
+      this.uniqueCountries = Array.from(mergedCountries.values());
+    }
+    
     this.filterAvailabilities();
     this.setupInfiniteScroll();
+  }
+
+  // Method to handle tab change event from hero section
+  setActiveTab(tab: 'available' | 'open-position'): void {
+    this.activeTab = tab;
+  }
+
+  // Handle hero tab change
+  onHeroTabChange(tab: 'consultant' | 'recruiter'): void {
+    this.activeHeroTab = tab;
+    // Set the corresponding content tab
+    if (tab === 'consultant') {
+      this.setActiveTab('available');
+    } else {
+      this.setActiveTab('open-position');
+    }
+  }
+
+  getCountryName(code: string): string {
+    const country = this.uniqueCountries.find(c => c.code.toLowerCase() === code.toLowerCase());
+    return country ? country.name : '';
+  }
+
+  // Component methods
+  toggleCountryDropdown(): void {
+    this.showCountryDropdown = !this.showCountryDropdown;
+  }
+
+  selectCountry(countryCode: string): void {
+    this.selectedCountry = countryCode;
+    this.showCountryDropdown = false; // Close the menu after selection
+    
+    // Apply filters based on active tabs
+    if (this.activeTab === 'available') {
+      // Filter availabilities
+      this.filterAvailabilitiesByCountry();
+    } else if (this.activeTab === 'open-position') {
+      // Filter positions
+      this.filterPositionsByCountry();
+    }
+  }
+
+  filterAvailabilitiesByCountry(): void {
+    console.log('Filtering availabilities by country:', this.selectedCountry);
+    // For now, just log, as we pass the filter to the child component
+    // In a real implementation, this method would send the selected country
+    // to the AvailabilityListComponent via @Input
+  }
+
+  filterPositionsByCountry(): void {
+    console.log('Filtering positions by country:', this.selectedCountry);
+    // For now, just log, as we pass the filter to the child component
+    // In a real implementation, this method would send the selected country
+    // to the PositionListComponent via @Input
+  }
+
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: Event) {
+    if (this.showCountryDropdown && !this.elementRef.nativeElement.contains(event.target)) {
+      this.showCountryDropdown = false;
+    }
   }
 
   private setupInfiniteScroll(): void {
@@ -289,49 +332,22 @@ export class BoardComponent {
     }
   }
 
-  getStatusText(status: string): string {
-    switch (status) {
-      case 'immediate':
-        return 'Available Now';
-      case 'soon':
-        return 'Available Soon';
-      case 'inactive':
-        return 'Not Available';
-      default:
-        return status;
+  handleRowClick(event: Event, availabilityId: string): void {
+    // Get the clicked element
+    const target = event.target as HTMLElement;
+    const availability = this.availabilities.find((c: Availability) => c.id === availabilityId);
+    
+    // Check if the click was on or inside an interactive element
+    const isInteractiveElement = target.closest('button, input, select, label, .material-icons, .clickable-element');
+    
+    // Only toggle if:
+    // 1. We clicked directly on the row or a non-interactive cell
+    // 2. In My Availabilities tab, the availability must not be locked
+    if (!isInteractiveElement && 
+        (this.activeTab === 'available' || 
+         (this.activeTab === 'mine' && availability && !availability.isLocked))) {
+      this.toggleDetails(availabilityId);
     }
-  }
-
-  getContractClass(contractType: string): string {
-    const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
-    switch (contractType) {
-      case 'cdi':
-        return `${baseClasses} bg-purple-100 text-purple-800`;
-      case 'freelance':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'cdd':
-        return `${baseClasses} bg-orange-100 text-orange-800`;
-      default:
-        return baseClasses;
-    }
-  }
-
-  getContractText(contractType: string): string {
-    switch (contractType) {
-      case 'cdi':
-        return 'CDI';
-      case 'freelance':
-        return 'Freelance';
-      case 'cdd':
-        return 'CDD';
-      default:
-        return contractType;
-    }
-  }
-
-  shareOnLinkedIn(event: Event, availability: Availability): void {
-    event.stopPropagation();
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
   }
 
   private createNewAvailability(formData: any): void {
@@ -355,25 +371,35 @@ export class BoardComponent {
       isLocked: formData.isLocked,
       isSubcontractor: false,
       isActive: true,
+      additionalMobilityInfo: 'Available for occasional on-site meetings in Paris',
       cities: []
     };
     this.availabilities.unshift(newAvailability);
   }
 
-  toggleDropdown(event: Event, availabilityId: string): void {
-    event.stopPropagation();
-    this.activeDropdownId = this.activeDropdownId === availabilityId ? null : availabilityId;
+  get currentUser() {
+    return this.userService.getCurrentUser()();
   }
 
-  deleteAvailability(availability: Availability): void {
-    const index = this.availabilities.findIndex(c => c.id === availability.id);
-    if (index !== -1) {
-      this.availabilities.splice(index, 1);
-    }
-    this.activeDropdownId = null;
+  get isRecruiter() {
+    return this.currentUser?.role === 'recruiter' || this.currentUser?.role === 'business_developer';
   }
 
-  // Data arrays
+  // LinkedIn related methods
+  closeLoginModal(): void {
+    this.showLoginModal = false;
+  }
+
+  openLoginModal(): void {
+    this.showLoginModal = true;
+  }
+
+  handleLoginEvent(userData: any): void {
+    this.userService.setCurrentUser(userData);
+    this.closeLoginModal();
+  }
+
+  // Example data for availabilities
   availabilities: Availability[] = [
     {
       id: '1',
@@ -403,7 +429,10 @@ I'm reaching out to let you know that I'll be available in two weeks for a new p
       isLocked: false,
       isSubcontractor: false,
       isActive: true,
-      additionalMobilityInfo: 'Available for occasional on-site meetings in Paris'
+      additionalMobilityInfo: 'Available for occasional on-site meetings in Paris',
+      cities: [
+        { name: 'Paris', country: 'France', countryCode: 'fr' }
+      ]
     },
     {
       id: '2',
@@ -430,95 +459,10 @@ I'm excited to share that I'll be free in about two weeks for a new assignment. 
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: true,
-      isActive: true
-    },
-    {
-      id: '4',
-      reference: 'AVAIL-004',
-      role: 'Data Engineer',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Python', 'Spark', 'Hadoop', 'AWS', 'Data Warehousing'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-03-25'),
-        isFullRemote: true
-      },
-      status: 'immediate',
-      preferences: ['Big data projects', 'Data pipeline optimization'],
-      description: `Dear [Recruiter Name],
-I'm ready to take on fresh challenges in approximately two weeks. I bring extensive experience in architecting .NET Core solutions, designing Microservices on Azure, and guiding teams under Agile methodologies. Looking forward to discussing how we can collaborate on your next big project!
-#OpenForNewProjects #CloudArchitecture #.NET #Scalability`,
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false,
-      isActive: true
-    },
-    {
-      id: '5',
-      reference: 'AVAIL-005',
-      role: 'Cloud Architect',
-      seniority: 'more_than_10',
-      mobility: 'Hybrid',
-      expertise: ['AWS', 'Azure', 'GCP', 'Terraform', 'Kubernetes'],
-      workLocation: 'hybrid',
-      availability: {
-        startDate: new Date('2024-04-15'),
-        isFullRemote: false
-      },
-      status: 'soon',
-      preferences: ['Cloud migration', 'Multi-cloud strategies'],
-      description: `Hello [Recruiter Name],
-I wanted to let you know that I have upcoming availability for a Solutions Architect role in the .NET ecosystem. My background spans 17 years of delivering robust enterprise architectures, focusing on Cloud-based microservices, API management, and Agile leadership. I'd love to chat about potential roles you have open.
-#SolutionsArchitect #DotNet #AzureDevOps #HiringNow`,
-      contractType: 'cdi',
-      isLocked: true,
-      isSubcontractor: true,
-      isActive: true
-    },
-    {
-      id: '6',
-      reference: 'AVAIL-006',
-      role: 'Mobile Developer',
-      seniority: 'between_3_and_10',
-      mobility: 'On-site',
-      expertise: ['React Native', 'iOS', 'Android', 'Flutter'],
-      workLocation: 'onsite',
-      availability: {
-        startDate: new Date('2024-03-30'),
-        isFullRemote: false
-      },
-      status: 'immediate',
-      preferences: ['Mobile development', 'Cross-platform apps'],
-      description: `Hi [Recruiter Name],
-I'm currently planning my next assignment, available in two weeks. I excel in .NET architecture, Cloud migrations (Azure), and implementing secure, scalable systems. If you're looking for someone to drive enterprise modernization and lead technical teams, let's discuss!
-#CloudComputing #NETArchitect #Azure #Microservices`,
-      contractType: 'freelance',
-      isLocked: false,
-      isSubcontractor: false,
-      isActive: true
-    },
-    {
-      id: '7',
-      reference: 'AVAIL-007',
-      role: 'Security Engineer',
-      seniority: 'more_than_10',
-      mobility: 'Remote',
-      expertise: ['Penetration Testing', 'Security Auditing', 'OWASP'],
-      workLocation: 'remote',
-      availability: {
-        startDate: new Date('2024-04-10'),
-        isFullRemote: true
-      },
-      status: 'soon',
-      preferences: ['Security architecture', 'Compliance frameworks'],
-      description: `Dear [Recruiter Name],
-I'll be free shortly and would love to bring my 17 years of .NET and Cloud experience to your clients. I specialize in event-driven architecture, microservices, and enterprise security. Let me know if you have roles that need a seasoned architect adept at creating scalable, secure systems.
-#EventDriven #Microservices #NETExpert #RemoteWork #AvailableIn2Weeks`,
-      contractType: 'cdi',
-      isLocked: true,
-      isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Berlin', country: 'Germany', countryCode: 'de' }
+      ]
     },
     {
       id: '3',
@@ -544,7 +488,108 @@ I'm writing to let you know that I'm wrapping up my current mission and will be 
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'London', country: 'United Kingdom', countryCode: 'gb' }
+      ]
+    },
+    {
+      id: '4',
+      reference: 'AVAIL-004',
+      role: 'Backend Developer',
+      seniority: 'less_than_3',
+      mobility: 'Remote',
+      expertise: ['Node.js', 'Express', 'MongoDB', 'Docker'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-03-25'),
+        isFullRemote: true
+      },
+      description: 'Available for backend development projects with Node.js and MongoDB.',
+      status: 'immediate',
+      preferences: ['Remote work', 'Startup environment'],
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true,
+      cities: [
+        { name: 'Madrid', country: 'Spain', countryCode: 'es' }
+      ]
+    },
+    {
+      id: '5',
+      reference: 'AVAIL-005',
+      role: 'Cloud Architect',
+      seniority: 'more_than_10',
+      mobility: 'Hybrid',
+      expertise: ['AWS', 'Azure', 'GCP', 'Terraform', 'Kubernetes'],
+      workLocation: 'hybrid',
+      availability: {
+        startDate: new Date('2024-04-15'),
+        isFullRemote: false
+      },
+      status: 'soon',
+      preferences: ['Cloud migration', 'Multi-cloud strategies'],
+      description: `Hello [Recruiter Name],
+I wanted to let you know that I have upcoming availability for a Solutions Architect role in the .NET ecosystem. My background spans 17 years of delivering robust enterprise architectures, focusing on Cloud-based microservices, API management, and Agile leadership. I'd love to chat about potential roles you have open.
+#AvailableSoon #Architect #Microservices #Azure #Agile`,
+      contractType: 'cdi',
+      isLocked: true,
+      isSubcontractor: true,
+      isActive: true,
+      cities: [
+        { name: 'Milan', country: 'Italy', countryCode: 'it' }
+      ]
+    },
+    {
+      id: '6',
+      reference: 'AVAIL-006',
+      role: 'Mobile Developer',
+      seniority: 'between_3_and_10',
+      mobility: 'On-site',
+      expertise: ['React Native', 'iOS', 'Android', 'Flutter'],
+      workLocation: 'onsite',
+      availability: {
+        startDate: new Date('2024-03-30'),
+        isFullRemote: false
+      },
+      status: 'immediate',
+      preferences: ['Mobile development', 'Cross-platform apps'],
+      description: `Hi [Recruiter Name],
+I'm currently planning my next assignment, available in two weeks. I excel in .NET architecture, Cloud migrations (Azure), and implementing secure, scalable systems. If you're looking for someone to drive enterprise modernization and lead technical teams, let's discuss!
+#CloudComputing #NETArchitect #Azure #Microservices`,
+      contractType: 'freelance',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true,
+      cities: [
+        { name: 'Amsterdam', country: 'Netherlands', countryCode: 'nl' }
+      ]
+    },
+    {
+      id: '7',
+      reference: 'AVAIL-007',
+      role: 'Security Engineer',
+      seniority: 'more_than_10',
+      mobility: 'Remote',
+      expertise: ['Penetration Testing', 'Security Auditing', 'OWASP'],
+      workLocation: 'remote',
+      availability: {
+        startDate: new Date('2024-04-10'),
+        isFullRemote: true
+      },
+      status: 'soon',
+      preferences: ['Security architecture', 'Compliance frameworks'],
+      description: `Dear [Recruiter Name],
+I'll be free shortly and would love to bring my 17 years of .NET and Cloud experience to your clients. I specialize in event-driven architecture, microservices, and enterprise security. Let me know if you have roles that need a seasoned architect adept at creating scalable, secure systems.
+#EventDriven #Microservices #NETExpert #RemoteWork #AvailableIn2Weeks`,
+      contractType: 'cdi',
+      isLocked: false,
+      isSubcontractor: false,
+      isActive: true,
+      cities: [
+        { name: 'Brussels', country: 'Belgium', countryCode: 'be' }
+      ]
     },
     {
       id: '8',
@@ -561,12 +606,15 @@ I'm writing to let you know that I'm wrapping up my current mission and will be 
       status: 'soon',
       preferences: ['AI research', 'Machine learning projects'],
       description: `Hi [Recruiter Name],
-I'm an experienced .NET Solutions Architect, ready for new challenges in about two weeks. My focus areas include Cloud & Microservices (Azure), API-driven solutions, and legacy modernization. I'd be glad to collaborate with your firm to design and deploy cutting-edge tech solutions.
+I'm an experienced .NET Solutions Architect, ready for new challenges in about two weeks. My focus areas include Cloud & Microservices (Azure), API-driven solutions, and Agile leadership. I'd be glad to collaborate with your firm to design and deploy cutting-edge tech solutions.
 #AvailableSoon #Architect #Microservices #Azure #Agile`,
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Zurich', country: 'Switzerland', countryCode: 'ch' }
+      ]
     },
     {
       id: '9',
@@ -588,7 +636,10 @@ I'm reaching out to inform you of my upcoming availability. Over 17 years, I've 
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Paris', country: 'France', countryCode: 'fr' }
+      ]
     },
     {
       id: '10',
@@ -610,7 +661,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: true,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Berlin', country: 'Germany', countryCode: 'de' }
+      ]
     },
     {
       id: '13',
@@ -630,7 +684,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'London', country: 'United Kingdom', countryCode: 'gb' }
+      ]
     },
     {
       id: '14',
@@ -650,7 +707,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: true,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Madrid', country: 'Spain', countryCode: 'es' }
+      ]
     },
     {
       id: '15',
@@ -670,7 +730,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Amsterdam', country: 'Netherlands', countryCode: 'nl' }
+      ]
     },
     {
       id: '16',
@@ -690,7 +753,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Zurich', country: 'Switzerland', countryCode: 'ch' }
+      ]
     },
     {
       id: '17',
@@ -710,7 +776,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Milan', country: 'Italy', countryCode: 'it' }
+      ]
     },
     {
       id: '18',
@@ -730,7 +799,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: true,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Berlin', country: 'Germany', countryCode: 'de' }
+      ]
     },
     {
       id: '19',
@@ -750,7 +822,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'cdi',
       isLocked: false,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'London', country: 'United Kingdom', countryCode: 'gb' }
+      ]
     },
     {
       id: '20',
@@ -770,7 +845,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'freelance',
       isLocked: true,
       isSubcontractor: false,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Paris', country: 'France', countryCode: 'fr' }
+      ]
     },
     {
       id: '21',
@@ -790,7 +868,10 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       contractType: 'freelance',
       isLocked: false,
       isSubcontractor: true,
-      isActive: true
+      isActive: true,
+      cities: [
+        { name: 'Amsterdam', country: 'Netherlands', countryCode: 'nl' }
+      ]
     },
     {
       id: '22',
@@ -811,18 +892,9 @@ I'll be free in two weeks to join a new venture as a .NET Solutions Architect. I
       isLocked: false,
       isSubcontractor: false,
       isActive: true,
-      cities: []
+      cities: [
+        { name: 'Zurich', country: 'Switzerland', countryCode: 'ch' }
+      ]
     }
-  ]
-
-  // Handle hero tab change
-  onHeroTabChange(tab: 'consultant' | 'recruiter'): void {
-    this.activeHeroTab = tab;
-    // Set the corresponding content tab
-    if (tab === 'consultant') {
-      this.setActiveTab('available');
-    } else {
-      this.setActiveTab('open-position');
-    }
-  }
+  ];
 }

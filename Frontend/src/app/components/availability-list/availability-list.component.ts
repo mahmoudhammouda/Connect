@@ -30,7 +30,7 @@ export class AvailabilityListComponent {
   searchQuery = '';
   selectedMobility = '';
   selectedSeniority = '';
-  selectedCountry = '';
+  @Input() selectedCountry = '';
   filteredAvailabilities: Availability[] = [];
 
   // Modal state

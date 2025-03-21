@@ -63,7 +63,11 @@
   </div>
 
   <!-- Content Tabs -->
-  <div class="flex justify-center gap-4 border-b mb-4">
+  <div class="flex justify-between items-center border-b mb-4">
+    <!-- Placeholder to balance the layout -->
+    <div class="w-48"></div>
+    
+    <!-- Centered tabs -->
     <div class="flex gap-4">
       <button 
       (click)="activeTab = 'open-position'"
@@ -88,16 +92,60 @@
         </div>
       </button>
     </div>
+    
+    <!-- Country Filter Dropdown -->
+    <div class="relative">
+      <div class="flex items-center">
+        <span class="text-sm font-medium mr-1">Country:</span>
+        <button 
+          (click)="toggleCountryDropdown()"
+          class="flex items-center justify-end w-full gap-1 text-gray-700 py-2 px-3 hover:bg-gray-50 rounded-lg"
+        >
+          <span class="material-icons text-sm" *ngIf="!selectedCountry">public</span>
+          <img 
+            *ngIf="selectedCountry"
+            [src]="'https://flagcdn.com/' + selectedCountry.toLowerCase() + '.svg'" 
+            [alt]="getCountryName(selectedCountry)"
+            class="w-5 h-3.5 rounded-sm"
+          >
+          <span class="material-icons text-sm">keyboard_arrow_down</span>
+        </button>
+      </div>
+      
+      <!-- Dropdown Menu -->
+      <div 
+        *ngIf="showCountryDropdown"
+        class="absolute right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-64 py-2 px-2 max-h-96 overflow-y-auto"
+      >
+        <div class="flex flex-col">
+          <div 
+            *ngFor="let country of uniqueCountries"
+            class="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 cursor-pointer rounded"
+            (click)="selectCountry(country.code)"
+            [class.bg-blue-100]="selectedCountry === country.code"
+          >
+            <img 
+              [src]="'https://flagcdn.com/' + country.code.toLowerCase() + '.svg'" 
+              [alt]="country.name"
+              class="w-6 h-4 rounded-sm border border-gray-200"
+            >
+            <span class="text-sm">{{ country.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="grid grid-cols-1 gap-4">
     @if (activeTab === 'available') {
       <app-availability-list
         [currentUser]="currentUser"
+        [selectedCountry]="selectedCountry"
       ></app-availability-list>
     } @else {
       <app-position-list
         [currentUser]="currentUser"
+        [selectedCountry]="selectedCountry"
       ></app-position-list>
     }
   </div>
