@@ -62,7 +62,7 @@ export class PositionListComponent {
       seniority: 'between_3_and_10',
       workLocation: 'remote',
       cities: [
-        { name: 'London', country: 'United Kingdom', countryCode: 'GB' }
+        { name: 'Lyon', country: 'France', countryCode: 'FR' }
       ],
       startDate: new Date('2024-04-15'),
       contractType: 'cdi',
@@ -85,7 +85,7 @@ export class PositionListComponent {
       seniority: 'more_than_10',
       workLocation: 'hybrid',
       cities: [
-        { name: 'Berlin', country: 'Germany', countryCode: 'DE' }
+        { name: 'Bordeaux', country: 'France', countryCode: 'FR' }
       ],
       startDate: new Date('2024-04-10'),
       contractType: 'freelance',
@@ -128,7 +128,7 @@ export class PositionListComponent {
       seniority: 'less_than_3',
       workLocation: 'onsite',
       cities: [
-        { name: 'Madrid', country: 'Spain', countryCode: 'ES' }
+        { name: 'Toulouse', country: 'France', countryCode: 'FR' }
       ],
       startDate: new Date('2024-04-05'),
       contractType: 'cdd',
@@ -151,7 +151,7 @@ export class PositionListComponent {
       seniority: 'more_than_10',
       workLocation: 'hybrid',
       cities: [
-        { name: 'Amsterdam', country: 'Netherlands', countryCode: 'NL' }
+        { name: 'Lille', country: 'France', countryCode: 'FR' }
       ],
       startDate: new Date('2024-05-01'),
       contractType: 'freelance',
@@ -194,7 +194,7 @@ export class PositionListComponent {
       seniority: 'between_3_and_10',
       workLocation: 'hybrid',
       cities: [
-        { name: 'Milan', country: 'Italy', countryCode: 'IT' }
+        { name: 'Nice', country: 'France', countryCode: 'FR' }
       ],
       startDate: new Date('2024-04-30'),
       contractType: 'freelance',
@@ -217,7 +217,7 @@ export class PositionListComponent {
       seniority: 'more_than_10',
       workLocation: 'onsite',
       cities: [
-        { name: 'Brussels', country: 'Belgium', countryCode: 'BE' }
+        { name: 'Strasbourg', country: 'France', countryCode: 'FR' }
       ],
       startDate: new Date('2024-05-15'),
       contractType: 'cdi',

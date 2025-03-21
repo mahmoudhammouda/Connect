@@ -1,7 +1,7 @@
-<div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 cursor-pointer h-full" (click)="onUnlockClick()">
-  <div class="p-3">
-    <!-- Author Info -->
-    <div class="flex items-center mb-3">
+<div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 cursor-pointer h-full flex flex-col" (click)="onUnlockClick()">
+  <!-- Author Info -->
+  <div class="p-4 border-b border-gray-100">
+    <div class="flex items-center">
       <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-3 overflow-hidden">
         <ng-container *ngIf="!avatarUrl; else avatarImage">
           <span class="material-icons text-blue-600">person</span>
@@ -15,11 +15,15 @@
         <p class="text-gray-600 text-sm">{{ role }}</p>
       </div>
     </div>
-    
-    <!-- Post Content -->
-    <div>
-      <p class="text-gray-800 mb-2 whitespace-pre-line" style="display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ message }}</p>
-      <p class="text-blue-600 text-sm">{{ hashtags }}</p>
+  </div>
+  
+  <!-- Post Content -->
+  <div class="p-4 flex-grow">
+    <p class="text-gray-800 mb-3 whitespace-pre-line leading-relaxed" style="display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ message }}</p>
+    <div class="flex flex-wrap gap-1">
+      <ng-container *ngFor="let tag of hashtags.split(' ')">
+        <span *ngIf="tag.startsWith('#')" class="text-blue-600 text-sm hover:underline">{{ tag }}</span>
+      </ng-container>
     </div>
   </div>
 </div>

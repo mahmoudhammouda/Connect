@@ -73,7 +73,7 @@
       <tr>
         <th class="w-24 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th>
         <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+        <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
         <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
         <th class="w-28 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract</th>
         <th class="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Required Skills</th>
@@ -94,12 +94,22 @@
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center gap-2">
-              <img 
-                [src]="position.postedBy.photoUrl"
-                [alt]="position.postedBy.company"
-                class="w-6 h-6 rounded-full"
-              >
-              <span class="text-sm text-gray-900">{{position.postedBy.company}}</span>
+              <span class="text-sm text-gray-900 flex items-center gap-1">
+                <ng-container *ngIf="position.workLocation === 'remote'">
+                  <span class="material-icons text-green-600 text-sm mr-1">public</span>
+                  <span>Full Remote</span>
+                </ng-container>
+                <ng-container *ngIf="position.workLocation !== 'remote'">
+                  <img 
+                    *ngIf="position.cities && position.cities.length > 0"
+                    [src]="'https://flagcdn.com/' + position.cities[0].countryCode.toLowerCase() + '.svg'"
+                    [alt]="position.cities[0].country"
+                    class="w-4 h-3 rounded-sm"
+                  >
+                  {{ position.cities && position.cities.length > 0 ? position.cities[0].name : 'Location N/A' }}
+                  <span *ngIf="position.workLocation === 'hybrid'" class="text-blue-600 text-xs font-medium">· Hybrid</span>
+                </ng-container>
+              </span>
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
