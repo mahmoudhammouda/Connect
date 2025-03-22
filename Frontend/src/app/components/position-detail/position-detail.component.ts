@@ -53,11 +53,4 @@ export class PositionDetailComponent {
     
     return new Date(date).toLocaleDateString('en-US', options);
   }
-
-  generateAvatar(name: string): string {
-    // Nettoyer et formater le nom pour l'URL
-    const cleanName = encodeURIComponent(name.trim());
-    // Utiliser UI Avatars pour générer un avatar basé sur le nom
-    return `https://ui-avatars.com/api/?name=${cleanName}&background=random&color=fff&bold=true&size=128`;
-  }
 }
