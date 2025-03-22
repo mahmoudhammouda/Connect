@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { OpenPosition } from '../../models/open-position.model';
 import { User } from '../../models/user.model';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
+import { PositionDetailComponent } from '../position-detail/position-detail.component';
 
 @Component({
   selector: 'app-position-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoginModalComponent],
+  imports: [CommonModule, FormsModule, LoginModalComponent, PositionDetailComponent],
   templateUrl: './position-list.component.html'
 })
 export class PositionListComponent {

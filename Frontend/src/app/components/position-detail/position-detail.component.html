@@ -1,0 +1,95 @@
+<div class="px-6 py-4 bg-gray-50 shadow-inner rounded-lg">
+  <div class="text-sm text-gray-700 grid grid-cols-3 gap-4 relative">
+    <!-- Quick Info -->
+    <div class="col-span-1 bg-white p-4 rounded-lg border">
+      <div class="space-y-3">
+        <!-- Status & Contract -->
+        <div class="flex items-center justify-between">
+          <span [class]="getContractClass(position.contractType)">
+            {{getContractText(position.contractType)}}
+          </span>
+        </div>
+        
+        <!-- Position Info -->
+        <div class="flex items-center gap-2 text-gray-600">
+          <span class="material-icons text-gray-500 text-sm">calendar_today</span>
+          <span class="text-sm">Available from {{formatDate(position.startDate)}}</span>
+        </div>
+        
+        <!-- Location -->
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-gray-600">
+            <div class="flex items-center gap-1">
+              <span class="material-icons text-gray-500 text-sm">place</span>
+              <span class="text-sm font-medium">
+                <ng-container *ngIf="position.workLocation === 'remote'">
+                  Remote
+                </ng-container>
+                <ng-container *ngIf="position.workLocation !== 'remote'">
+                  {{ hasCityData() ? getCityName() : 'Location not specified' }}
+                </ng-container>
+              </span>
+            </div>
+            @if (position.workLocation === 'remote') {
+              <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Remote</span>
+            } @else if (position.workLocation === 'hybrid') {
+              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">Hybrid</span>
+            } @else {
+              <span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">On-site</span>
+            }
+          </div>
+          @if (hasCityData()) {
+            <div class="flex flex-wrap gap-1 ml-6">
+              @for (city of position.cities; track city.name) {
+                <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full text-xs">
+                  <img [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
+                       [alt]="city.country" class="w-3 h-3 rounded-sm">
+                  {{city.name}}
+                </span>
+              }
+            </div>
+          }
+        </div>
+        
+        <!-- Experience level -->
+        <div class="flex items-center gap-2 text-gray-600">
+          <span class="material-icons text-gray-500 text-sm">workspace_premium</span>
+          <span class="text-sm">
+            @if (position.seniority === 'less_than_3') {
+              Junior (< 3 years)
+            } @else if (position.seniority === 'between_3_and_10') {
+              Mid-level (3-10 years)
+            } @else {
+              Senior (10+ years)
+            }
+          </span>
+        </div>
+        
+        <!-- Required Skills -->
+        <div class="mt-2">
+          <span class="text-xs font-medium text-gray-500 uppercase">Required Skills</span>
+          <div class="flex flex-wrap gap-1 mt-1">
+            @for (skill of position.requiredExpertise; track skill) {
+              <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
+                {{skill}}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Description -->
+    <div class="col-span-2 bg-white p-4 rounded-lg border">
+      <div class="flex items-center gap-2 mb-2 text-blue-600">
+        <span class="material-icons text-sm">description</span>
+        <span class="font-medium text-sm">Job Description</span>
+      </div>
+      <div class="prose prose-sm max-w-none" [innerHTML]="position.description"></div>
+      <div class="mt-3 pt-3 border-t text-gray-500 text-xs flex items-center gap-1">
+        <span class="material-icons text-sm">schedule</span>
+        Posted {{formatDate(position.startDate)}}
+      </div>
+    </div>
+  </div>
+</div>
