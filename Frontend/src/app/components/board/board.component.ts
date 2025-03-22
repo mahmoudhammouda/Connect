@@ -133,6 +133,34 @@ export class BoardComponent {
     }
   }
 
+  // Méthode pour ouvrir le formulaire de disponibilité pour les utilisateurs non connectés
+  openAvailabilityFormForGuest(): void {
+    if (!this.currentUser) {
+      // Stocker l'intention d'ouvrir le formulaire après la connexion
+      localStorage.setItem('pendingAction', 'openAvailabilityForm');
+      // Ouvrir la modale de connexion en tant que consultant
+      this.openLoginModal();
+      this.onHeroTabChange('consultant');
+    } else {
+      // Si déjà connecté, ouvrir directement le formulaire
+      this.openAvailabilityForm();
+    }
+  }
+
+  // Méthode pour ouvrir le formulaire de position pour les utilisateurs non connectés
+  openPositionFormForGuest(): void {
+    if (!this.currentUser) {
+      // Stocker l'intention d'ouvrir le formulaire après la connexion
+      localStorage.setItem('pendingAction', 'openPositionForm');
+      // Ouvrir la modale de connexion en tant que recruteur
+      this.openLoginModal();
+      this.onHeroTabChange('recruiter');
+    } else {
+      // Si déjà connecté, ouvrir directement le formulaire
+      this.openPositionForm();
+    }
+  }
+
   getCountryName(code: string): string {
     const country = this.uniqueCountries.find(c => c.code.toLowerCase() === code.toLowerCase());
     return country ? country.name : '';
@@ -394,9 +422,34 @@ export class BoardComponent {
     this.showLoginModal = true;
   }
 
-  handleLoginEvent(userData: any): void {
-    this.userService.setCurrentUser(userData);
+  handleLoginEvent(user: User): void {
+    // Set currentUser via the UserService
+    this.userService.setCurrentUser(user);
+    
+    // Close login modal
     this.closeLoginModal();
+    
+    // Redirect to the correct board based on user role
+    if (user.role === 'consultant') {
+      this.router.navigate(['/consultant']);
+    } else if (user.role === 'recruiter' || user.role === 'business_developer') {
+      this.router.navigate(['/recruiter']);
+    }
+    
+    // Check for pending actions stored in localStorage
+    const pendingAction = localStorage.getItem('pendingAction');
+    if (pendingAction) {
+      // Clear the pending action
+      localStorage.removeItem('pendingAction');
+      
+      // Execute the pending action
+      if (pendingAction === 'openAvailabilityForm' && user.role === 'consultant') {
+        setTimeout(() => this.openAvailabilityForm(), 500);
+      } else if (pendingAction === 'openPositionForm' && 
+                (user.role === 'recruiter' || user.role === 'business_developer')) {
+        setTimeout(() => this.openPositionForm(), 500);
+      }
+    }
   }
 
   // Example data for availabilities
@@ -533,7 +586,7 @@ I'm writing to let you know that I'm wrapping up my current mission and will be 
       description: `Hello [Recruiter Name],
 I wanted to let you know that I have upcoming availability for a Solutions Architect role in the .NET ecosystem. My background spans 17 years of delivering robust enterprise architectures, focusing on Cloud-based microservices, API management, and Agile leadership. I'd love to chat about potential roles you have open.
 #AvailableSoon #Architect #Microservices #Azure #Agile`,
-      contractType: 'cdi',
+      contractType: 'freelance',
       isLocked: true,
       isSubcontractor: true,
       isActive: true,

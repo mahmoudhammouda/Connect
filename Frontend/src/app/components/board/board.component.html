@@ -15,18 +15,18 @@
     <!-- Login/Register Call-to-Action Buttons -->
     <div class="flex justify-center gap-4 mt-5" *ngIf="!currentUser">
       <button 
-        (click)="openLoginModal(); onHeroTabChange('consultant')"
+        (click)="openAvailabilityFormForGuest()"
         class="px-5 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md"
       >
-        <span class="material-icons text-sm">person</span>
-        Register as Consultant
+        <span class="material-icons text-sm">work_outline</span>
+        I'm open to work · Push my availability
       </button>
       <button 
-        (click)="openLoginModal(); onHeroTabChange('recruiter')"
+        (click)="openPositionFormForGuest()"
         class="px-5 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-md"
       >
         <span class="material-icons text-sm">business</span>
-        Register as Recruiter
+        I'm recruiting · Push new missions
       </button>
     </div>
     
