@@ -1,94 +1,99 @@
-<div class="px-6 py-4 bg-gray-50 shadow-inner rounded-lg">
-  <div class="text-sm text-gray-700 grid grid-cols-3 gap-4 relative">
+<div class="w-full px-6 py-4 bg-gray-50 shadow-lg">
+  <div class="text-sm text-gray-700 grid grid-cols-3 gap-6 w-full">
     <!-- Quick Info -->
     <div class="col-span-1 bg-white p-4 rounded-lg border">
-      <div class="space-y-3">
-        <!-- Status & Contract -->
-        <div class="flex items-center justify-between">
-          <span [class]="getContractClass(position.contractType)">
-            {{getContractText(position.contractType)}}
-          </span>
+      <div class="space-y-4">
+        <!-- Company Info -->
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full overflow-hidden shadow-sm">
+            <img 
+              [src]="position.postedBy.photoUrl || generateAvatar(position.postedBy.firstName + ' ' + position.postedBy.lastName)" 
+              [alt]="position.postedBy.company"
+              class="w-full h-full object-cover"
+            >
+          </div>
+          <div>
+            <div class="font-medium">{{position.postedBy.firstName}} {{position.postedBy.lastName}}</div>
+            <div class="text-gray-500">{{position.postedBy.company}}</div>
+          </div>
         </div>
         
-        <!-- Position Info -->
-        <div class="flex items-center gap-2 text-gray-600">
-          <span class="material-icons text-gray-500 text-sm">calendar_today</span>
-          <span class="text-sm">Available from {{formatDate(position.startDate)}}</span>
+        <!-- Experience -->
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-gray-500">work</span>
+          <span>{{getSeniorityText(position.seniority)}}</span>
         </div>
         
         <!-- Location -->
         <div class="space-y-1">
-          <div class="flex items-center gap-2 text-gray-600">
-            <div class="flex items-center gap-1">
-              <span class="material-icons text-gray-500 text-sm">place</span>
-              <span class="text-sm font-medium">
-                <ng-container *ngIf="position.workLocation === 'remote'">
-                  Remote
-                </ng-container>
-                <ng-container *ngIf="position.workLocation !== 'remote'">
-                  {{ hasCityData() ? getCityName() : 'Location not specified' }}
-                </ng-container>
-              </span>
-            </div>
-            @if (position.workLocation === 'remote') {
-              <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Remote</span>
-            } @else if (position.workLocation === 'hybrid') {
-              <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">Hybrid</span>
+          <div class="flex items-center gap-2">
+            <span class="material-icons text-gray-500">place</span>
+            @if (hasCityData()) {
+              <span>{{getCityName()}}, {{getCountryName()}}</span>
             } @else {
-              <span class="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">On-site</span>
+              <span>Location not specified</span>
             }
           </div>
-          @if (hasCityData()) {
-            <div class="flex flex-wrap gap-1 ml-6">
-              @for (city of position.cities; track city.name) {
-                <span class="inline-flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-full text-xs">
-                  <img [src]="'https://flagcdn.com/' + city.countryCode.toLowerCase() + '.svg'"
-                       [alt]="city.country" class="w-3 h-3 rounded-sm">
-                  {{city.name}}
-                </span>
-              }
+          @if (position.workLocation === 'remote') {
+            <div class="flex items-center gap-2 pl-6">
+              <span class="material-icons text-green-600 text-sm">check_circle</span>
+              <span class="text-green-600">Full Remote Available</span>
+            </div>
+          } @else if (position.workLocation === 'hybrid') {
+            <div class="flex items-center gap-2 pl-6">
+              <span class="material-icons text-blue-600 text-sm">check_circle</span>
+              <span class="text-blue-600">Hybrid (Remote + On-site)</span>
             </div>
           }
         </div>
         
-        <!-- Experience level -->
-        <div class="flex items-center gap-2 text-gray-600">
-          <span class="material-icons text-gray-500 text-sm">workspace_premium</span>
-          <span class="text-sm">
-            @if (position.seniority === 'less_than_3') {
-              Junior (< 3 years)
-            } @else if (position.seniority === 'between_3_and_10') {
-              Mid-level (3-10 years)
-            } @else {
-              Senior (10+ years)
-            }
-          </span>
+        <!-- Start Date -->
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-gray-500">event</span>
+          <span>Starting {{formatDate(position.startDate)}}</span>
         </div>
         
+        <!-- Contract Type -->
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-gray-500">description</span>
+          <span>{{position.contractType | titlecase}} contract</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content - Description -->
+    <div class="col-span-2">
+      <div class="h-full flex flex-col bg-white p-4 rounded-lg border">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">{{position.title}}</h3>
+        
         <!-- Required Skills -->
-        <div class="mt-2">
-          <span class="text-xs font-medium text-gray-500 uppercase">Required Skills</span>
-          <div class="flex flex-wrap gap-1 mt-1">
+        <div class="mb-4">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Required Skills:</h4>
+          <div class="flex flex-wrap gap-1">
             @for (skill of position.requiredExpertise; track skill) {
-              <span class="bg-blue-100 px-2 py-0.5 rounded-full text-xs">
+              <span class="bg-blue-100 px-2 py-1 rounded-full text-xs text-blue-800">
                 {{skill}}
               </span>
             }
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Job Description -->
-    <div class="col-span-2 bg-white p-4 rounded-lg border">
-      <div class="flex items-center gap-2 mb-2 text-blue-600">
-        <span class="material-icons text-sm">description</span>
-        <span class="font-medium text-sm">Job Description</span>
-      </div>
-      <div class="prose prose-sm max-w-none" [innerHTML]="position.description"></div>
-      <div class="mt-3 pt-3 border-t text-gray-500 text-xs flex items-center gap-1">
-        <span class="material-icons text-sm">schedule</span>
-        Posted {{formatDate(position.startDate)}}
+        
+        <!-- Position Description -->
+        <div class="flex-grow">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Mission Description:</h4>
+          <div class="text-sm whitespace-pre-line overflow-auto">{{position.description}}</div>
+        </div>
+        
+        <!-- CTA Button -->
+        <div class="mt-4 flex justify-end">
+          <a 
+            href="mailto:{{position.postedBy.firstName.toLowerCase()}}.{{position.postedBy.lastName.toLowerCase()}}@example.com?subject=Inquiry about {{position.reference}} - {{position.title}}"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 inline-flex items-center gap-2"
+          >
+            <span class="material-icons text-sm">mail</span>
+            Contact Recruiter
+          </a>
+        </div>
       </div>
     </div>
   </div>

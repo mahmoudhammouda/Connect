@@ -1,55 +1,63 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { OpenPosition } from '../../models/open-position.model';
 
 @Component({
   selector: 'app-position-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule],
   templateUrl: './position-detail.component.html'
 })
 export class PositionDetailComponent {
   @Input() position!: OpenPosition;
 
-  formatDate(date: Date): string {
-    return new DatePipe('en-US').transform(date, 'dd MMM yyyy') || '';
-  }
-
-  getContractClass(contractType: string): string {
-    const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
-    switch (contractType) {
-      case 'cdi':
-        return `${baseClasses} bg-purple-100 text-purple-800`;
-      case 'freelance':
-        return `${baseClasses} bg-blue-100 text-blue-800`;
-      case 'cdd':
-        return `${baseClasses} bg-orange-100 text-orange-800`;
+  getSeniorityText(seniority: string): string {
+    switch (seniority) {
+      case 'less_than_3':
+        return 'Less than 3 years';
+      case 'between_3_and_10':
+        return '3 to 10 years';
+      case 'more_than_10':
+        return 'More than 10 years';
       default:
-        return baseClasses;
+        return 'Not specified';
     }
-  }
-
-  getContractText(contractType: string): string {
-    switch (contractType) {
-      case 'cdi':
-        return 'CDI';
-      case 'freelance':
-        return 'Freelance';
-      case 'cdd':
-        return 'CDD';
-      default:
-        return contractType;
-    }
-  }
-
-  hasCityData(): boolean {
-    return !!this.position.cities && this.position.cities.length > 0;
   }
 
   getCityName(): string {
     if (this.position.cities && this.position.cities.length > 0) {
       return this.position.cities[0].name;
     }
-    return '';
+    return 'Unknown';
+  }
+
+  getCountryName(): string {
+    if (this.position.cities && this.position.cities.length > 0) {
+      return this.position.cities[0].country;
+    }
+    return 'Unknown';
+  }
+
+  hasCityData(): boolean {
+    return Boolean(this.position.cities && this.position.cities.length > 0);
+  }
+
+  formatDate(date: Date): string {
+    if (!date) return 'Not specified';
+    
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    };
+    
+    return new Date(date).toLocaleDateString('en-US', options);
+  }
+
+  generateAvatar(name: string): string {
+    // Nettoyer et formater le nom pour l'URL
+    const cleanName = encodeURIComponent(name.trim());
+    // Utiliser UI Avatars pour générer un avatar basé sur le nom
+    return `https://ui-avatars.com/api/?name=${cleanName}&background=random&color=fff&bold=true&size=128`;
   }
 }
