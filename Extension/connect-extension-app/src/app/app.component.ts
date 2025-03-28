@@ -12,6 +12,8 @@ declare namespace chrome {
 
 interface Consultant {
   id: string;
+  firstName: string;
+  lastName: string;
   role: string;
   linkedinUrl: string;
   phone: string | null;
@@ -24,6 +26,7 @@ interface Consultant {
   emailValidated: boolean;
   linkedinValidated: boolean;
   availability: 'available' | 'soon' | 'unavailable';
+  mobility: string[]; // Lieux où le consultant souhaite travailler
 }
 
 @Component({
@@ -58,7 +61,8 @@ interface Consultant {
               >
                 <option value="">Tous les types</option>
                 <option value="Freelance">Freelance</option>
-                <option value="Permanent">Permanent</option>
+                <option value="Salarié">Salarié</option>
+                <option value="Portage">Portage</option>
               </select>
               <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <span class="material-icons text-gray-400 text-base">business</span>
@@ -97,9 +101,9 @@ interface Consultant {
           <tbody>
             <tr 
               *ngFor="let consultant of displayedConsultants"
-              class="hover:bg-gray-50 transition-colors duration-150 relative shadow-md rounded-lg overflow-hidden border border-gray-100 mb-3 bg-white"
+              class="relative shadow-md rounded-lg overflow-hidden border border-gray-100 mb-3 bg-white hover:bg-gray-50"
             >
-              <td class="px-3 py-4 whitespace-nowrap relative border-r border-gray-100 w-16">
+              <td class="relative pl-6 pr-3 py-3 border-r border-gray-100 w-16">
                 <div class="flex flex-col items-center justify-center">
                   <span 
                     class="material-icons text-sm"
@@ -109,7 +113,7 @@ interface Consultant {
                   <span class="text-xs text-gray-400 mt-1">#{{consultant.id.substring(0, 4)}}</span>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap border-r border-gray-100">
+              <td class="px-6 py-3 whitespace-nowrap border-r border-gray-100">
                 <div class="font-medium text-gray-900 truncate max-w-[200px] flex items-center gap-2">
                   <!-- Availability indicator (like Teams) -->
                   <div 
@@ -123,7 +127,8 @@ interface Consultant {
                   ></div>
                   {{consultant.role}}
                 </div>
-                <!-- Skills on second line -->
+                
+                <!-- Experience and skills on second line -->
                 <div class="flex flex-wrap gap-1 mt-1 items-center">
                   <!-- Seniority indicator -->
                   <div class="flex gap-0.5 mr-2">
@@ -143,13 +148,24 @@ interface Consultant {
                       <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
                     </div>
                   </div>
-                  <span *ngFor="let skill of consultant.skills.slice(0, 3)" class="bg-gray-100 px-1.5 py-0 rounded-sm text-xs text-gray-700">
+                  
+                  <!-- Skills -->
+                  <span 
+                    *ngFor="let skill of consultant.skills.slice(0, 3)" 
+                    class="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700"
+                  >
                     {{skill}}
                   </span>
-                  <span *ngIf="consultant.skills.length > 3" class="text-gray-500 text-xs">+{{consultant.skills.length - 3}}</span>
+                  <span *ngIf="consultant.skills.length > 3" class="text-xs text-gray-500">+{{consultant.skills.length - 3}}</span>
+                </div>
+                
+                <!-- Mobility indicator on third line -->
+                <div class="flex flex-wrap gap-1 mt-0.5 items-center">
+                  <span class="material-icons text-gray-400" style="font-size: 10px;">location_on</span>
+                  <span class="text-[10px] text-gray-500">{{consultant.mobility.join(' • ')}}</span>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
+              <td class="px-6 py-3 whitespace-nowrap border-r border-gray-100">
                 <div class="flex items-center gap-3 justify-end">
                   <!-- Action buttons group - visible on desktop -->
                   <div class="hidden sm:flex items-center gap-3">
@@ -361,11 +377,15 @@ export class AppComponent {
   
   // Vérifie la taille de l'écran pour déterminer si on est en mode mobile
   checkScreenSize() {
-    this.isMobileView = window.innerWidth < 640; // 640px est la limite pour sm dans Tailwind
+    if (this.isBrowser) {
+      this.isMobileView = window.innerWidth < 640; // 640px est la limite pour sm dans Tailwind
+    }
   }
   
   // Ouvre ou ferme le menu déroulant pour un consultant
   toggleDropdown(consultantId: string, event: Event) {
+    if (!this.isBrowser) return;
+    
     event.stopPropagation(); // Empêche la propagation de l'événement
     
     // Ferme tous les autres menus déroulants
@@ -380,13 +400,18 @@ export class AppComponent {
   }
   
   // Ferme tous les menus déroulants
-  closeAllDropdowns(event: Event) {
-    if (event.target instanceof Element) {
-      const target = event.target as Element;
-      if (target.closest('.dropdown-menu') || target.closest('button[title="Plus d\'actions"]')) {
-        return;
+  closeAllDropdowns(event?: Event) {
+    if (!this.isBrowser) return;
+    
+    if (event) {
+      if (event.target instanceof Element) {
+        const target = event.target as Element;
+        if (target.closest('.dropdown-menu') || target.closest('button[title="Plus d\'actions"]')) {
+          return;
+        }
       }
     }
+    
     Object.keys(this.dropdownOpen).forEach(id => {
       this.dropdownOpen[id] = false;
     });
@@ -394,6 +419,8 @@ export class AppComponent {
   
   // Configure l'écouteur de défilement pour l'extension Chrome
   setupScrollListener() {
+    if (!this.isBrowser) return;
+    
     // Ajouter un écouteur d'événement de défilement à la fenêtre et au document
     window.addEventListener('scroll', this.handleScroll.bind(this));
     document.addEventListener('scroll', this.handleScroll.bind(this));
@@ -408,106 +435,146 @@ export class AppComponent {
     }, 1000);
   }
   
+  // Gère l'événement de défilement
+  handleScroll() {
+    if (!this.isBrowser) return;
+    
+    this.checkScrollPosition();
+  }
+  
   // Vérifie si nous sommes près du bas de la page
   checkScrollPosition() {
-    if (!this.isBrowser || this.isLoadingMore || !this.hasMoreConsultants) {
-      return;
-    }
+    if (!this.isBrowser) return;
     
-    const scrollHeight = Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight,
-      document.body.offsetHeight,
-      document.documentElement.offsetHeight,
-      document.body.clientHeight,
-      document.documentElement.clientHeight
-    );
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
     
-    const scrollTop = Math.max(
-      window.pageYOffset,
-      document.documentElement.scrollTop,
-      document.body.scrollTop
-    );
-    
-    const clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-    
-    // Si nous sommes à moins de 200px du bas
-    if (scrollHeight - scrollTop - clientHeight < 200) {
+    // Si nous sommes à moins de 200px du bas, charger plus de consultants
+    if (documentHeight - (scrollPosition + windowHeight) < 200) {
       this.loadMoreConsultants();
     }
   }
 
-  // Écouteur d'événement de défilement
-  handleScroll() {
-    this.checkScrollPosition();
-  }
-  
   // Génère une liste de consultants fictifs
   generateConsultants() {
     const roles = [
-      'Développeur Frontend Angular', 'Développeur Backend Java', 'DevOps Engineer', 
-      'Data Scientist', 'UX Designer', 'Product Owner', 'Scrum Master', 
-      'Développeur Full Stack', 'Architecte Solution', 'Ingénieur QA',
-      'Développeur React', 'Développeur Node.js', 'Développeur Python',
-      'Architecte Cloud', 'Ingénieur Big Data', 'Développeur Mobile',
-      'Administrateur Système', 'Développeur .NET', 'Chef de Projet IT',
-      'Consultant Cybersécurité'
+      'Développeur Frontend', 
+      'Développeur Backend', 
+      'DevOps Engineer', 
+      'Data Scientist', 
+      'UX Designer',
+      'Product Owner',
+      'Scrum Master',
+      'Architecte Solution',
+      'Ingénieur QA',
+      'Chef de Projet IT'
     ];
     
-    const types = ['Freelance', 'Permanent'];
+    const firstNames = [
+      'Thomas', 'Julie', 'Nicolas', 'Sophie', 'Alexandre',
+      'Emma', 'Maxime', 'Camille', 'Antoine', 'Léa',
+      'Lucas', 'Chloé', 'Hugo', 'Inès', 'Gabriel',
+      'Manon', 'Louis', 'Sarah', 'Raphaël', 'Jade'
+    ];
     
+    const lastNames = [
+      'Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert',
+      'Richard', 'Petit', 'Durand', 'Leroy', 'Moreau',
+      'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia',
+      'David', 'Bertrand', 'Roux', 'Vincent', 'Fournier'
+    ];
+    
+    const skills = [
+      'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue.js',
+      'Node.js', 'Python', 'Java', 'C#', '.NET',
+      'AWS', 'Azure', 'Docker', 'Kubernetes', 'CI/CD',
+      'SQL', 'NoSQL', 'MongoDB', 'Redis', 'GraphQL',
+      'TDD', 'Agile', 'Scrum', 'Kanban', 'DevOps'
+    ];
+    
+    const types = ['Freelance', 'Salarié', 'Portage'];
     const experiences = ['less_than_3', 'between_3_and_10', 'more_than_10'];
-    
     const availabilities = ['available', 'soon', 'unavailable'];
     
-    const skillsPool = [
-      'Angular', 'React', 'Vue.js', 'JavaScript', 'TypeScript', 'HTML', 'CSS',
-      'Java', 'Spring', 'Python', 'Django', 'Flask', 'Node.js', 'Express',
-      'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'CI/CD', 'Git',
-      'SQL', 'NoSQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis',
-      'REST API', 'GraphQL', 'Microservices', 'TDD', 'Agile', 'Scrum',
-      '.NET', 'C#', 'PHP', 'Laravel', 'Ruby', 'Rails', 'Go', 'Rust',
-      'Mobile', 'iOS', 'Android', 'React Native', 'Flutter', 'Kotlin', 'Swift',
-      'UI/UX', 'Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator',
-      'DevOps', 'Jenkins', 'Terraform', 'Ansible', 'Prometheus', 'Grafana',
-      'Machine Learning', 'Deep Learning', 'TensorFlow', 'PyTorch', 'NLP',
-      'Big Data', 'Hadoop', 'Spark', 'Kafka', 'ELK Stack', 'Tableau', 'Power BI'
+    // Options de mobilité
+    const mobilityOptions = [
+      ['Full Remote'],
+      ['Île-de-France'],
+      ['Paris'],
+      ['Lyon'],
+      ['Marseille'],
+      ['Bordeaux'],
+      ['Toulouse'],
+      ['Nantes'],
+      ['Lille'],
+      ['Strasbourg'],
+      ['Full Remote', 'Île-de-France'],
+      ['Paris', 'Lyon'],
+      ['Bordeaux', 'Toulouse'],
+      ['Île-de-France', 'Lyon'],
+      ['Full Remote', 'Paris'],
+      ['Marseille', 'Nice'],
+      ['Lille', 'Paris'],
+      ['Nantes', 'Bordeaux'],
+      ['Strasbourg', 'Lyon'],
+      ['Full Remote', 'Marseille']
     ];
     
-    // Génère 40 consultants
+    // Générer 40 consultants fictifs
     for (let i = 1; i <= 40; i++) {
       const randomRole = roles[Math.floor(Math.random() * roles.length)];
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      const randomExperience = experiences[Math.floor(Math.random() * experiences.length)];
-      const randomAvailability = availabilities[Math.floor(Math.random() * availabilities.length)];
+      const randomSkillsCount = Math.floor(Math.random() * 5) + 2; // 2 à 6 compétences
+      const randomSkills: string[] = [];
       
-      // Génère 2-6 compétences aléatoires
-      const numSkills = Math.floor(Math.random() * 5) + 2;
-      const shuffledSkills = [...skillsPool].sort(() => 0.5 - Math.random());
-      const randomSkills = shuffledSkills.slice(0, numSkills);
+      // Sélectionner des compétences aléatoires
+      while (randomSkills.length < randomSkillsCount) {
+        const skill = skills[Math.floor(Math.random() * skills.length)];
+        if (!randomSkills.includes(skill)) {
+          randomSkills.push(skill);
+        }
+      }
       
-      // Génère des valeurs aléatoires pour les validations
+      const type = types[Math.floor(Math.random() * types.length)];
+      const experience = experiences[Math.floor(Math.random() * experiences.length)] as 'less_than_3' | 'between_3_and_10' | 'more_than_10';
+      const availability = availabilities[Math.floor(Math.random() * availabilities.length)] as 'available' | 'soon' | 'unavailable';
+      
+      // Validation des informations de contact (aléatoire)
       const phoneValidated = Math.random() > 0.3;
-      const emailValidated = Math.random() > 0.3;
+      const emailValidated = Math.random() > 0.2;
       const linkedinValidated = Math.random() > 0.2;
       const locked = Math.random() > 0.7;
       
+      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+      
+      // Générer un ID unique avec un numéro à 7 chiffres
+      const uniqueId = (1000000 + i).toString();
+      
+      // Sélectionner une option de mobilité aléatoire
+      const mobility = mobilityOptions[Math.floor(Math.random() * mobilityOptions.length)];
+      
       this.allConsultants.push({
-        id: `C${i.toString().padStart(3, '0')}`,
+        id: uniqueId,
+        firstName: firstName,
+        lastName: lastName,
         role: randomRole,
         linkedinUrl: 'https://www.linkedin.com/in/example-profile/',
         phone: phoneValidated ? '+33 6 12 34 56 78' : null,
-        email: emailValidated ? 'consultant@example.com' : null,
+        email: emailValidated ? 'contact@example.com' : null,
         locked: locked,
-        type: randomType,
+        type: type,
         skills: randomSkills,
-        experience: randomExperience as any,
+        experience: experience,
         phoneValidated: phoneValidated,
         emailValidated: emailValidated,
         linkedinValidated: linkedinValidated,
-        availability: randomAvailability as any
+        availability: availability,
+        mobility: mobility
       });
     }
+    
+    console.log(`Consultants générés: ${this.allConsultants.length}`);
   }
   
   // Filtre les consultants selon les critères de recherche
