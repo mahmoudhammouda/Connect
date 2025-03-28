@@ -1,0 +1,27 @@
+{
+    "permissions":  [
+                        "sidePanel",
+                        "scripting"
+                    ],
+    "description":  "Extension Chrome affichant une liste de consultants dans un panneau latéral",
+    "manifest_version":  3,
+    "version":  "1.0.0",
+    "host_permissions":  [
+                             "*://*/*"
+                         ],
+    "name":  "Connect Extension App",
+    "content_security_policy":  {
+                                    "extension_pages":  "script-src \u0027self\u0027 \u0027wasm-unsafe-eval\u0027; object-src \u0027self\u0027"
+                                },
+    "icons":  {
+                  "16":  "icon16.png",
+                  "128":  "icon128.png",
+                  "48":  "icon48.png"
+              },
+    "action":  {
+                   "default_title":  "Connect Extension App"
+               },
+    "side_panel":  {
+                       "default_path":  "sidebar.html"
+                   }
+}
