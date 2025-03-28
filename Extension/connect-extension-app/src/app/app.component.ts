@@ -151,8 +151,8 @@ interface Consultant {
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-3 justify-end">
-                  <!-- Action buttons group -->
-                  <div class="flex items-center gap-3">
+                  <!-- Action buttons group - visible on desktop -->
+                  <div class="hidden sm:flex items-center gap-3">
                     <!-- LinkedIn button -->
                     <button
                       class="w-6 h-6 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center"
@@ -185,6 +185,57 @@ interface Consultant {
                     >
                       <span class="material-icons text-xs">email</span>
                     </button>
+                  </div>
+                  
+                  <!-- Dropdown button - visible on mobile -->
+                  <div class="relative sm:hidden">
+                    <button
+                      class="w-6 h-6 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center"
+                      (click)="toggleDropdown(consultant.id, $event)"
+                      title="Plus d'actions"
+                    >
+                      <span class="material-icons text-xs">more_vert</span>
+                    </button>
+                    
+                    <!-- Dropdown menu -->
+                    <div 
+                      *ngIf="dropdownOpen[consultant.id]"
+                      class="absolute z-10 bg-white shadow-md rounded-lg p-2 w-48 right-0 top-full mt-1 dropdown-menu"
+                    >
+                      <button 
+                        class="block w-full text-left py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
+                        (click)="openLinkedIn(consultant.linkedinUrl)"
+                      >
+                        <span class="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="white" viewBox="0 0 24 24">
+                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                          </svg>
+                        </span>
+                        Voir le profil LinkedIn
+                      </button>
+                      <button 
+                        class="block w-full text-left py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
+                        [class.opacity-50]="!consultant.phoneValidated"
+                        [disabled]="!consultant.phoneValidated"
+                        (click)="showPhone(consultant.phone)"
+                      >
+                        <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                          <span class="material-icons text-white" style="font-size: 10px;">phone</span>
+                        </span>
+                        Appeler
+                      </button>
+                      <button 
+                        class="block w-full text-left py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
+                        [class.opacity-50]="!consultant.emailValidated"
+                        [disabled]="!consultant.emailValidated"
+                        (click)="sendEmail(consultant.email)"
+                      >
+                        <span class="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                          <span class="material-icons text-white" style="font-size: 10px;">email</span>
+                        </span>
+                        Envoyer un email
+                      </button>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -284,6 +335,12 @@ export class AppComponent {
   filteredConsultants: Consultant[] = [];
   displayedConsultants: Consultant[] = [];
 
+  // État du menu déroulant pour chaque consultant
+  dropdownOpen: { [key: string]: boolean } = {};
+  
+  // Détecte si l'écran est en mode mobile
+  isMobileView: boolean = false;
+  
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.generateConsultants();
@@ -294,8 +351,45 @@ export class AppComponent {
       // Utiliser un délai pour s'assurer que le DOM est prêt
       setTimeout(() => {
         this.setupScrollListener();
+        this.checkScreenSize();
       }, 500);
+      
+      // Écouter les changements de taille d'écran
+      window.addEventListener('resize', this.checkScreenSize.bind(this));
     }
+  }
+  
+  // Vérifie la taille de l'écran pour déterminer si on est en mode mobile
+  checkScreenSize() {
+    this.isMobileView = window.innerWidth < 640; // 640px est la limite pour sm dans Tailwind
+  }
+  
+  // Ouvre ou ferme le menu déroulant pour un consultant
+  toggleDropdown(consultantId: string, event: Event) {
+    event.stopPropagation(); // Empêche la propagation de l'événement
+    
+    // Ferme tous les autres menus déroulants
+    Object.keys(this.dropdownOpen).forEach(id => {
+      if (id !== consultantId) {
+        this.dropdownOpen[id] = false;
+      }
+    });
+    
+    // Bascule l'état du menu pour ce consultant
+    this.dropdownOpen[consultantId] = !this.dropdownOpen[consultantId];
+  }
+  
+  // Ferme tous les menus déroulants
+  closeAllDropdowns(event: Event) {
+    if (event.target instanceof Element) {
+      const target = event.target as Element;
+      if (target.closest('.dropdown-menu') || target.closest('button[title="Plus d\'actions"]')) {
+        return;
+      }
+    }
+    Object.keys(this.dropdownOpen).forEach(id => {
+      this.dropdownOpen[id] = false;
+    });
   }
   
   // Configure l'écouteur de défilement pour l'extension Chrome
@@ -303,6 +397,9 @@ export class AppComponent {
     // Ajouter un écouteur d'événement de défilement à la fenêtre et au document
     window.addEventListener('scroll', this.handleScroll.bind(this));
     document.addEventListener('scroll', this.handleScroll.bind(this));
+    
+    // Ajouter un écouteur d'événement pour fermer les menus déroulants lors d'un clic en dehors
+    document.addEventListener('click', this.closeAllDropdowns.bind(this));
     
     // Également vérifier périodiquement si nous sommes près du bas
     // Cela aide dans les environnements où les événements de défilement peuvent ne pas se déclencher correctement
