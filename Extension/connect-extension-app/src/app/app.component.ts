@@ -103,7 +103,7 @@ interface Consultant {
           <tbody>
             <ng-container *ngFor="let consultant of displayedConsultants">
               <tr 
-                class="relative shadow-md rounded-lg overflow-hidden border border-gray-100 mb-3 bg-white hover:bg-gray-50 cursor-pointer"
+                class="relative shadow-sm overflow-hidden border border-gray-100 mb-0 bg-white hover:bg-gray-50 cursor-pointer rounded-t-lg"
                 (click)="toggleConsultantExpansion(consultant.id)"
               >
                 <td class="relative pl-6 pr-3 py-3 border-r border-gray-100 w-16">
@@ -259,10 +259,10 @@ interface Consultant {
                   </div>
                 </td>
               </tr>
-              <!-- Message collapsable panel -->
-              <tr *ngIf="expandedConsultant[consultant.id]">
+              <!-- Message du consultant - collé à la carte -->
+              <tr>
                 <td colspan="3" class="p-0">
-                  <div class="bg-white p-4 border-t border-gray-200 rounded-b-lg shadow-md mb-4 transition-all duration-300 ease-in-out">
+                  <div class="bg-white p-4 border-x border-b border-gray-100 rounded-b-lg shadow-sm mb-3 -mt-3 transition-all duration-300 ease-in-out">
                     <div class="flex items-start">
                       <span class="material-icons text-gray-400 mr-2 mt-0.5">message</span>
                       <div>
