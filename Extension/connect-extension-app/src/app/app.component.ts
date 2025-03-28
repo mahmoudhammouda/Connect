@@ -99,16 +99,14 @@ interface Consultant {
               *ngFor="let consultant of displayedConsultants"
               class="hover:bg-gray-50 transition-colors duration-150 relative shadow-md rounded-lg overflow-hidden border border-gray-100 mb-3 bg-white"
             >
-              <td class="px-6 py-4 whitespace-nowrap relative border-r border-gray-100">
-                <!-- ID in top-left corner -->
-                <span class="absolute top-2 left-2 text-xs text-gray-400">{{consultant.id}}</span>
-                
-                <div class="flex items-center">
+              <td class="px-3 py-4 whitespace-nowrap relative border-r border-gray-100 w-16">
+                <div class="flex flex-col items-center justify-center">
                   <span 
                     class="material-icons text-sm"
                     [class]="consultant.locked ? 'text-red-500' : 'text-green-500'"
                     [title]="getLockTitle(consultant)"
                   >{{getLockIcon(consultant)}}</span>
+                  <span class="text-xs text-gray-400 mt-1">#{{consultant.id.substring(0, 4)}}</span>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap border-r border-gray-100">

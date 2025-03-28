@@ -9,13 +9,7 @@ $extensionName = "Connect Extension App"
 $extensionVersion = "1.0.0"
 $extensionDescription = "Extension Chrome affichant une liste de consultants dans un panneau latéral"
 
-# Vérifier si le répertoire du projet Angular existe
-if (-not (Test-Path $angularAppPath)) {
-    Write-Error "Le répertoire du projet Angular '$angularAppPath' n'existe pas."
-    exit 1
-}
-
-# Fonction pour créer le fichier manifest.json
+# Fonctions utilitaires
 function Create-ManifestJson {
     param (
         [string]$path,
@@ -23,6 +17,12 @@ function Create-ManifestJson {
         [string]$version,
         [string]$description
     )
+
+    # Vérifier si le fichier manifest.json existe déjà
+    if (Test-Path "$path\manifest.json") {
+        Write-Host "Le fichier manifest.json existe déjà, il ne sera pas modifié."
+        return
+    }
 
     $manifest = @{
         manifest_version = 3
@@ -52,7 +52,6 @@ function Create-ManifestJson {
     Write-Host "Fichier manifest.json créé avec succès."
 }
 
-# Fonction pour créer le fichier sidebar.html
 function Create-SidebarHtml {
     param (
         [string]$path,
@@ -61,6 +60,18 @@ function Create-SidebarHtml {
         [string]$polyfillsJsFile,
         [string]$stylesFile
     )
+
+    # Vérifier si le fichier sidebar.html existe déjà
+    if (Test-Path "$path\sidebar.html") {
+        # Mettre à jour uniquement les références aux fichiers JS et CSS
+        $content = Get-Content -Path "$path\sidebar.html" -Raw
+        $content = $content -replace 'href="styles-[^"]+\.css"', "href=""$stylesFile"""
+        $content = $content -replace 'src="polyfills-[^"]+\.js"', "src=""$polyfillsJsFile"""
+        $content = $content -replace 'src="main-[^"]+\.js"', "src=""$mainJsFile"""
+        Set-Content -Path "$path\sidebar.html" -Value $content
+        Write-Host "Fichier sidebar.html mis à jour avec les nouveaux fichiers JS et CSS."
+        return
+    }
 
     $sidebarHtml = @"
 <!DOCTYPE html>
@@ -150,32 +161,33 @@ function Create-SidebarHtml {
     Write-Host "Fichier sidebar.html créé avec succès."
 }
 
-# Fonction pour créer des icônes simples
 function Create-PlaceholderIcons {
     param (
         [string]$path
     )
 
-    # Utiliser l'icône favicon.ico existante au lieu de créer des fichiers vides
+    # Vérifier si les icônes existent déjà
+    if ((Test-Path "$path\icon16.png") -and (Test-Path "$path\icon48.png") -and (Test-Path "$path\icon128.png")) {
+        Write-Host "Les icônes existent déjà, elles ne seront pas recréées."
+        return
+    }
+
+    # Créer des icônes simples à partir du favicon.ico
     if (Test-Path "$path\favicon.ico") {
-        # Copier favicon.ico vers les fichiers d'icônes
-        Copy-Item -Path "$path\favicon.ico" -Destination "$path\icon16.png" -Force
-        Copy-Item -Path "$path\favicon.ico" -Destination "$path\icon48.png" -Force
-        Copy-Item -Path "$path\favicon.ico" -Destination "$path\icon128.png" -Force
+        # Copier le favicon.ico pour les différentes tailles d'icônes
+        Copy-Item -Path "$path\favicon.ico" -Destination "$path\icon16.png"
+        Copy-Item -Path "$path\favicon.ico" -Destination "$path\icon48.png"
+        Copy-Item -Path "$path\favicon.ico" -Destination "$path\icon128.png"
         Write-Host "Icônes créées à partir de favicon.ico avec succès."
     } else {
-        # Si favicon.ico n'existe pas, on peut utiliser une autre approche
-        # Par exemple, télécharger des icônes par défaut ou créer des PNG simples
-        # Pour cet exemple, nous allons simplement désactiver les icônes dans le manifest
-        $manifestPath = "$path\manifest.json"
-        if (Test-Path $manifestPath) {
-            $manifest = Get-Content -Path $manifestPath | ConvertFrom-Json
-            $manifest.PSObject.Properties.Remove("icons")
-            $manifestJson = ConvertTo-Json $manifest -Depth 10
-            Set-Content -Path $manifestPath -Value $manifestJson
-            Write-Host "Icônes désactivées dans le manifest.json."
-        }
+        Write-Warning "favicon.ico non trouvé. Les icônes n'ont pas été créées."
     }
+}
+
+# Vérifier si le répertoire du projet Angular existe
+if (-not (Test-Path $angularAppPath)) {
+    Write-Error "Le répertoire du projet Angular '$angularAppPath' n'existe pas."
+    exit 1
 }
 
 # Étape 1: Construire l'application Angular en mode production
@@ -195,20 +207,63 @@ if ($LASTEXITCODE -ne 0) {
 Set-Location ..
 Write-Host "Application Angular construite avec succès."
 
-# Étape 2: Créer ou vider le répertoire de l'extension Chrome
+# Étape 2: Préparer le répertoire de l'extension Chrome
 Write-Host "Étape 2: Préparation du répertoire de l'extension Chrome..."
-if (Test-Path $extensionPath) {
-    # Vider le répertoire
-    Remove-Item "$extensionPath\*" -Recurse -Force
-} else {
-    # Créer le répertoire
-    New-Item -Path $extensionPath -ItemType Directory | Out-Null
+# Sauvegarder les fichiers importants s'ils existent
+$manifestExists = Test-Path "$extensionPath\manifest.json"
+$sidebarExists = Test-Path "$extensionPath\sidebar.html"
+$icon16Exists = Test-Path "$extensionPath\icon16.png"
+$icon48Exists = Test-Path "$extensionPath\icon48.png"
+$icon128Exists = Test-Path "$extensionPath\icon128.png"
+
+if ($manifestExists) {
+    Copy-Item -Path "$extensionPath\manifest.json" -Destination "$env:TEMP\manifest.json" -Force
 }
+if ($sidebarExists) {
+    Copy-Item -Path "$extensionPath\sidebar.html" -Destination "$env:TEMP\sidebar.html" -Force
+}
+if ($icon16Exists) {
+    Copy-Item -Path "$extensionPath\icon16.png" -Destination "$env:TEMP\icon16.png" -Force
+}
+if ($icon48Exists) {
+    Copy-Item -Path "$extensionPath\icon48.png" -Destination "$env:TEMP\icon48.png" -Force
+}
+if ($icon128Exists) {
+    Copy-Item -Path "$extensionPath\icon128.png" -Destination "$env:TEMP\icon128.png" -Force
+}
+
+if (Test-Path $extensionPath) {
+    Remove-Item -Path $extensionPath -Recurse -Force
+}
+New-Item -Path $extensionPath -ItemType Directory | Out-Null
+
+# Restaurer les fichiers importants
+if ($manifestExists) {
+    Copy-Item -Path "$env:TEMP\manifest.json" -Destination "$extensionPath\manifest.json" -Force
+}
+if ($sidebarExists) {
+    Copy-Item -Path "$env:TEMP\sidebar.html" -Destination "$extensionPath\sidebar.html" -Force
+}
+if ($icon16Exists) {
+    Copy-Item -Path "$env:TEMP\icon16.png" -Destination "$extensionPath\icon16.png" -Force
+}
+if ($icon48Exists) {
+    Copy-Item -Path "$env:TEMP\icon48.png" -Destination "$extensionPath\icon48.png" -Force
+}
+if ($icon128Exists) {
+    Copy-Item -Path "$env:TEMP\icon128.png" -Destination "$extensionPath\icon128.png" -Force
+}
+
 Write-Host "Répertoire de l'extension préparé avec succès."
 
-# Étape 3: Identifier les fichiers JavaScript et CSS générés
+# Étape 3: Identifier les fichiers générés par Angular
 Write-Host "Étape 3: Identification des fichiers générés..."
 $browserDir = "$angularAppPath\dist\$angularAppPath\browser"
+if (-not (Test-Path $browserDir)) {
+    Write-Error "Le répertoire du build Angular '$browserDir' n'existe pas."
+    exit 1
+}
+
 $mainJsFile = Get-ChildItem -Path $browserDir -Filter "main-*.js" | Select-Object -ExpandProperty Name
 $polyfillsJsFile = Get-ChildItem -Path $browserDir -Filter "polyfills-*.js" | Select-Object -ExpandProperty Name
 $stylesFile = Get-ChildItem -Path $browserDir -Filter "styles-*.css" | Select-Object -ExpandProperty Name
@@ -221,10 +276,12 @@ Write-Host "Fichiers identifiés: $mainJsFile, $polyfillsJsFile, $stylesFile"
 
 # Étape 4: Copier les fichiers nécessaires du build Angular vers le répertoire de l'extension
 Write-Host "Étape 4: Copie des fichiers du build Angular vers le répertoire de l'extension..."
-Copy-Item -Path "$browserDir\*" -Destination $extensionPath -Recurse
+# Exclure les fichiers que nous voulons conserver
+$excludeFiles = @("manifest.json", "sidebar.html", "icon16.png", "icon48.png", "icon128.png")
+Get-ChildItem -Path $browserDir | Where-Object { $excludeFiles -notcontains $_.Name } | Copy-Item -Destination $extensionPath -Recurse
 Write-Host "Fichiers copiés avec succès."
 
-# Étape 5: Créer les fichiers spécifiques à l'extension
+# Étape 5: Créer les fichiers spécifiques à l'extension (seulement s'ils n'existent pas déjà)
 Write-Host "Étape 5: Création des fichiers spécifiques à l'extension..."
 Create-ManifestJson -path $extensionPath -name $extensionName -version $extensionVersion -description $extensionDescription
 Create-SidebarHtml -path $extensionPath -title $extensionName -mainJsFile $mainJsFile -polyfillsJsFile $polyfillsJsFile -stylesFile $stylesFile
