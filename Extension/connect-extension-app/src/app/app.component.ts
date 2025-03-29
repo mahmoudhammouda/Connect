@@ -7,14 +7,11 @@ declare namespace chrome {
   namespace tabs {
     function query(queryInfo: any, callback: (tabs: any[]) => void): void;
     function update(tabId: number, updateProperties: { url?: string }): void;
-    function create(createProperties: { url: string }): void;
   }
 }
 
 interface Consultant {
   id: string;
-  firstName: string;
-  lastName: string;
   role: string;
   linkedinUrl: string;
   phone: string | null;
@@ -27,7 +24,6 @@ interface Consultant {
   emailValidated: boolean;
   linkedinValidated: boolean;
   availability: 'available' | 'soon' | 'unavailable';
-  mobility: string[]; // Lieux où le consultant souhaite travailler
   message: string; // Message personnalisé du consultant
 }
 
@@ -36,7 +32,7 @@ interface Consultant {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="container mx-auto p-4 bg-gray-100 min-h-screen flex flex-col pr-6">
+    <div class="container mx-auto p-4 bg-gray-100 min-h-screen flex flex-col pr-10">
       <!-- Search and Filter Bar -->
       <div class="sticky top-0 bg-white z-10 mb-6 p-4 rounded-lg shadow-md border border-gray-100">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -63,8 +59,7 @@ interface Consultant {
               >
                 <option value="">Tous les types</option>
                 <option value="Freelance">Freelance</option>
-                <option value="Salarié">Salarié</option>
-                <option value="Portage">Portage</option>
+                <option value="Permanent">Permanent</option>
               </select>
               <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <span class="material-icons text-gray-400 text-base">business</span>
@@ -102,21 +97,21 @@ interface Consultant {
         <table class="min-w-full table-fixed border-separate border-spacing-y-3 bg-gray-100">
           <tbody>
             <ng-container *ngFor="let consultant of displayedConsultants">
+              <!-- Carte du consultant -->
               <tr 
-                class="relative shadow-sm overflow-hidden border border-gray-100 mb-0 bg-white hover:bg-gray-50 cursor-pointer rounded-t-lg"
-                (click)="toggleConsultantExpansion(consultant.id)"
+                class="relative shadow-sm rounded-t-lg overflow-hidden border border-gray-100 mb-0 bg-white hover:bg-gray-50"
               >
-                <td class="relative pl-6 pr-3 py-3 border-r border-gray-100 w-16">
+                <td class="px-6 py-4 whitespace-nowrap relative border-r border-gray-100 w-16">
                   <div class="flex flex-col items-center justify-center">
                     <span 
                       class="material-icons text-sm"
                       [class]="consultant.locked ? 'text-red-500' : 'text-green-500'"
                       [title]="getLockTitle(consultant)"
                     >{{getLockIcon(consultant)}}</span>
-                    <span class="text-xs text-gray-400 mt-1">#{{consultant.id.substring(0, 4)}}</span>
+                    <span class="text-xs text-gray-400 mt-1">#{{consultant.id}}</span>
                   </div>
                 </td>
-                <td class="px-6 py-3 whitespace-nowrap border-r border-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap border-r border-gray-100">
                   <div class="font-medium text-gray-900 truncate max-w-[200px] flex items-center gap-2">
                     <!-- Availability indicator (like Teams) -->
                     <div 
@@ -130,8 +125,7 @@ interface Consultant {
                     ></div>
                     {{consultant.role}}
                   </div>
-                  
-                  <!-- Experience and skills on second line -->
+                  <!-- Skills on second line -->
                   <div class="flex flex-wrap gap-1 mt-1 items-center">
                     <!-- Seniority indicator -->
                     <div class="flex gap-0.5 mr-2">
@@ -151,31 +145,20 @@ interface Consultant {
                         <div class="w-1.5 h-4 bg-blue-500 rounded"></div>
                       </div>
                     </div>
-                    
-                    <!-- Skills -->
-                    <span 
-                      *ngFor="let skill of consultant.skills.slice(0, 3)" 
-                      class="text-xs px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-700"
-                    >
+                    <span *ngFor="let skill of consultant.skills.slice(0, 3)" class="bg-gray-100 px-1.5 py-0 rounded-sm text-xs text-gray-700">
                       {{skill}}
                     </span>
-                    <span *ngIf="consultant.skills.length > 3" class="text-xs text-gray-500">+{{consultant.skills.length - 3}}</span>
-                  </div>
-                  
-                  <!-- Mobility indicator on third line -->
-                  <div class="flex flex-wrap gap-1 mt-0.5 items-center">
-                    <span class="material-icons text-gray-400" style="font-size: 10px;">location_on</span>
-                    <span class="text-[10px] text-gray-500">{{consultant.mobility.join(' • ')}}</span>
+                    <span *ngIf="consultant.skills.length > 3" class="text-gray-500 text-xs">+{{consultant.skills.length - 3}}</span>
                   </div>
                 </td>
-                <td class="px-6 py-3 whitespace-nowrap border-r border-gray-100">
+                <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-3 justify-end">
                     <!-- Action buttons group - visible on desktop -->
-                    <div class="hidden sm:flex items-center gap-3">
+                    <div class="hidden md:flex items-center gap-3">
                       <!-- LinkedIn button -->
                       <button
                         class="w-6 h-6 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center"
-                        (click)="openLinkedIn(consultant.linkedinUrl, $event)"
+                        (click)="openLinkedIn(consultant.linkedinUrl)"
                         title="Voir le profil LinkedIn"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
@@ -188,7 +171,7 @@ interface Consultant {
                         class="w-6 h-6 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200 flex items-center justify-center"
                         [class.opacity-50]="!consultant.phoneValidated"
                         [disabled]="!consultant.phoneValidated"
-                        (click)="showPhone(consultant.phone, $event)"
+                        (click)="showPhone(consultant.phone)"
                         title="Appeler"
                       >
                         <span class="material-icons text-xs">phone</span>
@@ -199,7 +182,7 @@ interface Consultant {
                         class="w-6 h-6 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors duration-200 flex items-center justify-center"
                         [class.opacity-50]="!consultant.emailValidated"
                         [disabled]="!consultant.emailValidated"
-                        (click)="sendEmail(consultant.email, $event)"
+                        (click)="sendEmail(consultant.email)"
                         title="Envoyer un email"
                       >
                         <span class="material-icons text-xs">email</span>
@@ -207,7 +190,7 @@ interface Consultant {
                     </div>
                     
                     <!-- Dropdown button - visible on mobile -->
-                    <div class="relative sm:hidden">
+                    <div class="md:hidden relative">
                       <button
                         class="w-6 h-6 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center"
                         (click)="toggleDropdown(consultant.id, $event)"
@@ -219,46 +202,58 @@ interface Consultant {
                       <!-- Dropdown menu -->
                       <div 
                         *ngIf="dropdownOpen[consultant.id]"
-                        class="absolute z-10 bg-white shadow-md rounded-lg p-2 w-48 right-0 top-full mt-1 dropdown-menu"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200"
+                        (click)="$event.stopPropagation()"
                       >
-                        <button 
-                          class="block w-full text-left py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
-                          (click)="openLinkedIn(consultant.linkedinUrl, $event)"
-                        >
-                          <span class="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="white" viewBox="0 0 24 24">
-                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                            </svg>
-                          </span>
-                          Voir le profil LinkedIn
-                        </button>
-                        <button 
-                          class="block w-full text-left py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
-                          [class.opacity-50]="!consultant.phoneValidated"
-                          [disabled]="!consultant.phoneValidated"
-                          (click)="showPhone(consultant.phone, $event)"
-                        >
-                          <span class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                            <span class="material-icons text-white" style="font-size: 10px;">phone</span>
-                          </span>
-                          Appeler
-                        </button>
-                        <button 
-                          class="block w-full text-left py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center gap-2"
-                          [class.opacity-50]="!consultant.emailValidated"
-                          [disabled]="!consultant.emailValidated"
-                          (click)="sendEmail(consultant.email, $event)"
-                        >
-                          <span class="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                            <span class="material-icons text-white" style="font-size: 10px;">email</span>
-                          </span>
-                          Envoyer un email
-                        </button>
+                        <div class="py-1">
+                          <!-- LinkedIn option -->
+                          <a 
+                            href="javascript:void(0)" 
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            (click)="openLinkedIn(consultant.linkedinUrl); closeDropdown()"
+                          >
+                            <span class="flex-shrink-0 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center mr-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="white" viewBox="0 0 24 24">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                              </svg>
+                            </span>
+                            Voir le profil LinkedIn
+                          </a>
+                          
+                          <!-- Phone option -->
+                          <a 
+                            href="javascript:void(0)" 
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            [class.opacity-50]="!consultant.phoneValidated"
+                            [class.pointer-events-none]="!consultant.phoneValidated"
+                            (click)="showPhone(consultant.phone); closeDropdown()"
+                          >
+                            <span class="flex-shrink-0 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mr-2">
+                              <span class="material-icons text-white" style="font-size: 10px;">phone</span>
+                            </span>
+                            Appeler
+                          </a>
+                          
+                          <!-- Email option -->
+                          <a 
+                            href="javascript:void(0)" 
+                            class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            [class.opacity-50]="!consultant.emailValidated"
+                            [class.pointer-events-none]="!consultant.emailValidated"
+                            (click)="sendEmail(consultant.email); closeDropdown()"
+                          >
+                            <span class="flex-shrink-0 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center mr-2">
+                              <span class="material-icons text-white" style="font-size: 10px;">email</span>
+                            </span>
+                            Envoyer un email
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </td>
               </tr>
+              
               <!-- Message du consultant - collé à la carte -->
               <tr>
                 <td colspan="3" class="p-0">
@@ -283,7 +278,6 @@ interface Consultant {
         <div *ngIf="isLoadingMore && hasMoreConsultants" class="flex justify-center mt-4 mb-6">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-
       </div>
 
       <!-- Loading Indicator -->
@@ -371,15 +365,9 @@ export class AppComponent {
   filteredConsultants: Consultant[] = [];
   displayedConsultants: Consultant[] = [];
 
-  // État d'expansion pour chaque consultant
-  expandedConsultant: { [key: string]: boolean } = {};
-  
-  // État du menu déroulant pour chaque consultant
-  dropdownOpen: { [key: string]: boolean } = {};
-  
-  // Détecte si l'écran est en mode mobile
-  isMobileView: boolean = false;
-  
+  // État du menu déroulant
+  dropdownOpen: { [id: string]: boolean } = {};
+
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.generateConsultants();
@@ -390,66 +378,15 @@ export class AppComponent {
       // Utiliser un délai pour s'assurer que le DOM est prêt
       setTimeout(() => {
         this.setupScrollListener();
-        this.checkScreenSize();
       }, 500);
-      
-      // Écouter les changements de taille d'écran
-      window.addEventListener('resize', this.checkScreenSize.bind(this));
     }
-  }
-  
-  // Vérifie la taille de l'écran pour déterminer si on est en mode mobile
-  checkScreenSize() {
-    if (this.isBrowser) {
-      this.isMobileView = window.innerWidth < 640; // 640px est la limite pour sm dans Tailwind
-    }
-  }
-  
-  // Ouvre ou ferme le menu déroulant pour un consultant
-  toggleDropdown(consultantId: string, event: Event) {
-    if (!this.isBrowser) return;
-    
-    event.stopPropagation(); // Empêche la propagation de l'événement
-    
-    // Ferme tous les autres menus déroulants
-    Object.keys(this.dropdownOpen).forEach(id => {
-      if (id !== consultantId) {
-        this.dropdownOpen[id] = false;
-      }
-    });
-    
-    // Bascule l'état du menu pour ce consultant
-    this.dropdownOpen[consultantId] = !this.dropdownOpen[consultantId];
-  }
-  
-  // Ferme tous les menus déroulants
-  closeAllDropdowns(event?: Event) {
-    if (!this.isBrowser) return;
-    
-    if (event) {
-      if (event.target instanceof Element) {
-        const target = event.target as Element;
-        if (target.closest('.dropdown-menu') || target.closest('button[title="Plus d\'actions"]')) {
-          return;
-        }
-      }
-    }
-    
-    Object.keys(this.dropdownOpen).forEach(id => {
-      this.dropdownOpen[id] = false;
-    });
   }
   
   // Configure l'écouteur de défilement pour l'extension Chrome
   setupScrollListener() {
-    if (!this.isBrowser) return;
-    
     // Ajouter un écouteur d'événement de défilement à la fenêtre et au document
     window.addEventListener('scroll', this.handleScroll.bind(this));
     document.addEventListener('scroll', this.handleScroll.bind(this));
-    
-    // Ajouter un écouteur d'événement pour fermer les menus déroulants lors d'un clic en dehors
-    document.addEventListener('click', this.closeAllDropdowns.bind(this));
     
     // Également vérifier périodiquement si nous sommes près du bas
     // Cela aide dans les environnements où les événements de défilement peuvent ne pas se déclencher correctement
@@ -458,180 +395,107 @@ export class AppComponent {
     }, 1000);
   }
   
-  // Gère l'événement de défilement
-  handleScroll() {
-    if (!this.isBrowser) return;
-    
-    this.checkScrollPosition();
-  }
-  
   // Vérifie si nous sommes près du bas de la page
   checkScrollPosition() {
-    if (!this.isBrowser) return;
+    if (!this.isBrowser || this.isLoadingMore || !this.hasMoreConsultants) {
+      return;
+    }
     
-    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
+    const scrollHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight
+    );
     
-    // Si nous sommes à moins de 200px du bas, charger plus de consultants
-    if (documentHeight - (scrollPosition + windowHeight) < 200) {
+    const scrollTop = Math.max(
+      window.pageYOffset,
+      document.documentElement.scrollTop,
+      document.body.scrollTop
+    );
+    
+    const clientHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    
+    // Si nous sommes à moins de 200px du bas
+    if (scrollHeight - scrollTop - clientHeight < 200) {
       this.loadMoreConsultants();
     }
   }
 
-  // Bascule l'état d'expansion pour un consultant
-  toggleConsultantExpansion(consultantId: string) {
-    // Ferme tous les menus déroulants
-    this.closeAllDropdowns();
-    
-    // Bascule l'état d'expansion pour ce consultant
-    this.expandedConsultant[consultantId] = !this.expandedConsultant[consultantId];
-    
-    // Ferme tous les autres consultants
-    Object.keys(this.expandedConsultant).forEach(id => {
-      if (id !== consultantId) {
-        this.expandedConsultant[id] = false;
-      }
-    });
+  // Écouteur d'événement de défilement
+  handleScroll() {
+    this.checkScrollPosition();
   }
   
   // Génère une liste de consultants fictifs
   generateConsultants() {
     const roles = [
-      'Développeur Frontend', 
-      'Développeur Backend', 
-      'DevOps Engineer', 
-      'Data Scientist', 
-      'UX Designer',
-      'Product Owner',
-      'Scrum Master',
-      'Architecte Solution',
-      'Ingénieur QA',
-      'Chef de Projet IT'
+      'Développeur Frontend Angular', 'Développeur Backend Java', 'DevOps Engineer', 
+      'Data Scientist', 'UX Designer', 'Product Owner', 'Scrum Master', 
+      'Développeur Full Stack', 'Architecte Solution', 'Ingénieur QA',
+      'Développeur React', 'Développeur Node.js', 'Développeur Python',
+      'Architecte Cloud', 'Ingénieur Big Data', 'Développeur Mobile',
+      'Administrateur Système', 'Développeur .NET', 'Chef de Projet IT',
+      'Consultant Cybersécurité'
     ];
     
-    const firstNames = [
-      'Thomas', 'Julie', 'Nicolas', 'Sophie', 'Alexandre',
-      'Emma', 'Maxime', 'Camille', 'Antoine', 'Léa',
-      'Lucas', 'Chloé', 'Hugo', 'Inès', 'Gabriel',
-      'Manon', 'Louis', 'Sarah', 'Raphaël', 'Jade'
-    ];
+    const types = ['Freelance', 'Permanent'];
     
-    const lastNames = [
-      'Martin', 'Bernard', 'Dubois', 'Thomas', 'Robert',
-      'Richard', 'Petit', 'Durand', 'Leroy', 'Moreau',
-      'Simon', 'Laurent', 'Lefebvre', 'Michel', 'Garcia',
-      'David', 'Bertrand', 'Roux', 'Vincent', 'Fournier'
-    ];
-    
-    const skills = [
-      'JavaScript', 'TypeScript', 'React', 'Angular', 'Vue.js',
-      'Node.js', 'Python', 'Java', 'C#', '.NET',
-      'AWS', 'Azure', 'Docker', 'Kubernetes', 'CI/CD',
-      'SQL', 'NoSQL', 'MongoDB', 'Redis', 'GraphQL',
-      'TDD', 'Agile', 'Scrum', 'Kanban', 'DevOps'
-    ];
-    
-    const types = ['Freelance', 'Salarié', 'Portage'];
     const experiences = ['less_than_3', 'between_3_and_10', 'more_than_10'];
+    
     const availabilities = ['available', 'soon', 'unavailable'];
     
-    // Options de mobilité
-    const mobilityOptions = [
-      ['Full Remote'],
-      ['Île-de-France'],
-      ['Paris'],
-      ['Lyon'],
-      ['Marseille'],
-      ['Bordeaux'],
-      ['Toulouse'],
-      ['Nantes'],
-      ['Lille'],
-      ['Strasbourg'],
-      ['Full Remote', 'Île-de-France'],
-      ['Paris', 'Lyon'],
-      ['Bordeaux', 'Toulouse'],
-      ['Île-de-France', 'Lyon'],
-      ['Full Remote', 'Paris'],
-      ['Marseille', 'Nice'],
-      ['Lille', 'Paris'],
-      ['Nantes', 'Bordeaux'],
-      ['Strasbourg', 'Lyon'],
-      ['Full Remote', 'Marseille']
+    const skillsPool = [
+      'Angular', 'React', 'Vue.js', 'JavaScript', 'TypeScript', 'HTML', 'CSS',
+      'Java', 'Spring', 'Python', 'Django', 'Flask', 'Node.js', 'Express',
+      'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'CI/CD', 'Git',
+      'SQL', 'NoSQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis',
+      'REST API', 'GraphQL', 'Microservices', 'TDD', 'Agile', 'Scrum',
+      '.NET', 'C#', 'PHP', 'Laravel', 'Ruby', 'Rails', 'Go', 'Rust',
+      'Mobile', 'iOS', 'Android', 'React Native', 'Flutter', 'Kotlin', 'Swift',
+      'UI/UX', 'Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator',
+      'DevOps', 'Jenkins', 'Terraform', 'Ansible', 'Prometheus', 'Grafana',
+      'Machine Learning', 'Deep Learning', 'TensorFlow', 'PyTorch', 'NLP',
+      'Big Data', 'Hadoop', 'Spark', 'Kafka', 'ELK Stack', 'Tableau', 'Power BI'
     ];
     
-    // Messages personnalisés avec hashtags
-    const messages = [
-      'Je suis disponible pour des missions de développement frontend avec React et TypeScript. #react #typescript #frontend',
-      'Développeur backend Java avec 8 ans d\'expérience, je recherche des missions dans le secteur bancaire. #java #spring #banking',
-      'Expert en architecture cloud AWS, je suis disponible pour des missions de transformation digitale. #aws #cloud #devops',
-      'Développeur fullstack .NET/Angular avec une forte expérience en développement d\'applications métier. #dotnet #angular #fullstack',
-      'Je suis un développeur Python spécialisé en data science et machine learning. #python #datascience #machinelearning',
-      'Architecte solution avec 12 ans d\'expérience, je peux vous aider à moderniser votre infrastructure IT. #architecture #cloud #agile',
-      'Développeur mobile natif (iOS/Android) disponible pour des missions de développement d\'applications mobiles. #ios #android #mobile',
-      'Expert en cybersécurité avec expérience dans le secteur financier, disponible pour des missions d\'audit et de conseil. #security #audit #fintech',
-      'UX/UI Designer avec une approche centrée utilisateur, je peux améliorer l\'expérience de vos applications. #ux #ui #design',
-      'DevOps engineer spécialisé en CI/CD et automatisation, je peux optimiser vos pipelines de déploiement. #devops #cicd #kubernetes',
-    ];
-    
-    // Générer 40 consultants fictifs
+    // Génère 40 consultants
     for (let i = 1; i <= 40; i++) {
       const randomRole = roles[Math.floor(Math.random() * roles.length)];
-      const randomSkillsCount = Math.floor(Math.random() * 5) + 2; // 2 à 6 compétences
-      const randomSkills: string[] = [];
+      const randomType = types[Math.floor(Math.random() * types.length)];
+      const randomExperience = experiences[Math.floor(Math.random() * experiences.length)];
+      const randomAvailability = availabilities[Math.floor(Math.random() * availabilities.length)];
       
-      // Sélectionner des compétences aléatoires
-      while (randomSkills.length < randomSkillsCount) {
-        const skill = skills[Math.floor(Math.random() * skills.length)];
-        if (!randomSkills.includes(skill)) {
-          randomSkills.push(skill);
-        }
-      }
+      // Génère 2-6 compétences aléatoires
+      const numSkills = Math.floor(Math.random() * 5) + 2;
+      const shuffledSkills = [...skillsPool].sort(() => 0.5 - Math.random());
+      const randomSkills = shuffledSkills.slice(0, numSkills);
       
-      const type = types[Math.floor(Math.random() * types.length)];
-      const experience = experiences[Math.floor(Math.random() * experiences.length)] as 'less_than_3' | 'between_3_and_10' | 'more_than_10';
-      const availability = availabilities[Math.floor(Math.random() * availabilities.length)] as 'available' | 'soon' | 'unavailable';
-      
-      // Validation des informations de contact (aléatoire)
+      // Génère des valeurs aléatoires pour les validations
       const phoneValidated = Math.random() > 0.3;
-      const emailValidated = Math.random() > 0.2;
+      const emailValidated = Math.random() > 0.3;
       const linkedinValidated = Math.random() > 0.2;
       const locked = Math.random() > 0.7;
       
-      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-      
-      // Générer un ID unique avec un numéro à 7 chiffres
-      const uniqueId = (1000000 + i).toString();
-      
-      // Sélectionner une option de mobilité aléatoire
-      const mobility = mobilityOptions[Math.floor(Math.random() * mobilityOptions.length)];
-      
-      // Sélectionner un message personnalisé aléatoire
-      const message = messages[Math.floor(Math.random() * messages.length)];
-      
       this.allConsultants.push({
-        id: uniqueId,
-        firstName: firstName,
-        lastName: lastName,
+        id: `C${i.toString().padStart(3, '0')}`,
         role: randomRole,
         linkedinUrl: 'https://www.linkedin.com/in/example-profile/',
         phone: phoneValidated ? '+33 6 12 34 56 78' : null,
-        email: emailValidated ? 'contact@example.com' : null,
+        email: emailValidated ? 'consultant@example.com' : null,
         locked: locked,
-        type: type,
+        type: randomType,
         skills: randomSkills,
-        experience: experience,
+        experience: randomExperience as any,
         phoneValidated: phoneValidated,
         emailValidated: emailValidated,
         linkedinValidated: linkedinValidated,
-        availability: availability,
-        mobility: mobility,
-        message: message
+        availability: randomAvailability as any,
+        message: `Bonjour, je suis ${randomRole} avec ${numSkills} compétences clés dont ${randomSkills.slice(0, 3).join(', ')}. Je recherche des missions ${randomType === 'Freelance' ? 'en freelance' : 'en CDI'} et je suis ${randomAvailability === 'available' ? 'disponible immédiatement' : randomAvailability === 'soon' ? 'disponible prochainement' : 'actuellement en mission'}. #${randomSkills[0]} #${randomSkills.length > 1 ? randomSkills[1] : ''}`
       });
     }
-    
-    console.log(`Consultants générés: ${this.allConsultants.length}`);
   }
   
   // Filtre les consultants selon les critères de recherche
@@ -693,54 +557,45 @@ export class AppComponent {
     }, 800);
   }
   
-  // Ouvre le profil LinkedIn du consultant
-  openLinkedIn(url: string, event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
+  // Ouvre le profil LinkedIn
+  openLinkedIn(url: string) {
+    // Ne rien faire si nous ne sommes pas dans un navigateur
+    if (!this.isBrowser) return;
     
-    if (this.isBrowser) {
-      try {
-        // Utiliser l'API Chrome pour ouvrir l'URL dans un nouvel onglet
-        if (typeof chrome !== 'undefined' && chrome.tabs) {
-          chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-            if (tabs && tabs.length > 0) {
-              chrome.tabs.update(tabs[0].id, { url: url });
-            } else {
-              window.open(url, '_blank');
-            }
-          });
-        } else {
-          // Fallback pour le navigateur standard
-          window.open(url, '_blank');
-        }
-      } catch (e) {
-        // En cas d'erreur, utiliser la méthode standard
+    // Méthode sécurisée pour ouvrir un lien
+    try {
+      // Vérifier si nous sommes dans une extension Chrome
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.query) {
+        // Utiliser l'API chrome.tabs de manière sécurisée
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+          if (tabs && tabs.length > 0) {
+            chrome.tabs.update(tabs[0].id, { url: url });
+          } else {
+            window.open(url, '_blank');
+          }
+        });
+      } else {
+        // Fallback si nous ne sommes pas dans une extension Chrome
         window.open(url, '_blank');
       }
+    } catch (e) {
+      // En cas d'erreur, utiliser la méthode standard
+      window.open(url, '_blank');
     }
   }
   
-  // Affiche le numéro de téléphone du consultant
-  showPhone(phone: string | null, event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
+  // Affiche le numéro de téléphone
+  showPhone(phone: string | null) {
+    if (!this.isBrowser || !phone) return;
     
-    if (phone) {
-      alert(`Numéro de téléphone: ${phone}`);
-    }
+    alert(`Numéro de téléphone: ${phone}`);
   }
   
-  // Envoie un email au consultant
-  sendEmail(email: string | null, event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
+  // Envoie un email
+  sendEmail(email: string | null) {
+    if (!this.isBrowser || !email) return;
     
-    if (email) {
-      window.location.href = `mailto:${email}`;
-    }
+    window.open(`mailto:${email}`);
   }
   
   // Obtient l'icône de verrouillage
@@ -778,5 +633,18 @@ export class AppComponent {
     }
     
     return tags;
+  }
+
+  // Affiche ou masque le menu déroulant
+  toggleDropdown(id: string, event: MouseEvent) {
+    event.stopPropagation();
+    this.dropdownOpen[id] = !this.dropdownOpen[id];
+  }
+
+  // Ferme le menu déroulant
+  closeDropdown() {
+    Object.keys(this.dropdownOpen).forEach(id => {
+      this.dropdownOpen[id] = false;
+    });
   }
 }
